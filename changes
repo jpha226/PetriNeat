@@ -1,0 +1,6 @@
+pneatmain.cpp:
+	1) NEAT::Population petrinet_test(int)
+
+experiments.h:
+	1) bool petrinet_evaluate(Organism*);
+	2) int petrinet_epoch(Population*, int, char*, int&, int&,int&);
