@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "experiments.h"
+#include "simulatorInterface.h"
 #include <cstring>
 
 // Perform evolution for Petri Nets, for gens generations
@@ -136,15 +137,47 @@ Population *petrinet_test(int gens) {
 
 }
 
-bool petrinet_evaluate(Organism *org) {
+float petrinet_evaluate(Organism *org) {
 
 	/* 
 	*
 	* This function is where we need to interact with our simulator 
 	* in order to evaluate the petrinet (organism) provided as an argument
 	*/
+		
+	Network *network = org->net;
+	std::vector<int> actions;
+	// For testing purposes {Read note below}
+	actions.push_back(0);
+	actions.push_back(0);
+	actions.push_back(1);
+	actions.push_back(1);
+	actions.push_back(2);
+	actions.push_back(1);
+	
+	int maxIterations = 50;
+	bool fired = true;
+	// Iterate for the max number of iterations or until no transition was fired
+	/*	I'm not sure what approach we want to take for this, I'm leaving this as a placeholder
+	for(int iteration = 0; iteration < maxIterations && fired; interation++) {
+		fired = false;
+		for(int i = 0; i < network->transitions.size(); i++) {
+			// If a transition is enabled, then fire it
+			if(network->isEnabled(network->transitions[i]) {
+				network->fire(network->transisions[i]);
+				actions.add(network->transitions[i]->action_ID);				
+				fired = true;			
+			}
+		}
+	} */
 
-	return false;
+	SimulatorInterface si(&actions);	
+	//si.runSimulation();
+	si.displaySimulation();
+	float fitness = si.getFitnessValue();
+	printf("%f\n", fitness);
+	
+	return fitness;
 }
 
 int petrinet_epoch(Population *pop, int generation, char *filename, int &winnernum, int &winnergenes, int &winnernodes) {

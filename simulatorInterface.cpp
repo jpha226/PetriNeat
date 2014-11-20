@@ -1,6 +1,12 @@
 #include "wx/wx.h"
 #include "wx/sizer.h"
+#include "wx/init.h"
+#include "wx/app.h"
+#include "wx/font.h"
+#include "simulatorInterface.h"
 #include <math.h>
+#include <stdio.h>
+#include <vector>
 
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
@@ -9,63 +15,82 @@ wxCoord ROBOT_X = 9;
 wxCoord ROBOT_Y = 6;
 wxCoord GOAL_X = 15;
 wxCoord GOAL_Y = 6;
- 
-class BasicDrawPane : public wxPanel
-{
- 
-public:
-    BasicDrawPane(wxFrame* parent);
- 
-    void paintEvent(wxPaintEvent & evt);
-	void leftClick(wxMouseEvent& event);
-	void rightClick(wxMouseEvent& event);
-    void keyPressed(wxKeyEvent& event);
-    void paintNow();
 
-	void checkPosition(wxCoord width, wxCoord height);
- 
-    void render(wxDC& dc);
- 
-    // some useful events
-    /*
-     void mouseMoved(wxMouseEvent& event);
-     void mouseDown(wxMouseEvent& event);
-     void mouseWheelMoved(wxMouseEvent& event);
-     void mouseReleased(wxMouseEvent& event);
-     void rightClick(wxMouseEvent& event);
-     void mouseLeftWindow(wxMouseEvent& event);
-     void keyReleased(wxKeyEvent& event);
-     */
- 
-    DECLARE_EVENT_TABLE()
-};
- 
- 
-class MyApp: public wxApp
+/*
+*	Creates a simulator with a vector of actions
+*/
+Simulator::Simulator(std::vector<int> *list) :
+actions(list)
+{	
+}
+
+/*
+*	Creates a simulator interface with a vector of actions
+*/
+SimulatorInterface::SimulatorInterface(std::vector<int> *list) :
+actions(list), currentAction(0)
 {
-    bool OnInit();
+}
+
+/*
+*	Runs the simulation without displaying it
+*/
+void SimulatorInterface::runSimulation() {	
+	while(currentAction < actions->size()) {
+		switch((*actions)[currentAction]) {
+			case 0:		// If the action is 0, move right
+				ROBOT_X += 1;
+				break;
+			case 2:		// If the action is 2, move left
+				ROBOT_X -= 1;
+				break;
+			case 1:		// If the action is 1, move up
+				ROBOT_Y -= 1;
+				break;
+			case 3:		// If the action is 3, move down
+				ROBOT_Y += 1;
+				break;
+		}
+		currentAction++;
+	} 
+}
+
+
+/*
+*	Opens a GUI that displays the simulation
+*/
+void SimulatorInterface::displaySimulation() {
+	int argc = 0;
+	char ** argv = 0;
+
+	wxApp* simulator = new Simulator(actions);
+	wxApp::SetInstance(simulator);	
+	wxEntry(argc, argv);
+	wxEntryCleanup();
+}
+
+
+float SimulatorInterface::getFitnessValue() {
+	wxCoord x = GOAL_X - ROBOT_X;
+	wxCoord y = GOAL_Y - ROBOT_Y;
+	return sqrt(x*x + y*y);
+}
  
-    wxFrame *frame;
-    BasicDrawPane * drawPane;
-public:
  
-};
- 
-IMPLEMENT_APP(MyApp)
- 
- 
-bool MyApp::OnInit()
+bool Simulator::OnInit()
 {
-    wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-    frame = new wxFrame((wxFrame *)NULL, -1,  wxT("Robot Simulator"), wxPoint(50,50), wxSize(WINDOW_WIDTH,WINDOW_HEIGHT));
+	printf("Initializing\n");
+
+	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+	frame = new wxFrame((wxFrame *)NULL, -1,  wxT("Robot Simulator"), wxPoint(50,50), wxSize(WINDOW_WIDTH,WINDOW_HEIGHT));
  
-    drawPane = new BasicDrawPane( (wxFrame*) frame );
-    sizer->Add(drawPane, 1, wxEXPAND);
+	drawPane = new BasicDrawPane( (wxFrame*) frame, actions);
+	sizer->Add(drawPane, 1, wxEXPAND);
  
-    frame->SetSizer(sizer);
-    frame->SetAutoLayout(true);
+	frame->SetSizer(sizer);
+	frame->SetAutoLayout(true);
  
-    frame->Show();
+	frame->Show();
     return true;
 } 
  
@@ -99,21 +124,35 @@ END_EVENT_TABLE()
  void BasicDrawPane::keyReleased(wxKeyEvent& event) {}
  */
  
-BasicDrawPane::BasicDrawPane(wxFrame* parent) :
-wxPanel(parent)
+BasicDrawPane::BasicDrawPane(wxFrame* parent, std::vector<int> *list) :
+wxPanel(parent), actions(list), currentAction(0)
 {
 }
 
 /*
- * When a left clicked is detected move the robot to the closest square in the grid
+ * When a left clicked is detected execute the next action in the simulation
  *
  */
 void BasicDrawPane::leftClick(wxMouseEvent& event)
 {
-	wxPoint pt(event.GetPosition());
-	
-	ROBOT_X = (int)pt.x/stepSize;
-	ROBOT_Y = (int)pt.y/stepSize;
+	// Get the next action
+	int action = getAction();
+	switch(action) {
+				case 0:		// If the action is 0, move right
+					ROBOT_X += 1;
+					break;
+				case 2:		// If the action is 2, move left
+					ROBOT_X -= 1;
+					break;
+				case 1:		// If the action is 1, move up
+					ROBOT_Y -= 1;
+					break;
+				case 3:		// If the action is 3, move down
+					ROBOT_Y += 1;
+					break;
+	}
+
+	increaseActionCounter();	
 
 	// Redraw the window
 	Refresh();
@@ -274,6 +313,14 @@ void BasicDrawPane::render(wxDC&  dc)
 
     dc.SetPen( wxPen( wxColor(0,0,0), 2 ) ); // black line, 3 pixels thick 
     dc.DrawText(wxT("R"), stepSize*ROBOT_X+stepSize/2-stepSize/8, stepSize*ROBOT_Y+stepSize/2-stepSize/4); 
+
+	// draw action
+	std::string actionText = getActionText();
+	wxFont font(18, wxDEFAULT, wxNORMAL, wxBOLD);	
+	dc.SetFont(font);
+	dc.SetTextForeground(wxColor(0,100,0)); // Color for the text
+	dc.DrawText(wxString(actionText), 10, 10);
+
 }
 
 void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)
@@ -294,8 +341,42 @@ void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)
 	GOAL_Y = GOAL_Y < 0? 0 : GOAL_Y;
 }
 
-float BasicDrawPane::getDistance() {
-	wxCoord x = GOAL_X - ROBOT_X;
-	wxCoord y = GOAL_Y - ROBOT_Y;
-	return sqrt(x*x + y*y);
+
+/*
+* Gets the string representation of the curernt action
+*/
+std::string BasicDrawPane::getActionText() {
+	std::string base("Next Action: ");	
+	switch(getAction()) {
+		case 0:
+			return base+"Move Right";
+		case 2:
+			return base+"Move Left";
+		case 1:
+			return base+"Move Up";
+		case 3:
+			return base+"Move Down";
+		case 100:		// The code 100 is returned when there are no actions left
+			return "Finished";
+	}
+	
+	return "Unkown Action - "+getAction();
 }
+
+/*
+* Gets the current action in the actions vector
+*/
+int BasicDrawPane::getAction() {
+	if(currentAction == actions->size())
+		return 100;
+	return (*actions)[currentAction];
+}
+
+/*
+* Increases the action counter
+*/
+int BasicDrawPane::increaseActionCounter() {
+	if(currentAction < actions->size())
+		currentAction++;
+}
+
