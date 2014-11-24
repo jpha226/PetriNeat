@@ -17,24 +17,26 @@
 
 using namespace NEAT;
 
-Link::Link(int w,NNode *p,NNode *t,bool enab) {
+Link::Link(int w,NNode *in,NNode *out) {
 	weight=w;
-	p_node=p;
-	t_node=t;
-	enabled = enab;
-	//is_recurrent=recur;
+	in_node = in;
+	out_node = out;
+	in_node -> outgoing.push_back(this);
+	out_node ->incoming.push_back(this);
+
 	added_weight=0;
 	linktrait=0;
 	//time_delay=false;
 	trait_id=1;
 }
 
-Link::Link(Trait *lt,int w,NNode *p,NNode *t,bool enab) {
+Link::Link(Trait *lt,int w,NNode *in,NNode *out) {
 	weight=w;
-	p_node=p;
-	t_node=t;
-	enabled = enab;
-	//is_recurrent=recur;
+        in_node=in;
+        out_node = out;
+        in_node -> outgoing.push_back(this);
+        out_node ->incoming.push_back(this);
+
 	added_weight=0;
 	linktrait=lt;
 	//time_delay=false;
@@ -45,7 +47,7 @@ Link::Link(Trait *lt,int w,NNode *p,NNode *t,bool enab) {
 
 Link::Link(int w) {
 	weight=w;
-	p_node=t_node=0;  
+	in_node=out_node=0;  
 	//is_recurrent=false;
 	linktrait=0;
 	//time_delay=false;
@@ -55,8 +57,8 @@ Link::Link(int w) {
 Link::Link(const Link& link)
 {
 	weight = link.weight;
-	p_node = link.p_node;
-	t_node = link.t_node;
+	in_node = link.in_node;
+	out_node = link.out_node;
 	//is_recurrent = link.is_recurrent;
 	added_weight = link.added_weight;
 	linktrait = link.linktrait;

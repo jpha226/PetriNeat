@@ -19,8 +19,8 @@
 #include <sstream>
 using namespace NEAT;
 
-Gene::Gene(double w, NNode *inode, NNode *onode, bool recur, double innov, double mnum) {
-	lnk = new Link(w, inode, onode, recur);
+Gene::Gene(double w, NNode *inode, NNode *onode, double innov, double mnum) {
+	lnk = new Link(w, inode, onode);
 	innovation_num = innov;
 	mutation_num = mnum;
 
@@ -30,8 +30,8 @@ Gene::Gene(double w, NNode *inode, NNode *onode, bool recur, double innov, doubl
 }
 
 
-Gene::Gene(Trait *tp,double w,NNode *inode,NNode *onode,bool recur,double innov,double mnum) {
-	lnk=new Link(tp,w,inode,onode,recur);
+Gene::Gene(Trait *tp,double w,NNode *inode,NNode *onode,double innov,double mnum) {
+	lnk=new Link(tp,w,inode,onode);
 	innovation_num=innov;
 	mutation_num=mnum;
 
@@ -42,7 +42,7 @@ Gene::Gene(Trait *tp,double w,NNode *inode,NNode *onode,bool recur,double innov,
 
 Gene::Gene(Gene *g,Trait *tp,NNode *pnode,NNode *tnode) {
 	//cout<<"Trying to attach nodes: "<<inode<<" "<<onode<<endl;
-	lnk=new Link(tp,(g->lnk)->weight,pnode,tnode,(g->lnk)->enabled);
+	lnk=new Link(tp,(g->lnk)->weight,pnode,tnode);
 	innovation_num=g->innovation_num;
 	mutation_num=g->mutation_num;
 	enable=g->enable;
@@ -117,7 +117,7 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
 		++curnode;
 	onode=(*curnode);
 
-	lnk=new Link(traitptr,weight,inode,onode,recur);
+	lnk=new Link(traitptr,weight,inode,onode);
 }
 
 Gene::Gene(const Gene& gene)

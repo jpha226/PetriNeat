@@ -82,7 +82,6 @@ namespace NEAT {
 		bool frozen; // When frozen, cannot be mutated (meaning its trait pointer is fixed)
 
 		functype ftype; // type is either SIGMOID ..or others that can be added
-		nodetype type; // type is either NEURON or SENSOR 
 
 		double activesum;  // The incoming activity before being processed 
 		double activation; // The total activation entering the NNode 
@@ -106,6 +105,7 @@ namespace NEAT {
 		int tok_count; // current token count for places
 		std::vector<Link*> incoming; // A list of pointers to incoming weighted signals from other nodes
 		std::vector<Link*> outgoing;  // A list of pointers to links carrying this node's signal
+		nodetype type;
 		/*******************************************/
 
 

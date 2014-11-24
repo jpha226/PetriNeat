@@ -76,14 +76,14 @@ namespace NEAT {
 		// be included. 
 		// The last input is a bias
 		// Linkprob is the probability of a link  
-		Genome(int new_id,int i, int o, int n,int nmax, bool r, double linkprob);
+		Genome(int new_id,int p, int t, double linkprob);
 
 		//Special constructor that creates a Genome of 3 possible types:
 		//0 - Fully linked, no hidden nodes
 		//1 - Fully linked, one hidden node splitting each link
 		//2 - Fully connected with a hidden layer, recurrent 
 		//num_hidden is only used in type 2
-		Genome(int num_in,int num_out,int num_hidden,int type);
+//		Genome(int num_in,int num_out,int num_hidden,int type);
 
 		// Loads a new Genome from a file (doesn't require knowledge of Genome's id)
 		static Genome *new_Genome_load(char *filename);

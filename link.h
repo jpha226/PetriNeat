@@ -34,8 +34,8 @@ namespace NEAT {
 		
 		/*** For Petri Net Evolution *****/
 		int weight; // Weight of connection (changed from double in NEAT code -JPH)
-		NNode *p_node; // NNode inputting into the link
-		NNode *t_node; // NNode that the link affects
+		NNode *in_node; // NNode inputting into the link
+		NNode *out_node; // NNode that the link affects
 		//bool is_recurrent;
 		//bool time_delay;
 		bool enabled;
@@ -52,10 +52,10 @@ namespace NEAT {
 		double added_weight;  // The amount of weight adjustment 
 		double params[NEAT::num_trait_params];
 
-		Link(int w,NNode *p,NNode *t,bool enab);
+		Link(int w,NNode *in,NNode *out);
 
 		// Including a trait pointer in the Link creation
-		Link(Trait *lt,int w,NNode *p,NNode *t,bool enab);
+		Link(Trait *lt,int w,NNode *in,NNode *out);
 
 		// For when you don't know the connections yet
 		Link(int w);
