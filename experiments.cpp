@@ -134,7 +134,6 @@ Population *petrinet_test(int gens) {
 }
 
 
-}
 
 bool petrinet_evaluate(Organism *org) {
 
@@ -142,6 +141,7 @@ bool petrinet_evaluate(Organism *org) {
 	*
 	* This function is where we need to interact with our simulator 
 	* in order to evaluate the petrinet (organism) provided as an argument
+	* It should return true if the net of the given organism solves the given simulator task
 	*/
 
 	return false;
@@ -199,6 +199,9 @@ int petrinet_epoch(Population *pop, int generation, char *filename, int &winnern
 
 /******************** End Petri Net Code *************************************/
 
+
+
+/*
 
 //Perform evolution on XOR, for gens generations
 Population *xor_test(int gens) {
@@ -316,6 +319,8 @@ Population *xor_test(int gens) {
 
 }
 
+
+
 bool xor_evaluate(Organism *org) {
   Network *net;
   double out[4]; //The four outputs
@@ -324,8 +329,8 @@ bool xor_evaluate(Organism *org) {
   double errorsum;
 
   bool success;  //Check for successful activation
-  int numnodes;  /* Used to figure out how many nodes
-		    should be visited during activation */
+  int numnodes;  // Used to figure out how many nodes
+		  //  should be visited during activation 
 
   int net_depth; //The max depth of the network to be activated
   int relax; //Activates until relaxation
@@ -595,10 +600,10 @@ int pole1_epoch(Population *pop,int generation,char *filename) {
 bool pole1_evaluate(Organism *org) {
   Network *net;
 
-  int numnodes;  /* Used to figure out how many nodes
-		    should be visited during activation */
-  int thresh;  /* How many visits will be allowed before giving up 
-		  (for loop detection) */
+  int numnodes;  // Used to figure out how many nodes
+		//	    should be visited during activation 
+  int thresh;  // How many visits will be allowed before giving up 
+	//	  (for loop detection) 
 
   //  int MAX_STEPS=120000;
  int MAX_STEPS=100000;
@@ -630,10 +635,10 @@ bool pole1_evaluate(Organism *org) {
 //     by Richard Sutton and Charles Anderson.
 int go_cart(Network *net,int max_steps,int thresh)
 {
-   float x,			/* cart position, meters */
-         x_dot,			/* cart velocity */
-         theta,			/* pole angle, radians */
-         theta_dot;		/* pole angular velocity */
+   float x,			// cart position, meters 
+         x_dot,			// cart velocity 
+         theta,			// pole angle, radians 
+         theta_dot;		// pole angular velocity 
    int steps=0,y;
 
    int random_start=1;
@@ -643,7 +648,7 @@ int go_cart(Network *net,int max_steps,int thresh)
    double out1;
    double out2;
 
-//     double one_degree= 0.0174532;	/* 2pi/360 */
+//     double one_degree= 0.0174532;	// 2pi/360 
 //     double six_degrees=0.1047192;
    double twelve_degrees=0.2094384;
 //     double thirty_six_degrees= 0.628329;
@@ -652,7 +657,7 @@ int go_cart(Network *net,int max_steps,int thresh)
    vector<NNode*>::iterator out_iter;
 
    if (random_start) {
-     /*set up random start state*/
+     // set up random start state
      x = (lrand48()%4800)/1000.0 - 2.4;
      x_dot = (lrand48()%2000)/1000.0 - 1;
      theta = (lrand48()%400)/1000.0 - .2;
@@ -661,11 +666,11 @@ int go_cart(Network *net,int max_steps,int thresh)
    else 
      x = x_dot = theta = theta_dot = 0.0;
    
-   /*--- Iterate through the action-learn loop. ---*/
+   //--- Iterate through the action-learn loop. ---
    while (steps++ < max_steps)
      {
        
-       /*-- setup the input layer based on the four iputs --*/
+       //-- setup the input layer based on the four iputs --
        //setup_input(net,x,x_dot,theta,theta_dot);
        in[0]=1.0;  //Bias
        in[1]=(x + 2.4) / 4.8;;
@@ -674,12 +679,12 @@ int go_cart(Network *net,int max_steps,int thresh)
        in[4]=(theta_dot + 1.0) / 2.0;
        net->load_sensors(in);
 
-       //activate_net(net);   /*-- activate the network based on the input --*/
+       //activate_net(net);   //-- activate the network based on the input --
        //Activate the net
        //If it loops, exit returning only fitness of 1 step
        if (!(net->activate())) return 1;
 
-      /*-- decide which way to push via which output unit is greater --*/
+      //-- decide which way to push via which output unit is greater --
        out_iter=net->outputs.begin();
        out1=(*out_iter)->activation;
        ++out_iter;
@@ -689,10 +694,10 @@ int go_cart(Network *net,int max_steps,int thresh)
        else
 	 y = 1;
        
-       /*--- Apply action to the simulated cart-pole ---*/
+       //--- Apply action to the simulated cart-pole ---
        cart_pole(y, &x, &x_dot, &theta, &theta_dot);
        
-       /*--- Check for failure.  If so, return steps ---*/
+       //--- Check for failure.  If so, return steps ---
        if (x < -2.4 || x > 2.4  || theta < -twelve_degrees ||
 	   theta > twelve_degrees) 
          return steps;             
@@ -706,11 +711,11 @@ int go_cart(Network *net,int max_steps,int thresh)
 //     by Richard Sutton and Charles Anderson.
 //     This simulator uses normalized, continous inputs instead of 
 //    discretizing the input space.
-/*----------------------------------------------------------------------
+//----------------------------------------------------------------------
    cart_pole:  Takes an action (0 or 1) and the current values of the
  four state variables and updates their values by estimating the state
  TAU seconds later.
-----------------------------------------------------------------------*/
+----------------------------------------------------------------------
 void cart_pole(int action, float *x,float *x_dot, float *theta, float *theta_dot) {
   float xacc,thetaacc,force,costheta,sintheta,temp;
   
@@ -718,10 +723,10 @@ void cart_pole(int action, float *x,float *x_dot, float *theta, float *theta_dot
   const float MASSCART=1.0;
   const float MASSPOLE=0.1;
   const float TOTAL_MASS=(MASSPOLE + MASSCART);
-  const float LENGTH=0.5;	  /* actually half the pole's length */
+  const float LENGTH=0.5;	  // actually half the pole's length /
   const float POLEMASS_LENGTH=(MASSPOLE * LENGTH);
   const float FORCE_MAG=10.0;
-  const float TAU=0.02;	  /* seconds between state updates */
+  const float TAU=0.02;	  // seconds between state updates 
   const float FOURTHIRDS=1.3333333333333;
 
   force = (action>0)? FORCE_MAG : -FORCE_MAG;
@@ -737,7 +742,7 @@ void cart_pole(int action, float *x,float *x_dot, float *theta, float *theta_dot
   
   xacc  = temp - POLEMASS_LENGTH * thetaacc* costheta / TOTAL_MASS;
   
-  /*** Update the four state variables, using Euler's method. ***/
+  // Update the four state variables, using Euler's method. 
   
   *x  += TAU * *x_dot;
   *x_dot += TAU * xacc;
@@ -745,9 +750,9 @@ void cart_pole(int action, float *x,float *x_dot, float *theta, float *theta_dot
   *theta_dot += TAU * thetaacc;
 }
 
-/* ------------------------------------------------------------------ */
-/* Double pole balacing                                               */
-/* ------------------------------------------------------------------ */
+// ------------------------------------------------------------------ 
+// Double pole balacing                                               
+// ------------------------------------------------------------------ 
 
 //Perform evolution on double pole balacing, for gens generations
 //If velocity is false, then velocity information will be withheld from the 
@@ -1155,9 +1160,9 @@ int pole2_epoch(Population *pop,int generation,char *filename,bool velocity,
 	      thecart->state[0] = statevals[s0c] * 4.32 - 2.16;
 	      thecart->state[1] = statevals[s1c] * 2.70 - 1.35;
 	      thecart->state[2] = statevals[s2c] * 0.12566304 - 0.06283152;
-	      /* 0.06283152 =  3.6 degrees */
+	      // 0.06283152 =  3.6 degrees 
 	      thecart->state[3] = statevals[s3c] * 0.30019504 - 0.15009752;
-	      /* 00.15009752 =  8.6 degrees */
+	      // 00.15009752 =  8.6 degrees 
 	      thecart->state[4]=0.0;
 	      thecart->state[5]=0.0;
 	      
@@ -1218,8 +1223,8 @@ int pole2_epoch(Population *pop,int generation,char *filename,bool velocity,
 bool pole2_evaluate(Organism *org,bool velocity, CartPole *thecart) {
   Network *net;
 
-  int thresh;  /* How many visits will be allowed before giving up 
-		  (for loop detection)  NOW OBSOLETE */
+  int thresh;  How many visits will be allowed before giving up 
+		  (for loop detection)  NOW OBSOLETE 
 
   int pause;
 
@@ -1372,7 +1377,7 @@ double CartPole::evalNet(Network *net,int thresh)
      //Do special parameter summing on last hundred
      //if ((steps==900)&&(!nmarkov_long)) last_hundred=true;
 
-     /*
+     
      input[0] = state[0] / 4.8;
      input[1] = 0.0;
      input[2] = state[2]  / 0.52;
@@ -1380,7 +1385,7 @@ double CartPole::evalNet(Network *net,int thresh)
      input[4] = state[4] / 0.52;
      input[5] = 0.0;
      input[6] = .5;
-     */
+     
 
       //cout<<"nmarkov_long: "<<nmarkov_long<<endl;
 
@@ -1461,7 +1466,7 @@ void CartPole::init(bool randomize)
 
   last_hundred=false;
 
-  /*if (randomize) {
+  if (randomize) {
     state[0] = (lrand48()%4800)/1000.0 - 2.4;
     state[1] = (lrand48()%2000)/1000.0 - 1;
     state[2] = (lrand48()%400)/1000.0 - 0.2;
@@ -1469,7 +1474,7 @@ void CartPole::init(bool randomize)
     state[4] = (lrand48()%3000)/1000.0 - 1.5;
     state[5] = (lrand48()%3000)/1000.0 - 1.5;
   }
-  else {*/
+  else {
 
 
   if (!generalization_test) {
@@ -1497,10 +1502,10 @@ void CartPole::performAction(double output, int stepnum)
   const bool RK4=true; //Set to Runge-Kutta 4th order integration method
   const double EULER_TAU= TAU/4;
  
-  /*random start state for long pole*/
-  /*state[2]= drand48();   */
+  //random start state for long pole
+  //state[2]= drand48();   
      
-  /*--- Apply action to the simulated cart-pole ---*/
+  //--- Apply action to the simulated cart-pole ---
 
   if(RK4){
     for(i=0;i<2;++i){
@@ -1633,8 +1638,8 @@ bool CartPole::outsideBounds()
 void CartPole::nextTask()
 {
 
-   LENGTH_2 += POLE_INC;   /* LENGTH_2 * INCREASE;   */
-   MASSPOLE_2 += MASS_INC; /* MASSPOLE_2 * INCREASE; */
+   LENGTH_2 += POLE_INC;   // LENGTH_2 * INCREASE;   
+   MASSPOLE_2 += MASS_INC; // MASSPOLE_2 * INCREASE; 
    //  ++new_task;
    cout<<"#Pole Length %2.4f\n"<<LENGTH_2<<endl;
 }
@@ -1654,3 +1659,4 @@ void CartPole::simplifyTask()
       cout<<"#NO TASK CHANGE\n"<<endl;
     }
 }
+*/

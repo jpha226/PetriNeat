@@ -63,6 +63,9 @@ namespace NEAT {
 		// Copy Constructor
 		Link(const Link& link);
 
+		// Deconstructor
+		~Link();
+
 		// Derive a trait into link params
 		void derive_trait(Trait *curtrait);
 

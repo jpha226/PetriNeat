@@ -573,7 +573,7 @@ void Network::linkcounthelper(NNode *curnode,int &counter,std::vector<NNode*> &s
 	}
 
 }
-
+*/
 // Destroy will find every node in the network and subsequently
 // delete them one by one.  Since deleting a node deletes its incoming
 // links, all nodes and links associated with a network will be destructed
@@ -618,7 +618,7 @@ void Network::destroy_helper(NNode *curnode,std::vector<NNode*> &seenlist) {
 	std::vector<Link*>::iterator curlink;
 	std::vector<NNode*>::iterator location;
 
-	if (!((curnode->type)==SENSOR)) {
+//	if (!((curnode->type)==SENSOR)) {
 		for(curlink=innodes.begin();curlink!=innodes.end();++curlink) {
             location = std::find(seenlist.begin(),seenlist.end(),((*curlink)->in_node));
 			if (location==seenlist.end()) {
@@ -627,10 +627,10 @@ void Network::destroy_helper(NNode *curnode,std::vector<NNode*> &seenlist) {
 			}
 		}
 
-	}
+//	}
 
 }
-
+/*
 // This checks a POTENTIAL link between a potential in_node and potential out_node to see if it must be recurrent 
 bool Network::is_recur(NNode *potin_node,NNode *potout_node,int &count,int thresh) {
 	std::vector<Link*>::iterator curlink;
@@ -656,20 +656,20 @@ bool Network::is_recur(NNode *potin_node,NNode *potout_node,int &count,int thres
 		return false;
 	}
 }
-
+*//*
 int Network::input_start() {
 	input_iter=inputs.begin();
 	return 1;
-}
-
+}*/
+/*
 int Network::load_in(double d) {
 	(*input_iter)->sensor_load(d);
 	input_iter++;
 	if (input_iter==inputs.end()) return 0;
 	else return 1;
 }
-
-
+*/
+/*
 //Find the maximum number of neurons between an ouput and an input
 int Network::max_depth() {
   std::vector<NNode*>::iterator curoutput; //The current output we are looking at

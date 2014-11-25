@@ -119,6 +119,7 @@ namespace NEAT {
 		void mutate_link_trait(int times);
 
 		// Change random node's trait times times 
+		// This can mutate action_ids or place token count
 		void mutate_node_trait(int times);
 
 		// Add Gaussian noise to linkweights either GAUSSIAN or COLDGAUSSIAN (from zero)
@@ -136,12 +137,12 @@ namespace NEAT {
 		//   Generally, if they fail, they can be called again if desired. 
 
 		// Mutate genome by adding a node respresentation 
-		bool mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,double &curinnov);
+		bool mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov, int tries);
 
 		// Mutate the genome by adding a new link between 2 random NNodes 
 		bool mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,int tries); 
 
-		void mutate_add_sensor(std::vector<Innovation*> &innovs, double &curinnov);
+//		void mutate_add_sensor(std::vector<Innovation*> &innovs, double &curinnov);
 
 		// ****** MATING METHODS ***** 
 

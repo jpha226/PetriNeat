@@ -33,10 +33,10 @@ namespace NEAT {
 		bool frozen;  //When frozen, the linkweight cannot be mutated
 
 		//Construct a gene with no trait
-		Gene(double w,NNode *inode,NNode *onode,double innov,double mnum);
+		Gene(int w,NNode *inode,NNode *onode,double innov,double mnum);
 
 		//Construct a gene with a trait
-		Gene(Trait *tp,double w,NNode *inode,NNode *onode, double innov,double mnum);
+		Gene(Trait *tp, int w,NNode *inode,NNode *onode, double innov,double mnum);
 
 		//Construct a gene off of another gene as a duplicate
 		Gene(Gene *g,Trait *tp,NNode *inode,NNode *onode);

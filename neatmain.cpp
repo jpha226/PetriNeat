@@ -72,6 +72,8 @@ int main(int argc, char *argv[]) {
 
   cout<<"loaded"<<endl;
   
+  p = petrinet_test(100);
+
   /*
   //Test a genome file on pole balancing
   Genome *g;
@@ -94,8 +96,8 @@ int main(int argc, char *argv[]) {
 
   //p=xor_test(100);  //100 generation XOR experiment
 
-  int choice;
-
+//  int choice;
+/*
   cout<<"Please choose an experiment: "<<endl;
   cout<<"1 - 1-pole balancing"<<endl;
   cout<<"2 - 2-pole balancing, velocity info provided"<<endl;
@@ -122,7 +124,7 @@ int main(int argc, char *argv[]) {
     default:
       cout<<"Not an available option."<<endl;
     }
-
+*/
 
   //p = pole1_test(100); // 1-pole balancing
   //p = pole2_test(100,1); // 2-pole balancing, velocity

@@ -116,7 +116,7 @@ bool Species::print_to_file(std::ostream &outFile) {
 	std::vector<Organism*>::iterator curorg;
 
 	//Print a comment on the Species info
-	//outFile<<endl<<"/* Species #"<<id<<" : (Size "<<organisms.size()<<") (AF "<<ave_fitness<<") (Age "<<age<<")  *///"<<endl<<endl;
+	//outFile<<endl<<" Species #"<<id<<" : (Size "<<organisms.size()<<") (AF "<<ave_fitness<<") (Age "<<age<<")  *///"<<endl<<endl;
 	//char tempbuf[1024];
 	//sprintf(tempbuf, sizeof(tempbuf), "/* Species #%d : (Size %d) (AF %f) (Age %d)  */\n\n", id, organisms.size(), average_est, age);
 	//sprintf(tempbuf, sizeof(tempbuf), "/* Species #%d : (Size %d) (AF %f) (Age %d)  */\n\n", id, organisms.size(), ave_fitness, age);
@@ -429,7 +429,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 	std::vector<Species*>::iterator cursp;
 
 	Network *net_analogue;  //For adding link to test for recurrency
-	int pause;
+	//int pause;
 
 	bool outside;
 
@@ -448,9 +448,9 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 	double mut_power=NEAT::weight_mut_power;
 
 	//Roulette wheel variables
-	double total_fitness=0.0;
-	double marble;  //The marble will have a number between 0 and total_fitness
-	double spin;  //0Fitness total while the wheel is spinning
+	//double total_fitness=0.0;
+	//double marble;  //The marble will have a number between 0 and total_fitness
+	//double spin;  //0Fitness total while the wheel is spinning
 
 	//Compute total fitness of species for a roulette wheel
 	//Note: You don't get much advantage from a roulette here
@@ -553,21 +553,6 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 					for(orgcount=0;orgcount<orgnum;orgcount++)
 						++curorg;                       
 
-
-
-					////Roulette Wheel
-					//marble=randfloat()*total_fitness;
-					//curorg=organisms.begin();
-					//spin=(*curorg)->fitness;
-					//while(spin<marble) {
-					//++curorg;
-
-					////Keep the wheel spinning
-					//spin+=(*curorg)->fitness;
-					//}
-					////Finished roulette
-					//
-
 					mom=(*curorg);
 
 					new_genome=(mom->gnome)->duplicate(count);
@@ -577,7 +562,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 
 					if (randfloat()<NEAT::mutate_add_node_prob) {
 						//std::cout<<"mutate add node"<<std::endl;
-						new_genome->mutate_add_node(pop->innovations,pop->cur_node_id,pop->cur_innov_num);
+						new_genome->mutate_add_node(pop->innovations,pop->cur_innov_num,NEAT::newlink_tries);
 						mut_struct_baby=true;
 					}
 					else if (randfloat()<NEAT::mutate_add_link_prob) {
@@ -592,10 +577,10 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 					else {
 						//If we didn't do a structural mutation, we do the other kinds
 
-						if (randfloat()<NEAT::mutate_random_trait_prob) {
+					//	if (randfloat()<NEAT::mutate_random_trait_prob) {
 							//std::cout<<"mutate random trait"<<std::endl;
-							new_genome->mutate_random_trait();
-						}
+					//		new_genome->mutate_random_trait();
+					//	}
 						if (randfloat()<NEAT::mutate_link_trait_prob) {
 							//std::cout<<"mutate_link_trait"<<std::endl;
 							new_genome->mutate_link_trait(1);
@@ -740,7 +725,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 					//Do the mutation depending on probabilities of 
 					//various mutations
 					if (randfloat()<NEAT::mutate_add_node_prob) {
-						new_genome->mutate_add_node(pop->innovations,pop->cur_node_id,pop->cur_innov_num);
+						new_genome->mutate_add_node(pop->innovations,pop->cur_innov_num,NEAT::newlink_tries);
 						//  std::cout<<"mutate_add_node: "<<new_genome<<std::endl;
 						mut_struct_baby=true;
 					}

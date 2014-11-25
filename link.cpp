@@ -67,6 +67,11 @@ Link::Link(const Link& link)
 	enabled = link.enabled;
 }
 
+Link::~Link()
+{
+
+}
+
 void Link::derive_trait(Trait *curtrait) {
 
 	if (curtrait!=0) {

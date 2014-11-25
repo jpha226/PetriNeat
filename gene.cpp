@@ -19,7 +19,7 @@
 #include <sstream>
 using namespace NEAT;
 
-Gene::Gene(double w, NNode *inode, NNode *onode, double innov, double mnum) {
+Gene::Gene(int w, NNode *inode, NNode *onode, double innov, double mnum) {
 	lnk = new Link(w, inode, onode);
 	innovation_num = innov;
 	mutation_num = mnum;
@@ -30,7 +30,7 @@ Gene::Gene(double w, NNode *inode, NNode *onode, double innov, double mnum) {
 }
 
 
-Gene::Gene(Trait *tp,double w,NNode *inode,NNode *onode,double innov,double mnum) {
+Gene::Gene(Trait *tp,int w,NNode *inode,NNode *onode,double innov,double mnum) {
 	lnk=new Link(tp,w,inode,onode);
 	innovation_num=innov;
 	mutation_num=mnum;
@@ -40,9 +40,9 @@ Gene::Gene(Trait *tp,double w,NNode *inode,NNode *onode,double innov,double mnum
 	frozen=false;
 }
 
-Gene::Gene(Gene *g,Trait *tp,NNode *pnode,NNode *tnode) {
+Gene::Gene(Gene *g,Trait *tp,NNode *inode,NNode *onode) {
 	//cout<<"Trying to attach nodes: "<<inode<<" "<<onode<<endl;
-	lnk=new Link(tp,(g->lnk)->weight,pnode,tnode);
+	lnk=new Link(tp,(g->lnk)->weight,inode,onode);
 	innovation_num=g->innovation_num;
 	mutation_num=g->mutation_num;
 	enable=g->enable;
@@ -57,7 +57,7 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
 	int onodenum;
 	NNode *inode;
 	NNode *onode;
-	double weight;
+	int weight;
 	int recur;
 	Trait *traitptr;
 
@@ -88,8 +88,8 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
 	//mutation_num = atof(curword);
 	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
 	//enable = (bool)(atoi(curword));
-
-    ss >> traitnum >> inodenum >> onodenum >> weight >> recur >> innovation_num >> mutation_num >> enable;
+// ss >> traitnum >> inodenum >> onodenum >> weight >> innovation_num >> mutation_num >> enable
+    ss >> traitnum >> inodenum >> onodenum >> weight >> innovation_num >> mutation_num >> enable;
     //std::cout << traitnum << " " << inodenum << " " << onodenum << " ";
     //std::cout << weight << " " << recur << " " << innovation_num << " ";
     //std::cout << mutation_num << " " << enable << std::endl;
@@ -140,8 +140,8 @@ void Gene::print_to_file(std::ofstream &outFile) {
   //Start off with the trait number for this gene
   if ((lnk->linktrait)==0) outFile<<"0 ";
   else outFile<<((lnk->linktrait)->trait_id)<<" ";
-  outFile<<(lnk->p_node)->node_id<<" ";
-  outFile<<(lnk->t_node)->node_id<<" ";
+  outFile<<(lnk->in_node)->node_id<<" ";
+  outFile<<(lnk->out_node)->node_id<<" ";
   outFile<<(lnk->weight)<<" ";
   outFile<<(lnk->enabled)<<" ";
   outFile<<innovation_num<<" ";
@@ -169,8 +169,8 @@ void Gene::print_to_file(std::ostream &outFile) {
 	//sprintf(tempbuf,sizeof(tempbuf),"%d %d %f %d %f %f %d\n", (lnk->in_node)->node_id,
 	//	(lnk->out_node)->node_id, lnk->weight, lnk->is_recurrent, innovation_num, mutation_num, enable);
 	//outFile.write(strlen(tempbuf),tempbuf);
-	outFile<<(lnk->p_node)->node_id<<" ";
-	outFile<<(lnk->t_node)->node_id<<" ";
+	outFile<<(lnk->in_node)->node_id<<" ";
+	outFile<<(lnk->out_node)->node_id<<" ";
 	outFile<<(lnk->weight)<<" ";
 	outFile<<(lnk->enabled)<<" ";
 	outFile<<innovation_num<<" ";

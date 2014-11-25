@@ -82,6 +82,7 @@ NNode::NNode (const char *argline, std::vector<Trait*> &traits) {
 	//gen_node_label = (nodeplace)atoi(curword);
 
     int nodety, nodepl;
+// ss >> node_id >> traitnum >> nodety >> action_id >> tok_count;
     ss >> node_id >> traitnum >> nodety >> nodepl;
     type = (nodetype)nodety;
     gen_node_label = (nodeplace)nodepl;
@@ -152,7 +153,7 @@ nodetype NNode::set_type(nodetype newtype) {
 /************** END PETRI NET NODE CODE **************************
 
 // commenting out the rest of the NEAT code
-/*
+
 
 
 
@@ -313,7 +314,7 @@ void NNode::flushback_check(std::vector<NNode*> &seenlist) {
 	}
 
 }
-
+*/
 // Reserved for future system expansion
 void NNode::derive_trait(Trait *curtrait) {
 
@@ -331,7 +332,7 @@ void NNode::derive_trait(Trait *curtrait) {
 	else trait_id=1;
 
 }
-
+/*
 // Returns the gene that created the node
 NNode *NNode::get_analogue() {
 	return analogue;
@@ -354,7 +355,7 @@ void NNode::activate_override() {
 	override=false;
 }
 
-
+*/
 void NNode::print_to_file(std::ofstream &outFile) {
   outFile<<"node "<<node_id<<" ";
   if (nodetrait!=0) outFile<<nodetrait->trait_id<<" ";
@@ -386,7 +387,7 @@ void NNode::print_to_file(std::ostream &outFile) {
 	sprintf(tempbuf2, "%d %d\n", type, gen_node_label);
 	outFile << tempbuf2;
 }
-
+/*
 //Find the greatest depth starting from this neuron at depth d
 int NNode::depth(int d, Network *mynet) {
   std::vector<Link*> innodes=this->incoming;

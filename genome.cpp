@@ -990,7 +990,6 @@ void Genome::mutate_random_trait() {
 }
 
 void Genome::mutate_link_trait(int times) {
-	int traitnum;
 	int genenum;
 	std::vector<Gene*>::iterator thegene;     //Link to be mutated
 	std::vector<Trait*>::iterator thetrait; //Trait to be attached
@@ -998,9 +997,6 @@ void Genome::mutate_link_trait(int times) {
 	int loop;
 
 	for(loop=1;loop<=times;loop++) {
-
-		//Choose a random traitnum
-		traitnum=randint(0,(traits.size())-1);
 
 		//Choose a random linknum
 		genenum=randint(0,genes.size()-1);
@@ -1012,30 +1008,24 @@ void Genome::mutate_link_trait(int times) {
 
 		//Do not alter frozen genes
 		if (!((*thegene)->frozen)) {
-			thetrait=traits.begin();
 
-			((*thegene)->lnk)->linktrait=thetrait[traitnum];
-
+			if (randfloat() > 0.5)
+				((*thegene)->lnk)->weight++;
+			else
+				((*thegene)->lnk)->weight--;
 		}
-		//TRACK INNOVATION- future use
-		//(*thegene)->mutation_num+=randposneg()*randfloat()*linktrait_mut_sig;
 
 	}
 }
 
 void Genome::mutate_node_trait(int times) {
-	int traitnum;
 	int nodenum;
 	std::vector<NNode*>::iterator thenode;     //Link to be mutated
 	std::vector<Gene*>::iterator thegene;  //Gene to record innovation
-	std::vector<Trait*>::iterator thetrait; //Trait to be attached
 	int count;
 	int loop;
-
+	float rand;
 	for(loop=1;loop<=times;loop++) {
-
-		//Choose a random traitnum
-		traitnum=randint(0,(traits.size())-1);
 
 		//Choose a random nodenum
 		nodenum=randint(0,nodes.size()-1);
@@ -1048,208 +1038,77 @@ void Genome::mutate_node_trait(int times) {
 		//Do not mutate frozen nodes
 		if (!((*thenode)->frozen)) {
 
-			thetrait=traits.begin();
+			// If place node mutate the token count
+			if ((*thenode)->type == PLACE){
 
-			(*thenode)->nodetrait=thetrait[traitnum];
+				if (randfloat() > 0.5)
+					(*thenode)->tok_count++;
+				else
+					(*thenode)->tok_count--;
+
+			} else{ // Mutate actions for transitions
+
+				rand = randfloat();
+
+				if (rand > 0.75)
+					(*thenode)->action_ID = (*thenode)->action_ID ^ 3; // flip all bits
+				else if (rand > 0.5)
+					(*thenode)->action_ID = (*thenode)->action_ID ^ 2; // flip the first bit
+				else if (rand > 0.25)
+					(*thenode)->action_ID = (*thenode)->action_ID ^ 1; //
+
+			}
 
 		}
-		//TRACK INNOVATION! - possible future use
-		//for any gene involving the mutated node, perturb that gene's
-		//mutation number
-		//for(thegene=genes.begin();thegene!=genes.end();++thegene) {
-		//  if (((((*thegene)->lnk)->in_node)==(*thenode))
-		//  ||
-		//  ((((*thegene)->lnk)->out_node)==(*thenode)))
-		//(*thegene)->mutation_num+=randposneg()*randfloat()*nodetrait_mut_sig;
-		//}
 	}
 }
+
 
 void Genome::mutate_link_weights(double power,double rate,mutator mut_type) {
 	std::vector<Gene*>::iterator curgene;
 	double num;  //counts gene placement
-	double gene_total;
-	double powermod; //Modified power by gene number
+	//double gene_total;
+	//double powermod; //Modified power by gene number
 	//The power of mutation will rise farther into the genome
 	//on the theory that the older genes are more fit since
 	//they have stood the test of time
 
 	double randnum;
-	double randchoice; //Decide what kind of mutation to do on a gene
-	double endpart; //Signifies the last part of the genome
-	double gausspoint;
-	double coldgausspoint;
+	//double randchoice; //Decide what kind of mutation to do on a gene
+	//double endpart; //Signifies the last part of the genome
+	//double gausspoint;
+	//double coldgausspoint;
 
-	bool severe;  //Once in a while really shake things up
+	//bool severe;  //Once in a while really shake things up
 
 	//Wright variables
 	//double oldval;
 	//double perturb;
-
-
-	// --------------- WRIGHT'S MUTATION METHOD -------------- 
-
-	////Use the fact that we know ends are newest
-	//gene_total=(double) genes.size();
-	//endpart=gene_total*0.8;
-	//num=0.0;
-
-	//for(curgene=genes.begin();curgene!=genes.end();curgene++) {
-
-	////Mutate rate 0.2 controls how many params mutate in the list
-	//if ((randfloat()<rate)||
-	//((gene_total>=10.0)&&(num>endpart))) {
-
-	//oldval=((*curgene)->lnk)->weight;
-
-	////The amount to perturb the value by
-	//perturb=randfloat()*power;
-
-	////Once in a while leave the end part alone
-	//if (num>endpart)
-	//if (randfloat()<0.2) perturb=0;  
-
-	////Decide positive or negative
-	//if (gRandGen.randI()%2) {
-	////Positive case
-
-	////if it goes over the max, find something smaller
-	//if (oldval+perturb>100.0) {
-	//perturb=(100.0-oldval)*randfloat();
-	//}
-
-	//((*curgene)->lnk)->weight+=perturb;
-
-	//}
-	//else {
-	////Negative case
-
-	////if it goes below the min, find something smaller
-	//if (oldval-perturb<100.0) {
-	//perturb=(oldval+100.0)*randfloat();
-	//}
-
-	//((*curgene)->lnk)->weight-=perturb;
-
-	//}
-	//}
-
-	//num+=1.0;
-
-	//}
-
 	
 
-	// ------------------------------------------------------ 
-
-	if (randfloat()>0.5) severe=true;
-	else severe=false;
 
 	//Go through all the Genes and perturb their link's weights
 	num=0.0;
-	gene_total=(double) genes.size();
-	endpart=gene_total*0.8;
+	//gene_total=(double) genes.size();
+	//endpart=gene_total*0.8;
 	//powermod=randposneg()*power*randfloat();  //Make power of mutation random
 	//powermod=randfloat();
-	powermod=1.0;
-
-	//Possibility: Jiggle the newest gene randomly
-	//if (gene_total>10.0) {
-	//  lastgene=genes.end();
-	//  lastgene--;
-	//  if (randfloat()>0.4)
-	//    ((*lastgene)->lnk)->weight+=0.5*randposneg()*randfloat();
-	//}
-
-/*
-	//KENHACK: NOTE THIS HAS BEEN MAJORLY ALTERED
-	//     THE LOOP BELOW IS THE ORIGINAL METHOD
-	if (mut_type==COLDGAUSSIAN) {
-		//printf("COLDGAUSSIAN");
-		for(curgene=genes.begin();curgene!=genes.end();curgene++) {
-			if (randfloat()<0.9) {
-				randnum=randposneg()*randfloat()*power*powermod;
-				((*curgene)->lnk)->weight+=randnum;
-			}
-		}
-	}
-
-	
-	for(curgene=genes.begin();curgene!=genes.end();curgene++) {
-		if (randfloat()<0.2) {
-			randnum=randposneg()*randfloat()*power*powermod;
-			((*curgene)->lnk)->weight+=randnum;
-
-			//Cap the weights at 20.0 (experimental)
-			if (((*curgene)->lnk)->weight>1.0) ((*curgene)->lnk)->weight=1.0;
-			else if (((*curgene)->lnk)->weight<-1.0) ((*curgene)->lnk)->weight=-1.0;
-		}
-	}
-
-	*/
-
+	//powermod=1.0;
 
 	//Loop on all genes  (ORIGINAL METHOD)
 	for(curgene=genes.begin();curgene!=genes.end();curgene++) {
 
-		
-		//Possibility: Have newer genes mutate with higher probability
-		//Only make mutation power vary along genome if it's big enough
-		//if (gene_total>=10.0) {
-		//This causes the mutation power to go up towards the end up the genome
-		//powermod=((power-0.7)/gene_total)*num+0.7;
-		//}
-		//else powermod=power;
-
-		//The following if determines the probabilities of doing cold gaussian
-		//mutation, meaning the probability of replacing a link weight with
-		//another, entirely random weight.  It is meant to bias such mutations
-		//to the tail of a genome, because that is where less time-tested genes
-		//reside.  The gausspoint and coldgausspoint represent values above
-		//which a random float will signify that kind of mutation.  
 
 		//Don't mutate weights of frozen links
 		if (!((*curgene)->frozen)) {
 
-			if (severe) {
-				gausspoint=0.3;
-				coldgausspoint=0.1;
-			}
-			else if ((gene_total>=10.0)&&(num>endpart)) {
-				gausspoint=0.5;  //Mutate by modification % of connections
-				coldgausspoint=0.3; //Mutate the rest by replacement % of the time
-			}
-			else {
-				//Half the time don't do any cold mutations
-				if (randfloat()>0.5) {
-					gausspoint=1.0-rate;
-					coldgausspoint=1.0-rate-0.1;
-				}
-				else {
-					gausspoint=1.0-rate;
-					coldgausspoint=1.0-rate;
-				}
-			}
-
-			//Possible methods of setting the perturbation:
-			//randnum=gaussrand()*powermod;
-			//randnum=gaussrand();
-
-			randnum=randposneg()*randfloat()*power*powermod;
-            //std::cout << "RANDOM: " << randnum << " " << randposneg() << " " << randfloat() << " " << power << " " << powermod << std::endl;
-			if (mut_type==GAUSSIAN) {
-				randchoice=randfloat();
-				if (randchoice>gausspoint)
-					((*curgene)->lnk)->weight+=randnum;
-				else if (randchoice>coldgausspoint)
-					((*curgene)->lnk)->weight=randnum;
-			}
-			else if (mut_type==COLDGAUSSIAN)
-				((*curgene)->lnk)->weight=randnum;
+			randnum=randposneg()*randfloat()*2.0;
+			
+			((*curgene)->lnk)->weight+= (int) randnum;
 
 			//Cap the weights at 8.0 (experimental)
-			if (((*curgene)->lnk)->weight > 8.0) ((*curgene)->lnk)->weight = 8.0;
-			else if (((*curgene)->lnk)->weight < -8.0) ((*curgene)->lnk)->weight = -8.0;
+			if (((*curgene)->lnk)->weight > 5.0) ((*curgene)->lnk)->weight = 5.0;
+			else if (((*curgene)->lnk)->weight < 0.0) ((*curgene)->lnk)->weight = 0.0;
 
 			//Record the innovation
 			//(*curgene)->mutation_num+=randnum;
@@ -1315,6 +1174,7 @@ void Genome::mutate_gene_reenable() {
 
 }
 
+/*
 bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,double &curinnov) {
 	std::vector<Gene*>::iterator thegene;  //random gene containing the original link
 	int genenum;  //The random gene number
@@ -1495,6 +1355,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,do
 	return true;
 
 } 
+*/
 
 bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,int tries) {
 
@@ -1507,7 +1368,6 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 	std::vector<Gene*>::iterator thegene; //Searches for existing link
 	bool found=false;  //Tells whether an open pair was found
 	std::vector<Innovation*>::iterator theinnov; //For finding a historical match
-	int recurflag; //Indicates whether proposed link is recurrent
 	Gene *newgene;  //The new Gene
 
 	int traitnum;  //Random trait finder
@@ -1516,184 +1376,69 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 	double newweight;  //The new weight for the new link
 
 	bool done;
-	bool do_recur;
-	bool loop_recur;
-	int first_nonsensor;
+	
 
 	//These are used to avoid getting stuck in an infinite loop checking
 	//for recursion
 	//Note that we check for recursion to control the frequency of
 	//adding recurrent links rather than to prevent any paricular
 	//kind of error
-	int thresh=(nodes.size())*(nodes.size());
-	int count=0;
+	//int thresh=(nodes.size())*(nodes.size());
+	//int count=0;
 
 	//Make attempts to find an unconnected pair
 	trycount=0;
 
+	//Loop to find a valid link
+	while(trycount<tries) {
 
-	//Decide whether to make this recurrent
-	if (randfloat()<NEAT::recur_only_prob) 
-		do_recur=true;
-	else do_recur=false;
+		//Choose random nodenums
+		nodenum1=randint(0,nodes.size()-1);
+		nodenum2=randint(0,nodes.size()-1);
 
-	//Find the first non-sensor so that the to-node won't look at sensors as
-	//possible destinations
-	first_nonsensor=0;
-	thenode1=nodes.begin();
-	while(((*thenode1)->get_type())==SENSOR) {
-		first_nonsensor++;
-		++thenode1;
-	}
+		//Find the first node
+		thenode1=nodes.begin();
+		for(nodecount=0;nodecount<nodenum1;nodecount++)
+			++thenode1;
 
-	//Here is the recurrent finder loop- it is done separately
-	if (do_recur) {
+		//Find the second node
+		thenode2=nodes.begin();
+		for(nodecount=0;nodecount<nodenum2;nodecount++)
+			++thenode2;
 
-		while(trycount<tries) {
+		nodep1=(*thenode1);
+		nodep2=(*thenode2);
 
-			//Some of the time try to make a recur loop
-			if (randfloat()>0.5) {
-				loop_recur=true;
+		//See if a link already exists  ALSO STOP AT END OF GENES!!!!
+		thegene=genes.begin();
+		while ((thegene!=genes.end()) && 
+			(!((((*thegene)->lnk)->in_node==nodep1)&&
+			(((*thegene)->lnk)->out_node==nodep2)))) {
+				++thegene;
 			}
-			else loop_recur=false;
 
-			if (loop_recur) {
-				nodenum1=randint(first_nonsensor,nodes.size()-1);
-				nodenum2=nodenum1;
-			}
+			if (thegene!=genes.end())
+				trycount++;
+			else if (nodep1->type == PLACE && nodep2->type == PLACE)
+				trycount++;
+			else if (nodep1->type == TRANSITION && nodep2->type == TRANSITION)
+				trycount++;
 			else {
-				//Choose random nodenums
-				nodenum1=randint(0,nodes.size()-1);
-				nodenum2=randint(first_nonsensor,nodes.size()-1);
+
+				//count=0;
+				trycount=tries;
+				found=true;
+		
 			}
 
-			//Find the first node
-			thenode1=nodes.begin();
-			for(nodecount=0;nodecount<nodenum1;nodecount++)
-				++thenode1;
+	} //End of normal link finding loop
 
-			//Find the second node
-			thenode2=nodes.begin();
-			for(nodecount=0;nodecount<nodenum2;nodecount++)
-				++thenode2;
-
-			nodep1=(*thenode1);
-			nodep2=(*thenode2);
-
-			//See if a recur link already exists  ALSO STOP AT END OF GENES!!!!
-			thegene=genes.begin();
-			while ((thegene!=genes.end()) && 
-				((nodep2->type)!=SENSOR) &&   //Don't allow SENSORS to get input
-				(!((((*thegene)->lnk)->in_node==nodep1)&&
-				(((*thegene)->lnk)->out_node==nodep2)&&
-				((*thegene)->lnk)->is_recurrent))) {
-					++thegene;
-				}
-
-				if (thegene!=genes.end())
-					trycount++;
-				else {
-					count=0;
-					recurflag=phenotype->is_recur(nodep1->analogue,nodep2->analogue,count,thresh);
-
-					//ADDED: CONSIDER connections out of outputs recurrent
-					if (((nodep1->type)==OUTPUT)||
-						((nodep2->type)==OUTPUT))
-						recurflag=true;
-
-					//Exit if the network is faulty (contains an infinite loop)
-					//NOTE: A loop doesn't really matter
-					//if (count>thresh) {
-					//  cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
-					//  return false;
-					//}
-
-					//Make sure it finds the right kind of link (recur)
-					if (!(recurflag))
-						trycount++;
-					else {
-						trycount=tries;
-						found=true;
-					}
-
-				}
-
-		}
-	}
-	else {
-		//Loop to find a nonrecurrent link
-		while(trycount<tries) {
-
-			//cout<<"TRY "<<trycount<<std::endl;
-
-			//Choose random nodenums
-			nodenum1=randint(0,nodes.size()-1);
-			nodenum2=randint(first_nonsensor,nodes.size()-1);
-
-			//Find the first node
-			thenode1=nodes.begin();
-			for(nodecount=0;nodecount<nodenum1;nodecount++)
-				++thenode1;
-
-			//cout<<"RETRIEVED NODE# "<<(*thenode1)->node_id<<std::endl;
-
-			//Find the second node
-			thenode2=nodes.begin();
-			for(nodecount=0;nodecount<nodenum2;nodecount++)
-				++thenode2;
-
-			nodep1=(*thenode1);
-			nodep2=(*thenode2);
-
-			//See if a link already exists  ALSO STOP AT END OF GENES!!!!
-			thegene=genes.begin();
-			while ((thegene!=genes.end()) && 
-				((nodep2->type)!=SENSOR) &&   //Don't allow SENSORS to get input
-				(!((((*thegene)->lnk)->in_node==nodep1)&&
-				(((*thegene)->lnk)->out_node==nodep2)&&
-				(!(((*thegene)->lnk)->is_recurrent))))) {
-					++thegene;
-				}
-
-				if (thegene!=genes.end())
-					trycount++;
-				else {
-
-					count=0;
-					recurflag=phenotype->is_recur(nodep1->analogue,nodep2->analogue,count,thresh);
-
-					//ADDED: CONSIDER connections out of outputs recurrent
-					if (((nodep1->type)==OUTPUT)||
-						((nodep2->type)==OUTPUT))
-						recurflag=true;
-
-					//Exit if the network is faulty (contains an infinite loop)
-					if (count>thresh) {
-						//cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
-						//return false;
-					}
-
-					//Make sure it finds the right kind of link (recur or not)
-					if (recurflag)
-						trycount++;
-					else {
-						trycount=tries;
-						found=true;
-					}
-
-				}
-
-		} //End of normal link finding loop
-	}
 
 	//Continue only if an open link was found
 	if (found) {
 
 		//Check to see if this innovation already occured in the population
 		theinnov=innovs.begin();
-
-		//If it was supposed to be recurrent, make sure it gets labeled that way
-		if (do_recur) recurflag=1;
 
 		done=false;
 
@@ -1709,29 +1454,13 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 					return false;
 				}
 
-				//Useful for debugging
-				//cout<<"nodep1 id: "<<nodep1->node_id<<std::endl;
-				//cout<<"nodep1: "<<nodep1<<std::endl;
-				//cout<<"nodep1 analogue: "<<nodep1->analogue<<std::endl;
-				//cout<<"nodep2 id: "<<nodep2->node_id<<std::endl;
-				//cout<<"nodep2: "<<nodep2<<std::endl;
-				//cout<<"nodep2 analogue: "<<nodep2->analogue<<std::endl;
-				//cout<<"recurflag: "<<recurflag<<std::endl;
-
-				//NOTE: Something like this could be used for time delays,
-				//      which are not yet supported.  However, this does not
-				//      have an application with recurrency.
-				//If not recurrent, randomize recurrency
-				//if (!recurflag) 
-				//  if (randfloat()<recur_prob) recurflag=1;
-
 				//Choose a random trait
 				traitnum=randint(0,(traits.size())-1);
 				thetrait=traits.begin();
 
 				//Choose the new weight
 				//newweight=(gaussrand())/1.5;  //Could use a gaussian
-				newweight=randposneg()*randfloat()*1.0; //used to be 10.0
+				newweight = (int)(randfloat()*10.0); //used to be 10.0
 
 				//Create the new gene
 				newgene=new Gene(((thetrait[traitnum])),newweight,nodep1,nodep2,curinnov,newweight);
@@ -1746,8 +1475,7 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 			//OTHERWISE, match the innovation in the innovs list
 			else if (((*theinnov)->innovation_type==NEWLINK)&&
 				((*theinnov)->node_in_id==(nodep1->node_id))&&
-				((*theinnov)->node_out_id==(nodep2->node_id))&&
-				((*theinnov)->recur_flag==(bool)recurflag)) {
+				((*theinnov)->node_out_id==(nodep2->node_id))) {
 
 					thetrait=traits.begin();
 
@@ -1776,7 +1504,149 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 
 }
 
+bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov,int tries) {
 
+        int nodenum1,nodenum2;  //Random node numbers
+        std::vector<NNode*>::iterator thenode1,thenode2;  //Random node iterators
+        int nodecount;  //Counter for finding nodes
+        int trycount; //Iterates over attempts to find an unconnected pair of nodes
+        NNode *nodep1; //Pointers to the nodes
+        NNode *nodep2; //Pointers to the nodes
+        std::vector<Gene*>::iterator thegene; //Searches for existing link
+        bool found=false;  //Tells whether an open pair was found
+        std::vector<Innovation*>::iterator theinnov; //For finding a historical match
+        Gene *newgene;  //The new Gene
+
+        int traitnum;  //Random trait finder
+        std::vector<Trait*>::iterator thetrait;
+
+        double newweight;  //The new weight for the new link
+
+        bool done;
+        //bool loop_recur;
+        //int first_nonsensor;
+
+        //These are used to avoid getting stuck in an infinite loop checking
+        //for recursion
+        //Note that we check for recursion to control the frequency of
+        //adding recurrent links rather than to prevent any paricular
+        //kind of error
+        //int thresh=(nodes.size())*(nodes.size());
+        //int count=0;
+
+        //Make attempts to find an unconnected pair
+        trycount=0;
+
+        //Loop to find a valid link
+        while(trycount<tries) {
+
+                //Choose random nodenums
+                nodenum1=randint(0,nodes.size()-1);
+                nodenum2=randint(0,nodes.size()-1);
+
+                //Find the first node
+                thenode1=nodes.begin();
+                for(nodecount=0;nodecount<nodenum1;nodecount++)
+                        ++thenode1;
+
+                //Find the second node
+                thenode2=nodes.begin();
+                for(nodecount=0;nodecount<nodenum2;nodecount++)
+                       ++thenode2;
+
+                nodep1=(*thenode1);
+                nodep2=(*thenode2);
+
+                //See if a link already exists  ALSO STOP AT END OF GENES!!!!
+                thegene=genes.begin();
+                while ((thegene!=genes.end()) &&
+                        (!((((*thegene)->lnk)->in_node==nodep1)&&
+                        (((*thegene)->lnk)->out_node==nodep2)))) {
+                                ++thegene;
+                        }
+
+                        if (thegene!=genes.end())
+                                trycount++;
+                        else if (nodep1->type == PLACE && nodep2->type == TRANSITION)
+                                trycount++;
+                        else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
+                                trycount++;
+                        else {
+
+                                //count=0;
+                                trycount=tries;
+                                found=true;
+
+                        }
+
+        } //End of normal link finding loop
+
+
+        //Continue only if an open link was found
+        if (found) {
+
+                //Check to see if this innovation already occured in the population
+                theinnov=innovs.begin();
+
+                done=false;
+
+                while(!done) {
+
+                        //The innovation is totally novel
+                        if (theinnov==innovs.end()) {
+
+                                //If the phenotype does not exist, exit on false,print error
+                                //Note: This should never happen- if it does there is a bug
+                                if (phenotype==0) {
+                                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
+                                        return false;
+				}
+ traitnum=randint(0,(traits.size())-1);
+                                thetrait=traits.begin();
+
+                                //Choose the new weight
+                                newweight = (int)(randfloat()*10.0); //used to be 10.0
+
+                                //Create the new gene
+                                newgene=new Gene(((thetrait[traitnum])),newweight,nodep1,nodep2,curinnov,newweight);
+
+                                //Add the innovation
+                                innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,newweight,traitnum));
+
+                                curinnov=curinnov+1.0;
+
+                                done=true;
+                        }
+                        //OTHERWISE, match the innovation in the innovs list
+                        else if (((*theinnov)->innovation_type==NEWLINK)&&
+                                ((*theinnov)->node_in_id==(nodep1->node_id))&&
+                                ((*theinnov)->node_out_id==(nodep2->node_id))) {
+
+                                        thetrait=traits.begin();
+                                        //Create new gene
+                                        newgene=new Gene(((thetrait[(*theinnov)->new_traitnum])),(*theinnov)->new_weight,nodep1,nodep2,(*theinnov)->innovation_num1,0);
+                                        done=true;
+
+                                }
+                        else {
+                                //Keep looking for a matching innovation from this generation
+                                ++theinnov;
+                        }
+                }
+
+                //Now add the new Genes to the Genome
+                //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
+                add_gene(genes,newgene);  //Adds the gene in correct order
+
+
+                return true;
+        }
+        else {
+                return false;
+        }
+}
+
+/*
 void Genome::mutate_add_sensor(std::vector<Innovation*> &innovs,double &curinnov) {
 
 	std::vector<NNode*> sensors;
@@ -1912,7 +1782,7 @@ void Genome::mutate_add_sensor(std::vector<Innovation*> &innovs,double &curinnov
 	}
 
 }
-
+*/
 
 //Adds a new gene that has been created through a mutation in the
 //*correct order* into the list of genes in the genome
@@ -2104,11 +1974,9 @@ Genome *Genome::mate_multipoint(Genome *g,int genomeid,double fitness1,double fi
 			curgene2=newgenes.begin();
 			while ((curgene2!=newgenes.end())&&
 				(!((((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-				(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&((((*curgene2)->lnk)->is_recurrent)== (((chosengene)->lnk)->is_recurrent)) ))&&
+				(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))   ))&&
 				(!((((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&
-				(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-				(!((((*curgene2)->lnk)->is_recurrent)))&&
-				(!((((chosengene)->lnk)->is_recurrent))) )))
+				(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))  )))
 			{	
 				++curgene2;
 			}
@@ -2407,9 +2275,6 @@ Genome *Genome::mate_multipoint_avg(Genome *g,int genomeid,double fitness1,doubl
 					if (randfloat()>0.5) (avgene->lnk)->out_node=((*p1gene)->lnk)->out_node;
 					else (avgene->lnk)->out_node=((*p2gene)->lnk)->out_node;
 
-					if (randfloat()>0.5) (avgene->lnk)->is_recurrent=((*p1gene)->lnk)->is_recurrent;
-					else (avgene->lnk)->is_recurrent=((*p2gene)->lnk)->is_recurrent;
-
 					avgene->innovation_num=(*p1gene)->innovation_num;
 					avgene->mutation_num=((*p1gene)->mutation_num+(*p2gene)->mutation_num)/2.0;
 
@@ -2452,12 +2317,9 @@ Genome *Genome::mate_multipoint_avg(Genome *g,int genomeid,double fitness1,doubl
 			{
 
 				if (((((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-					(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&
-					((((*curgene2)->lnk)->is_recurrent)== (((chosengene)->lnk)->is_recurrent)))||
+					(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id)))||
 					((((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-					(((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&
-					(!((((*curgene2)->lnk)->is_recurrent)))&&
-					(!((((chosengene)->lnk)->is_recurrent)))     ))
+					(((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))   ))
 				{ 
 					skip=true;
 
@@ -2706,9 +2568,6 @@ Genome *Genome::mate_singlepoint(Genome *g,int genomeid) {
 					if (randfloat()>0.5) (avgene->lnk)->out_node=((*p1gene)->lnk)->out_node;
 					else (avgene->lnk)->out_node=((*p2gene)->lnk)->out_node;
 
-					if (randfloat()>0.5) (avgene->lnk)->is_recurrent=((*p1gene)->lnk)->is_recurrent;
-					else (avgene->lnk)->is_recurrent=((*p2gene)->lnk)->is_recurrent;
-
 					avgene->innovation_num=(*p1gene)->innovation_num;
 					avgene->mutation_num=((*p1gene)->mutation_num+(*p2gene)->mutation_num)/2.0;
 
@@ -2747,11 +2606,9 @@ Genome *Genome::mate_singlepoint(Genome *g,int genomeid) {
 
 		while ((curgene2!=newgenes.end())&&
 			(!((((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-			(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&((((*curgene2)->lnk)->is_recurrent)== (((chosengene)->lnk)->is_recurrent)) ))&&
+			(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))  ))&&
 			(!((((((*curgene2)->lnk)->in_node)->node_id)==((((chosengene)->lnk)->out_node)->node_id))&&
-			(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))&&
-			(!((((*curgene2)->lnk)->is_recurrent)))&&
-			(!((((chosengene)->lnk)->is_recurrent))) )))
+			(((((*curgene2)->lnk)->out_node)->node_id)==((((chosengene)->lnk)->in_node)->node_id))  )))
 		{
 
 			++curgene2;
