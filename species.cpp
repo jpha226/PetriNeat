@@ -562,7 +562,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 
 					if (randfloat()<NEAT::mutate_add_node_prob) {
 						//std::cout<<"mutate add node"<<std::endl;
-						new_genome->mutate_add_node(pop->innovations,pop->cur_innov_num,NEAT::newlink_tries);
+						new_genome->mutate_add_node(pop->innovations,pop->cur_node_id,pop->cur_innov_num,NEAT::newlink_tries);
 						mut_struct_baby=true;
 					}
 					else if (randfloat()<NEAT::mutate_add_link_prob) {

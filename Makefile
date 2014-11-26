@@ -7,7 +7,7 @@ CC = g++ -O3
 
 #CFLAGS = -g -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL
 #CFLAGS = -g -Wall -Werror
-CFLAGS = -g -Wall 
+CFLAGS = -g -Wall `wx-config --cxxflags --libs`
 
 neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o #neatswig_wrap.o visual.o
 	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o -o neat
@@ -51,6 +51,9 @@ population.o: population.cpp population.h organism.h
 experiments.o: experiments.cpp experiments.h network.h species.h
 	$(CC) $(CFLAGS) -c experiments.cpp -o experiments.o
 
+#simulatorInterface.o: simulatorInterface.cpp simulatorInterface.h
+#	$(CC) $(CFLAGS) -c simulatorInterface.cpp -o simulatorInterface.o
+
 neatmain.o: neatmain.cpp neatmain.h neat.h population.h
 	$(CC) $(CFLAGS) -c neatmain.cpp -o neatmain.o
 
@@ -58,4 +61,4 @@ neatmain.o: neatmain.cpp neatmain.h neat.h population.h
 ########################
 
 clean:
-	rm -f neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o neat
+	rm -f neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o neat simulatorInterface.o

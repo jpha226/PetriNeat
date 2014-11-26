@@ -14,7 +14,7 @@
    limitations under the License.
 */
 #include "experiments.h"
-#include "simulatorInterface.h"
+//#include "simulatorInterface.h"
 #include <cstring>
 
 // Perform evolution for Petri Nets, for gens generations
@@ -136,7 +136,7 @@ Population *petrinet_test(int gens) {
 
 
 
-float petrinet_evaluate(Organism *org) {
+bool petrinet_evaluate(Organism *org) {
 
 	/* 
 	*
@@ -171,13 +171,13 @@ float petrinet_evaluate(Organism *org) {
 		}
 	} */
 
-	SimulatorInterface si(&actions);	
+//	SimulatorInterface si(&actions);	
 	//si.runSimulation();
-	si.displaySimulation();
-	float fitness = si.getFitnessValue();
-	printf("%f\n", fitness);
+//	si.displaySimulation();
+//	float fitness = si.getFitnessValue();
+//	printf("%f\n", fitness);
 	
-	return fitness;
+	return false;
 }
 
 int petrinet_epoch(Population *pop, int generation, char *filename, int &winnernum, int &winnergenes, int &winnernodes) {

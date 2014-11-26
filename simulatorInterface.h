@@ -1,8 +1,8 @@
 #ifndef SIMULATORINTERFACE_H
 #define SIMULATORINTERFACE_H
 
-#include "wx/wx.h"
-#include "wx/sizer.h"
+#include <wx/wx.h>
+#include <wx/sizer.h>
 #include <vector>
 #include <string>
 

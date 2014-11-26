@@ -46,7 +46,7 @@ namespace NEAT {
 	public:
 		int genome_id;
 
-		std::vector<Trait*> traits; //parameter conglomerations
+		//std::vector<Trait*> traits; //parameter conglomerations
 		std::vector<NNode*> nodes; //List of NNodes for the Network
 		std::vector<Gene*> genes; //List of innovation-tracking genes
 
@@ -58,10 +58,10 @@ namespace NEAT {
 		void print_genome(); //Displays Genome on screen
 
 		//Constructor which takes full genome specs and puts them into the new one
-		Genome(int id, std::vector<Trait*> t, std::vector<NNode*> n, std::vector<Gene*> g);
+		Genome(int id, std::vector<NNode*> n, std::vector<Gene*> g);
 
 		//Constructor which takes in links (not genes) and creates a Genome
-		Genome(int id, std::vector<Trait*> t, std::vector<NNode*> n, std::vector<Link*> links);
+		Genome(int id, std::vector<NNode*> n, std::vector<Link*> links);
 
 		// Copy constructor
 		Genome(const Genome& genome);
@@ -137,7 +137,7 @@ namespace NEAT {
 		//   Generally, if they fail, they can be called again if desired. 
 
 		// Mutate genome by adding a node respresentation 
-		bool mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov, int tries);
+		bool mutate_add_node(std::vector<Innovation*> &innovs, int &curnode_id, double &curinnov, int tries);
 
 		// Mutate the genome by adding a new link between 2 random NNodes 
 		bool mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,int tries); 

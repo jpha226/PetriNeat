@@ -42,9 +42,9 @@ namespace NEAT {
 		/*********************************/		
 
 
-		Trait *linktrait; // Points to a trait of parameters for genetic creation
+		//Trait *linktrait; // Points to a trait of parameters for genetic creation
 
-		int trait_id;  // identify the trait derived by this link
+		//int trait_id;  // identify the trait derived by this link
 
 		// ************ LEARNING PARAMETERS *********** 
 		// These are link-related parameters that change during Hebbian type learning
@@ -55,7 +55,7 @@ namespace NEAT {
 		Link(int w,NNode *in,NNode *out);
 
 		// Including a trait pointer in the Link creation
-		Link(Trait *lt,int w,NNode *in,NNode *out);
+		//Link(Trait *lt,int w,NNode *in,NNode *out);
 
 		// For when you don't know the connections yet
 		Link(int w);
@@ -67,7 +67,7 @@ namespace NEAT {
 		~Link();
 
 		// Derive a trait into link params
-		void derive_trait(Trait *curtrait);
+		//void derive_trait(Trait *curtrait);
 
 	};
 

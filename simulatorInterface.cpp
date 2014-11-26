@@ -1,8 +1,8 @@
-#include "wx/wx.h"
-#include "wx/sizer.h"
-#include "wx/init.h"
-#include "wx/app.h"
-#include "wx/font.h"
+#include <wx/wx.h>
+#include <wx/sizer.h>
+#include <wx/init.h>
+#include <wx/app.h>
+#include <wx/font.h>
 #include "simulatorInterface.h"
 #include <math.h>
 #include <stdio.h>

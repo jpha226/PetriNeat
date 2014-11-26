@@ -36,13 +36,13 @@ namespace NEAT {
 		Gene(int w,NNode *inode,NNode *onode,double innov,double mnum);
 
 		//Construct a gene with a trait
-		Gene(Trait *tp, int w,NNode *inode,NNode *onode, double innov,double mnum);
+		//Gene(int w,NNode *inode,NNode *onode, double innov,double mnum);
 
 		//Construct a gene off of another gene as a duplicate
-		Gene(Gene *g,Trait *tp,NNode *inode,NNode *onode);
+		Gene(Gene *g,NNode *inode,NNode *onode);
 
 		//Construct a gene from a file spec given traits and nodes
-		Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*> &nodes);
+		Gene(const char *argline, std::vector<NNode*> &nodes);
 
 		// Copy Constructor
 		Gene(const Gene& gene);

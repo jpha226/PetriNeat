@@ -30,19 +30,9 @@ Gene::Gene(int w, NNode *inode, NNode *onode, double innov, double mnum) {
 }
 
 
-Gene::Gene(Trait *tp,int w,NNode *inode,NNode *onode,double innov,double mnum) {
-	lnk=new Link(tp,w,inode,onode);
-	innovation_num=innov;
-	mutation_num=mnum;
-
-	enable=true;
-
-	frozen=false;
-}
-
-Gene::Gene(Gene *g,Trait *tp,NNode *inode,NNode *onode) {
+Gene::Gene(Gene *g,NNode *inode,NNode *onode) {
 	//cout<<"Trying to attach nodes: "<<inode<<" "<<onode<<endl;
-	lnk=new Link(tp,(g->lnk)->weight,inode,onode);
+	lnk=new Link((g->lnk)->weight,inode,onode);
 	innovation_num=g->innovation_num;
 	mutation_num=g->mutation_num;
 	enable=g->enable;
@@ -50,18 +40,16 @@ Gene::Gene(Gene *g,Trait *tp,NNode *inode,NNode *onode) {
 	frozen=g->frozen;
 }
 
-Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*> &nodes) {
+Gene::Gene(const char *argline, std::vector<NNode*> &nodes) {
 	//Gene parameter holders
-	int traitnum;
+	//int traitnum;
 	int inodenum;
 	int onodenum;
 	NNode *inode;
 	NNode *onode;
 	int weight;
 	int recur;
-	Trait *traitptr;
-
-	std::vector<Trait*>::iterator curtrait;
+	
 	std::vector<NNode*>::iterator curnode;
 
 	//Get the gene parameters
@@ -95,15 +83,6 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
     //std::cout << mutation_num << " " << enable << std::endl;
 
 	frozen=false; //TODO: MAYBE CHANGE
-	traitnum = 0;
-	//Get a pointer to the linktrait
-	if (traitnum==0) traitptr=0;
-	else {
-		curtrait=traits.begin();
-		while(((*curtrait)->trait_id)!=traitnum)
-			++curtrait;
-		traitptr=(*curtrait);
-	}
 
 	//Get a pointer to the input node
 	curnode=nodes.begin();
@@ -117,7 +96,7 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
 		++curnode;
 	onode=(*curnode);
 
-	lnk=new Link(traitptr,weight,inode,onode);
+	lnk=new Link(weight,inode,onode);
 }
 
 Gene::Gene(const Gene& gene)
@@ -131,7 +110,11 @@ Gene::Gene(const Gene& gene)
 }
 
 Gene::~Gene() {
-	delete lnk;
+	std::cout << "delete gene"<<std::endl;
+	if (lnk != NULL){
+		delete lnk;
+		lnk = NULL;
+	}
 }
 
 

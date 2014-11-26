@@ -65,13 +65,13 @@ namespace NEAT {
 		bool recur_flag;
 
 		//Constructor for the new node case
-		Innovation(int nin,int nout,double num1,double num2,int newid,double oldinnov);
+		Innovation(int nin,int nout,double num1,double num2,int newid);
 
 		//Constructor for new link case
-		Innovation(int nin,int nout,double num1,double w,int t);
+		Innovation(int nin,int nout,double num1,double w);
 
 		//Constructor for a recur link
-		Innovation(int nin,int nout,double num1,double w,int t,bool recur);
+//		Innovation(int nin,int nout,double num1,double w,int t,bool recur);
 
 	};
 

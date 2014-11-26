@@ -29,16 +29,16 @@ NNode::NNode(nodetype ntype,int nodeid) {
 	activation_count=0; //Inactive upon creation
 	node_id=nodeid;
 	ftype=SIGMOID;
-	nodetrait=0;
+	//nodetrait=0;
 	gen_node_label=HIDDEN;
 	dup=0;
 	analogue=0;
 	frozen=false;
-	trait_id=1;
+	//trait_id=1;
 	override=false;
 }
 
-NNode::NNode(NNode *n,Trait *t) {
+NNode::NNode(NNode *n) {
 	active_flag=false;
 	activation=0;
 	output=0;
@@ -48,39 +48,23 @@ NNode::NNode(NNode *n,Trait *t) {
 	activation_count=0; //Inactive upon creation
 	node_id=n->node_id;
 	ftype=SIGMOID;
-	nodetrait=0;
+	//nodetrait=0;
 	gen_node_label=n->gen_node_label;
 	dup=0;
 	analogue=0;
-	nodetrait=t;
+	//nodetrait=t;
 	frozen=false;
-	if (t!=0)
-		trait_id=t->trait_id;
-	else trait_id=1;
+	//if (t!=0)
+	//	trait_id=t->trait_id;
+	//else trait_id=1;
 	override=false;
 }
 
-NNode::NNode (const char *argline, std::vector<Trait*> &traits) {
-	int traitnum;
-	std::vector<Trait*>::iterator curtrait;
+NNode::NNode (const char *argline) {
 
 	activesum=0;
 
     std::stringstream ss(argline);
-	//char curword[128];
-	//char delimiters[] = " \n";
-	//int curwordnum = 0;
-
-	//Get the node parameters
-	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
-	//node_id = atoi(curword);
-	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
-	//traitnum = atoi(curword);
-	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
-	//type = (nodetype)atoi(curword);
-	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
-	//gen_node_label = (nodeplace)atoi(curword);
-
     int nodety;//, nodeact, node_ct;
 
     ss >> node_id  >> nodety >> action_ID >> tok_count;
@@ -90,16 +74,6 @@ NNode::NNode (const char *argline, std::vector<Trait*> &traits) {
 	// Get the Sensor Identifier and Parameter String
 	// mySensor = SensorRegistry::getSensor(id, param);
 	frozen=false;  //TODO: Maybe change
-	traitnum =0;
-	//Get a pointer to the trait this node points to
-	if (traitnum==0) nodetrait=0;
-	else {
-		curtrait=traits.begin();
-		while(((*curtrait)->trait_id)!=traitnum)
-			++curtrait;
-		nodetrait=(*curtrait);
-		trait_id=nodetrait->trait_id;
-	}
 
 	override=false;
 }
@@ -117,12 +91,12 @@ NNode::NNode (const NNode& nnode)
 	activation_count = nnode.activation_count; //Inactive upon creation
 	node_id = nnode.node_id;
 	ftype = nnode.ftype;
-	nodetrait = nnode.nodetrait;
+	//nodetrait = nnode.nodetrait;
 	gen_node_label = nnode.gen_node_label;
 	dup = nnode.dup;
 	analogue = nnode.dup;
 	frozen = nnode.frozen;
-	trait_id = nnode.trait_id;
+//	trait_id = nnode.trait_id;
 	override = nnode.override;
 }
 
@@ -318,47 +292,8 @@ void NNode::flushback_check(std::vector<NNode*> &seenlist) {
 
 }
 */
-// Reserved for future system expansion
-void NNode::derive_trait(Trait *curtrait) {
 
-	if (curtrait!=0) {
-		for (int count=0;count<NEAT::num_trait_params;count++)
-			params[count]=(curtrait->params)[count];
-	}
-	else {
-		for (int count=0;count<NEAT::num_trait_params;count++)
-			params[count]=0;
-	}
 
-	if (curtrait!=0)
-		trait_id=curtrait->trait_id;
-	else trait_id=1;
-
-}
-/*
-// Returns the gene that created the node
-NNode *NNode::get_analogue() {
-	return analogue;
-}
-
-// Force an output value on the node
-void NNode::override_output(double new_output) {
-	override_value=new_output;
-	override=true;
-}
-
-// Tell whether node has been overridden
-bool NNode::overridden() {
-	return override;
-}
-
-// Set activation to the override value and turn off override
-void NNode::activate_override() {
-	activation=override_value;
-	override=false;
-}
-
-*/
 void NNode::print_to_file(std::ofstream &outFile) {
   outFile<<"node "<<node_id<<" ";
   //if (nodetrait!=0) outFile<<nodetrait->trait_id<<" ";
@@ -370,59 +305,13 @@ void NNode::print_to_file(std::ofstream &outFile) {
 
 
 void NNode::print_to_file(std::ostream &outFile) {
-	//outFile<<"node "<<node_id<<" ";
-	//if (nodetrait!=0) outFile<<nodetrait->trait_id<<" ";
-	//else outFile<<"0 ";
-	//outFile<<type<<" ";
-	//outFile<<gen_node_label<<std::endl;
 
 	char tempbuf[128];
 	sprintf(tempbuf, "node %d ", node_id);
 	outFile << tempbuf;
 
-	//if (nodetrait != 0) {
-	//	char tempbuf2[128];
-	//	sprintf(tempbuf2, "%d ", nodetrait->trait_id);
-	//	outFile << tempbuf2;
-	//}
-	//else outFile << "0 ";
-
 	char tempbuf2[128];
 	sprintf(tempbuf2, "%d %d %d\n", type, action_ID,tok_count);
 	outFile << tempbuf2;
 }
-/*
-//Find the greatest depth starting from this neuron at depth d
-int NNode::depth(int d, Network *mynet) {
-  std::vector<Link*> innodes=this->incoming;
-  std::vector<Link*>::iterator curlink;
-  int cur_depth; //The depth of the current node
-  int max=d; //The max depth
-
-  if (d>100) {
-    //std::cout<<mynet->genotype<<std::endl;
-    //std::cout<<"** DEPTH NOT DETERMINED FOR NETWORK WITH LOOP"<<std::endl;
-    return 10;
-  }
-
-  //Base Case
-  if ((this->type)==SENSOR)
-    return d;
-  //Recursion
-  else {
-
-    for(curlink=innodes.begin();curlink!=innodes.end();++curlink) {
-      cur_depth=((*curlink)->in_node)->depth(d+1,mynet);
-      if (cur_depth>max) max=cur_depth;
-    }
-  
-    return max;
-
-  } //end else
-
-}
-
-*/
-
-
 

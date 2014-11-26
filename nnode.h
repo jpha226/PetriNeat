@@ -63,9 +63,9 @@ namespace NEAT {
 		// of a recurrent link is one time step ahead of the outnode.
 		// The innode then needs to send from TWO time steps ago
 
-		Trait *nodetrait; // Points to a trait of parameters
+//		Trait *nodetrait; // Points to a trait of parameters
 
-		int trait_id;  // identify the trait derived by this node
+//		int trait_id;  // identify the trait derived by this node
 
 		NNode *dup;       // Used for Genome duplication
 
@@ -122,10 +122,10 @@ namespace NEAT {
 		NNode(nodetype ntype,int nodeid);
 
 		// Construct a NNode off another NNode for genome purposes
-		NNode(NNode *n,Trait *t);
+		NNode(NNode *n);
 
 		// Construct the node out of a file specification using given list of traits
-		NNode (const char *argline, std::vector<Trait*> &traits);
+		NNode (const char *argline);
 
 		// Copy Constructor
 		NNode (const NNode& nnode);
@@ -164,7 +164,7 @@ namespace NEAT {
 	void print_to_file(std::ofstream &outFile);
 
 		// Have NNode gain its properties from the trait
-		void derive_trait(Trait *curtrait);
+//		void derive_trait(Trait *curtrait);
 
 		// Returns the gene that created the node
 		NNode *get_analogue();

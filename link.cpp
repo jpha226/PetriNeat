@@ -25,33 +25,18 @@ Link::Link(int w,NNode *in,NNode *out) {
 	out_node ->incoming.push_back(this);
 
 	added_weight=0;
-	linktrait=0;
+	//linktrait=0;
 	//time_delay=false;
-	trait_id=1;
+	//trait_id=1;
 }
-
-Link::Link(Trait *lt,int w,NNode *in,NNode *out) {
-	weight=w;
-        in_node=in;
-        out_node = out;
-        in_node -> outgoing.push_back(this);
-        out_node ->incoming.push_back(this);
-
-	added_weight=0;
-	linktrait=lt;
-	//time_delay=false;
-	if (lt!=0)
-		trait_id=lt->trait_id;
-	else trait_id=1;
-}	
 
 Link::Link(int w) {
 	weight=w;
 	in_node=out_node=0;  
 	//is_recurrent=false;
-	linktrait=0;
+//	linktrait=0;
 	//time_delay=false;
-	trait_id=1;
+//	trait_id=1;
 }
 
 Link::Link(const Link& link)
@@ -61,30 +46,13 @@ Link::Link(const Link& link)
 	out_node = link.out_node;
 	//is_recurrent = link.is_recurrent;
 	added_weight = link.added_weight;
-	linktrait = link.linktrait;
+//	linktrait = link.linktrait;
 	//time_delay = link.time_delay;
-	trait_id = link.trait_id;
+//	trait_id = link.trait_id;
 	enabled = link.enabled;
 }
 
 Link::~Link()
 {
-
-}
-
-void Link::derive_trait(Trait *curtrait) {
-
-	if (curtrait!=0) {
-		for (int count=0;count<NEAT::num_trait_params;count++)
-			params[count]=(curtrait->params)[count];
-	}
-	else {
-		for (int count=0;count<NEAT::num_trait_params;count++)
-			params[count]=0;
-	}
-
-	if (curtrait!=0)
-		trait_id=curtrait->trait_id;
-	else trait_id=1;
 
 }
