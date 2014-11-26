@@ -81,16 +81,16 @@ NNode::NNode (const char *argline, std::vector<Trait*> &traits) {
 	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
 	//gen_node_label = (nodeplace)atoi(curword);
 
-    int nodety, nodepl;
-// ss >> node_id >> traitnum >> nodety >> action_id >> tok_count;
-    ss >> node_id >> traitnum >> nodety >> nodepl;
+    int nodety;//, nodeact, node_ct;
+
+    ss >> node_id  >> nodety >> action_ID >> tok_count;
     type = (nodetype)nodety;
-    gen_node_label = (nodeplace)nodepl;
+    //gen_node_label = (nodeplace)nodepl;
 
 	// Get the Sensor Identifier and Parameter String
 	// mySensor = SensorRegistry::getSensor(id, param);
 	frozen=false;  //TODO: Maybe change
-
+	traitnum =0;
 	//Get a pointer to the trait this node points to
 	if (traitnum==0) nodetrait=0;
 	else {
@@ -131,7 +131,10 @@ NNode::~NNode() {
 
 	//Kill off all incoming links
 	for(curlink=incoming.begin();curlink!=incoming.end();++curlink) {
-		delete (*curlink);
+		if ((*curlink) != NULL){
+			delete (*curlink);
+			(*curlink) = NULL;
+		}
 	}
 	//if (nodetrait!=0) delete nodetrait;
 }
@@ -358,10 +361,11 @@ void NNode::activate_override() {
 */
 void NNode::print_to_file(std::ofstream &outFile) {
   outFile<<"node "<<node_id<<" ";
-  if (nodetrait!=0) outFile<<nodetrait->trait_id<<" ";
-  else outFile<<"0 ";
+  //if (nodetrait!=0) outFile<<nodetrait->trait_id<<" ";
+  //else outFile<<"0 ";
   outFile<<type<<" ";
-  outFile<<gen_node_label<<std::endl;
+  outFile<<action_ID<< " ";
+  outFile<<tok_count<<std::endl;
 }
 
 
@@ -376,15 +380,15 @@ void NNode::print_to_file(std::ostream &outFile) {
 	sprintf(tempbuf, "node %d ", node_id);
 	outFile << tempbuf;
 
-	if (nodetrait != 0) {
-		char tempbuf2[128];
-		sprintf(tempbuf2, "%d ", nodetrait->trait_id);
-		outFile << tempbuf2;
-	}
-	else outFile << "0 ";
+	//if (nodetrait != 0) {
+	//	char tempbuf2[128];
+	//	sprintf(tempbuf2, "%d ", nodetrait->trait_id);
+	//	outFile << tempbuf2;
+	//}
+	//else outFile << "0 ";
 
 	char tempbuf2[128];
-	sprintf(tempbuf2, "%d %d\n", type, gen_node_label);
+	sprintf(tempbuf2, "%d %d %d\n", type, action_ID,tok_count);
 	outFile << tempbuf2;
 }
 /*

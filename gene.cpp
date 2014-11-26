@@ -89,13 +89,13 @@ Gene::Gene(const char *argline, std::vector<Trait*> &traits, std::vector<NNode*>
 	//strcpy(curword, NEAT::getUnit(argline, curwordnum++, delimiters));
 	//enable = (bool)(atoi(curword));
 // ss >> traitnum >> inodenum >> onodenum >> weight >> innovation_num >> mutation_num >> enable
-    ss >> traitnum >> inodenum >> onodenum >> weight >> innovation_num >> mutation_num >> enable;
+    ss >> inodenum >> onodenum >> weight >> innovation_num >> mutation_num >> enable;
     //std::cout << traitnum << " " << inodenum << " " << onodenum << " ";
     //std::cout << weight << " " << recur << " " << innovation_num << " ";
     //std::cout << mutation_num << " " << enable << std::endl;
 
 	frozen=false; //TODO: MAYBE CHANGE
-
+	traitnum = 0;
 	//Get a pointer to the linktrait
 	if (traitnum==0) traitptr=0;
 	else {
@@ -138,12 +138,12 @@ Gene::~Gene() {
 void Gene::print_to_file(std::ofstream &outFile) {
   outFile<<"gene ";
   //Start off with the trait number for this gene
-  if ((lnk->linktrait)==0) outFile<<"0 ";
-  else outFile<<((lnk->linktrait)->trait_id)<<" ";
+  //if ((lnk->linktrait)==0) outFile<<"0 ";
+  //else outFile<<((lnk->linktrait)->trait_id)<<" ";
   outFile<<(lnk->in_node)->node_id<<" ";
   outFile<<(lnk->out_node)->node_id<<" ";
   outFile<<(lnk->weight)<<" ";
-  outFile<<(lnk->enabled)<<" ";
+  //outFile<<(lnk->enabled)<<" ";
   outFile<<innovation_num<<" ";
   outFile<<mutation_num<<" ";
   outFile<<enable<<std::endl;
@@ -153,27 +153,12 @@ void Gene::print_to_file(std::ofstream &outFile) {
 void Gene::print_to_file(std::ostream &outFile) {
 	outFile<<"gene ";
 	//outFile.write(5, "gene ");
-
-	//Start off with the trait number for this gene
-	if ((lnk->linktrait)==0) {
-		outFile<<"0 ";
-		//outFile.write(2, "0 ");
-	}
-	else {
-		outFile<<((lnk->linktrait)->trait_id)<<" ";
-		//char tempbuf2[128];
-		//sprintf(tempbuf2, sizeof(tempbuf2),"%d ", (lnk->linktrait)->trait_id);
-		//outFile.write(strlen(tempbuf2),tempbuf2);
-	}
-	//char tempbuf[1024];
-	//sprintf(tempbuf,sizeof(tempbuf),"%d %d %f %d %f %f %d\n", (lnk->in_node)->node_id,
-	//	(lnk->out_node)->node_id, lnk->weight, lnk->is_recurrent, innovation_num, mutation_num, enable);
-	//outFile.write(strlen(tempbuf),tempbuf);
+	
 	outFile<<(lnk->in_node)->node_id<<" ";
 	outFile<<(lnk->out_node)->node_id<<" ";
 	outFile<<(lnk->weight)<<" ";
-	outFile<<(lnk->enabled)<<" ";
+	//outFile<<(lnk->enabled)<<" ";
 	outFile<<innovation_num<<" ";
 	outFile<<mutation_num<<" ";
-    outFile<<enable<<std::endl;
+    	outFile<<enable<<std::endl;
 }

@@ -586,7 +586,11 @@ void Network::destroy() {
 
 	// Erase all nodes from all_nodes list 
 
-	for(curnode=all_nodes.begin();curnode!=all_nodes.end();++curnode) {
+	for(curnode=places.begin();curnode!=places.end();++curnode) {
+		if ((*curnode) != 0)
+			delete (*curnode);
+	}
+	for(curnode=transitions.begin(); curnode != transitions.end(); ++curnode) {
 		delete (*curnode);
 	}
 

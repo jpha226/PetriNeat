@@ -2860,7 +2860,7 @@ int Genome::extrons() {
 
 	return total;
 }
-
+/*
 void Genome::randomize_traits() {
 
 	int numtraits=traits.size();
@@ -2896,7 +2896,7 @@ void Genome::randomize_traits() {
 		//if ((*curtrait)==0) cout<<"ERROR: Random trait empty"<<std::endl;
 	}
 
-}
+}*/
 
 //Calls special constructor that creates a Genome of 3 possible types:
 //0 - Fully linked, no hidden nodes

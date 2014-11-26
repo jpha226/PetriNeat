@@ -80,7 +80,7 @@ Population::Population(std::vector<Genome*> genomeList, float power) {
 		if(power>0)
 			new_genome->mutate_link_weights(power,1.0,GAUSSIAN);
 		//new_genome->mutate_link_weights(1.0,1.0,COLDGAUSSIAN);
-		new_genome->randomize_traits();
+		//new_genome->randomize_traits();
 		new_organism=new Organism(0.0,new_genome,1);
 		organisms.push_back(new_organism);
 	}
@@ -251,7 +251,7 @@ bool Population::clone(Genome *g,int size, float power) {
 		if(power>0)
 			new_genome->mutate_link_weights(power,1.0,GAUSSIAN);
 		
-		new_genome->randomize_traits();
+		//new_genome->randomize_traits();
 		new_organism=new Organism(0.0,new_genome,1);
 		organisms.push_back(new_organism);
 	}
@@ -279,7 +279,7 @@ bool Population::spawn(Genome *g,int size) {
 		new_genome=g->duplicate(count); 
 		//new_genome->mutate_link_weights(1.0,1.0,GAUSSIAN);
 		new_genome->mutate_link_weights(1.0,1.0,COLDGAUSSIAN);
-		new_genome->randomize_traits();
+		//new_genome->randomize_traits();
 		new_organism=new Organism(0.0,new_genome,1);
 		organisms.push_back(new_organism);
 	}

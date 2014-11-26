@@ -608,7 +608,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 
 				}
 
-				//Otherwise we should mate 
+		/*		//Otherwise we should mate 
 			else {
 
 				//Choose the random mom
@@ -617,19 +617,6 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 				for(orgcount=0;orgcount<orgnum;orgcount++)
 					++curorg;
 
-
-				////Roulette Wheel
-				//marble=randfloat()*total_fitness;
-				//curorg=organisms.begin();
-				//spin=(*curorg)->fitness;
-				//while(spin<marble) {
-				//++curorg;
-
-				////Keep the wheel spinning
-				//spin+=(*curorg)->fitness;
-				//}
-				////Finished roulette
-				//
 
 				mom=(*curorg);         
 
@@ -684,18 +671,6 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 
 						++giveup;
 					}
-
-					//OLD WAY: Choose a random dad from the random species
-					//Select a random dad from the random Species
-					//NOTE:  It is possible that a mating could take place
-					//       here between the mom and a baby from the NEW
-					//       generation in some other Species
-					//orgnum=randint(0,(randspecies->organisms).size()-1);
-					//curorg=(randspecies->organisms).begin();
-					//for(orgcount=0;orgcount<orgnum;orgcount++)
-					//  ++curorg;
-					//dad=(*curorg);            
-
 					//New way: Make dad be a champ from the random species
 					dad=(*((randspecies->organisms).begin()));
 
@@ -774,7 +749,7 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 					baby=new Organism(0.0,new_genome,generation);
 				}
 
-			}
+			}*/
 
 			//Add the baby to its proper Species
 			//If it doesn't fit a Species, create a new one
@@ -828,8 +803,6 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 			} //end else 
 
 		}
-
-
 
 		return true;
 }
