@@ -14,7 +14,7 @@
    limitations under the License.
 */
 #include "experiments.h"
-//#include "simulatorInterface.h"
+#include "simulatorInterface.h"
 #include <cstring>
 
 // Perform evolution for Petri Nets, for gens generations
@@ -158,25 +158,29 @@ bool petrinet_evaluate(Organism *org) {
 	int maxIterations = 50;
 	bool fired = true;
 	// Iterate for the max number of iterations or until no transition was fired
-	/*	I'm not sure what approach we want to take for this, I'm leaving this as a placeholder
-	for(int iteration = 0; iteration < maxIterations && fired; interation++) {
+	//	I'm not sure what approach we want to take for this, I'm leaving this as a placeholder
+	/*for(int iteration = 0; iteration < maxIterations && fired; iteration++) {
 		fired = false;
 		for(int i = 0; i < network->transitions.size(); i++) {
 			// If a transition is enabled, then fire it
-			if(network->isEnabled(network->transitions[i]) {
+			if(network->isEnabled(network->transitions[i])) {
 				network->fire(network->transisions[i]);
-				actions.add(network->transitions[i]->action_ID);				
+				actions.push_back(network->transitions[i]->action_ID);				
 				fired = true;			
 			}
 		}
-	} */
+	}*/
 
-//	SimulatorInterface si(&actions);	
+	SimulatorInterface si(&actions);	
 	//si.runSimulation();
-//	si.displaySimulation();
-//	float fitness = si.getFitnessValue();
-//	printf("%f\n", fitness);
+	si.displaySimulation();
+	float fitness = si.getFitnessValue();
+	printf("%f\n", fitness);
 	
+	// If the fitness is 10,000 it means that the goal was found
+	if(fitness == 10000.0)
+		return true;
+
 	return false;
 }
 
