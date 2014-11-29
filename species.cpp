@@ -542,9 +542,12 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 				}
 				//First, decide whether to mate or mutate
 				//If there is only one organism in the pool, then always mutate
-			else if ((randfloat()<NEAT::mutate_only_prob)||
-				poolsize== 0) {
-
+			// This was else if !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//else if ((randfloat()<NEAT::mutate_only_prob)||
+			//	poolsize== 0) {
+			else {
 					//Choose the random parent
 
 					//RANDOM PARENT CHOOSER

@@ -106,6 +106,7 @@ NNode::~NNode() {
 	//Kill off all incoming links
 	for(curlink=incoming.begin();curlink!=incoming.end();++curlink) {
 		if ((*curlink) != NULL){
+			std::cout << "Deleting link " << (*curlink) << " Node " << this << std::endl;
 			delete (*curlink);
 			(*curlink) = NULL;
 		}

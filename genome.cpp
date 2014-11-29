@@ -572,10 +572,7 @@ Genome::~Genome() {
 	}
 
 	for(curgene=genes.begin();curgene!=genes.end();++curgene) {
-		if ((*curgene) != NULL){
-			delete (*curgene);
-			(*curgene) = NULL;
-		}
+		delete (*curgene);
 	}
 
 }
@@ -594,8 +591,8 @@ Network *Genome::genesis(int id) {
 	//Inputs and outputs will be collected here for the network
 	//All nodes are collected in an all_list- 
 	//this will be used for later safe destruction of the net
-	std::vector<NNode*> inlist;
-	std::vector<NNode*> outlist;
+	std::vector<NNode*> places;
+	std::vector<NNode*> transitions;
 	std::vector<NNode*> all_list;
 
 	//Gene translation variables
@@ -605,20 +602,28 @@ Network *Genome::genesis(int id) {
 	//The new network
 	Network *newnet;
 
+	std::cout << "---------------All nodes in genome------------" << this << std::endl;
+
 	//Create the nodes
 	for(curnode=nodes.begin();curnode!=nodes.end();++curnode) {
+		std::cout << "Type " << (*curnode)->type << " id " << (*curnode)->node_id << std::endl;
 		newnode=new NNode((*curnode)->type,(*curnode)->node_id);
 
 
-
-
 		//Check for input or output designation of node
-		if (((*curnode)->gen_node_label)==INPUT) 
+		/*if (((*curnode)->gen_node_label)==INPUT) 
 			inlist.push_back(newnode);
 		if (((*curnode)->gen_node_label)==BIAS) 
 			inlist.push_back(newnode);
 		if (((*curnode)->gen_node_label)==OUTPUT)
-			outlist.push_back(newnode);
+			outlist.push_back(newnode);*/
+		
+		// Code for PetriNeat, input and output nodes
+		if(((*curnode)->type)==PLACE)
+			places.push_back(newnode);
+		else
+			transitions.push_back(newnode);
+		
 
 		//Keep track of all nodes, not just input and output
 		all_list.push_back(newnode);
@@ -639,8 +644,10 @@ Network *Genome::genesis(int id) {
 			// (no need to in the current implementation of NEAT)
 			newlink=new Link(curlink->weight,inode,onode);
 
-			(onode->incoming).push_back(newlink);
-			(inode->outgoing).push_back(newlink);
+
+			// Redundant, this is already in the link constructor
+			//(onode->incoming).push_back(newlink);
+			//(inode->outgoing).push_back(newlink);
 
 			
 
@@ -654,7 +661,7 @@ Network *Genome::genesis(int id) {
 	}
 
 	//Create the new network
-	newnet=new Network(inlist,outlist,all_list,id);
+	newnet=new Network(places,transitions,all_list,id);
 
 	//Attach genotype and phenotype together
 	newnet->genotype=this;

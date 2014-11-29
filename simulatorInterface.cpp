@@ -90,8 +90,6 @@ float SimulatorInterface::getFitnessValue() {
  
 bool Simulator::OnInit()
 {
-	printf("Initializing\n");
-
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	frame = new wxFrame((wxFrame *)NULL, -1,  wxT("Robot Simulator"), wxPoint(50,50), wxSize(WINDOW_WIDTH,WINDOW_HEIGHT));
  
@@ -146,24 +144,7 @@ wxPanel(parent), actions(list), currentAction(0)
  */
 void BasicDrawPane::leftClick(wxMouseEvent& event)
 {
-	// Get the next action
-	int action = getAction();
-	switch(action) {
-				case 0:		// If the action is 0, move right
-					SimulatorInterface::ROBOT_X += 1;
-					break;
-				case 2:		// If the action is 2, move left
-					SimulatorInterface::ROBOT_X -= 1;
-					break;
-				case 1:		// If the action is 1, move up
-					SimulatorInterface::ROBOT_Y -= 1;
-					break;
-				case 3:		// If the action is 3, move down
-					SimulatorInterface::ROBOT_Y += 1;
-					break;
-	}
-
-	increaseActionCounter();	
+	step();
 
 	// Redraw the window
 	Refresh();
@@ -176,14 +157,37 @@ void BasicDrawPane::leftClick(wxMouseEvent& event)
  */
 void BasicDrawPane::rightClick(wxMouseEvent& event)
 {
-	
-	wxPoint pt(event.GetPosition());
-	
-	SimulatorInterface::GOAL_X = (int)pt.x/stepSize;
-	SimulatorInterface::GOAL_Y = (int)pt.y/stepSize;
+	while(getAction() != 100) {
+		step();
+	}
 
 	// Redraw the window
 	Refresh();
+}
+
+void BasicDrawPane::step()
+{
+	// Get the next action
+	int action = getAction();
+	printf("Action %d\n", action);
+	if(action != 100) {
+		switch(action) {
+					case 0:		// If the action is 0, move right
+						SimulatorInterface::ROBOT_X += 1;
+						break;
+					case 2:		// If the action is 2, move left
+						SimulatorInterface::ROBOT_X -= 1;
+						break;
+					case 1:		// If the action is 1, move up
+						SimulatorInterface::ROBOT_Y -= 1;
+						break;
+					case 3:		// If the action is 3, move down
+						SimulatorInterface::ROBOT_Y += 1;
+						break;
+		}
+
+		increaseActionCounter();	
+	}
 }
 
 
@@ -228,8 +232,8 @@ void BasicDrawPane::keyPressed(wxKeyEvent& event)
         switch ( event.GetKeyCode() )
         {
             case WXK_LEFT:
-				SimulatorInterface::GOAL_X -= 1;				
-				break;
+		SimulatorInterface::GOAL_X -= 1;				
+		break;
             case WXK_RIGHT:
                 SimulatorInterface::GOAL_X += 1;
                 break;			
@@ -331,7 +335,6 @@ void BasicDrawPane::render(wxDC&  dc)
 	dc.SetFont(font);
 	dc.SetTextForeground(wxColor(0,100,0)); // Color for the text
 	dc.DrawText(wxString(actionText), 10, 10);
-
 }
 
 void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)
@@ -378,6 +381,7 @@ std::string BasicDrawPane::getActionText() {
 * Gets the current action in the actions vector
 */
 int BasicDrawPane::getAction() {
+	printf("Current = %d, size = %d", currentAction, actions->size());
 	if(currentAction == actions->size())
 		return 100;
 	return (*actions)[currentAction];
@@ -387,7 +391,6 @@ int BasicDrawPane::getAction() {
 * Increases the action counter
 */
 void BasicDrawPane::increaseActionCounter() {
-	if(currentAction < actions->size())
-		currentAction++;
+	currentAction++;
 }
 

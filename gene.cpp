@@ -110,11 +110,12 @@ Gene::Gene(const Gene& gene)
 }
 
 Gene::~Gene() {
-	std::cout << "delete gene"<<std::endl;
+	/*std::cout << "deleting gene...";
 	if (lnk != NULL){
 		delete lnk;
 		lnk = NULL;
 	}
+	std::cout << "deleted." << std::endl;*/
 }
 
 

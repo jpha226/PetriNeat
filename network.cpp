@@ -93,7 +93,6 @@ Network::~Network() {
 				delete [] name;
 
 			destroy();  // Kill off all the nodes and links
-
 		}
 
 // Puts the network back into an initial state
@@ -587,10 +586,11 @@ void Network::destroy() {
 	// Erase all nodes from all_nodes list 
 
 	for(curnode=places.begin();curnode!=places.end();++curnode) {
-		if ((*curnode) != 0)
-			delete (*curnode);
+		std::cout << "Deleting node " << (*curnode) << " net " << this << std::endl;		
+		delete (*curnode);
 	}
 	for(curnode=transitions.begin(); curnode != transitions.end(); ++curnode) {
+		std::cout << "Deleting node " << (*curnode) << " net " << this << std::endl;
 		delete (*curnode);
 	}
 

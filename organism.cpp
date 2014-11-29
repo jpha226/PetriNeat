@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "organism.h"
+#include <iostream>
 
 using namespace NEAT;
 

@@ -31,9 +31,9 @@ Population *petrinet_test(int gens) {
     int evals[NEAT::num_runs];  //Hold records for each run
     int genes[NEAT::num_runs];
     int nodes[NEAT::num_runs];
-    int winnernum;
-    int winnergenes;
-    int winnernodes;
+    int winnernum=0;
+    int winnergenes=0;
+    int winnernodes=0;
     //For averaging
     int totalevals=0;
     int totalgenes=0;
@@ -62,6 +62,18 @@ Population *petrinet_test(int gens) {
       cout<<"Spawning Population off Genome2"<<endl;
 
       pop=new Population(start_genome,NEAT::pop_size);
+	
+	std::vector<Organism*>::iterator curorg;
+
+	for(curorg = pop->organisms.begin(); curorg != pop->organisms.end(); ++curorg ) {
+		std::cout << "----------------- Transitions -------------------" << std::endl;
+		Network *network = (*curorg)->net;		
+		for(int i = 0; i < network->transitions.size(); i++) {
+			// If a transition is enabled, then fire it
+			std::cout << "Transition " << i << " action " << network->transitions[i]->action_ID;
+			std::cout << " enabled " << network->isEnabled(network->transitions[i]) << std::endl;		
+		} 
+	}
 
       cout<<"Verifying Spawned Pop"<<endl;
       pop->verify();
@@ -148,34 +160,49 @@ bool petrinet_evaluate(Organism *org) {
 	Network *network = org->net;
 	std::vector<int> actions;
 	// For testing purposes {Read note below}
-	actions.push_back(0);
+	/*actions.push_back(0);
 	actions.push_back(0);
 	actions.push_back(1);
 	actions.push_back(1);
 	actions.push_back(2);
-	actions.push_back(1);
+	actions.push_back(1);*/
+
+	std::cout << "----------------- Transitions -------------------" << std::endl;
+	for(int i = 0; i < network->transitions.size(); i++) {
+		// If a transition is enabled, then fire it
+		std::cout << "Transition " << i << " action " << network->transitions[i]->action_ID;
+		std::cout << " enabled " << network->isEnabled(network->transitions[i]) << std::endl;
+
+		for(std::vector<Link*>::iterator it = network->transitions[i]->incoming.begin(); it != network->transitions[i]->incoming.end(); it++) {
+			std::cout << "Incoming node tokens " << ((*it)->in_node)->tok_count << " removing " << (*it)->weight << std::endl;
+        	}
+		for(std::vector<Link*>::iterator it = network->transitions[i]->outgoing.begin(); it != network->transitions[i]->outgoing.end(); it++) {
+			std::cout << "Incoming node tokens " << ((*it)->out_node)->tok_count << " adding " << (*it)->weight << std::endl;
+		}
+		
+	} 
 	
 	int maxIterations = 50;
 	bool fired = true;
 	// Iterate for the max number of iterations or until no transition was fired
 	//	I'm not sure what approach we want to take for this, I'm leaving this as a placeholder
-	/*for(int iteration = 0; iteration < maxIterations && fired; iteration++) {
+	for(int iteration = 0; iteration < maxIterations && fired; iteration++) {
 		fired = false;
 		for(int i = 0; i < network->transitions.size(); i++) {
 			// If a transition is enabled, then fire it
 			if(network->isEnabled(network->transitions[i])) {
-				network->fire(network->transisions[i]);
+				network->fire(network->transitions[i]);
 				actions.push_back(network->transitions[i]->action_ID);				
 				fired = true;			
 			}
 		}
-	}*/
+	}
 
 	SimulatorInterface si(&actions);	
 	//si.runSimulation();
 	si.displaySimulation();
 	float fitness = si.getFitnessValue();
-	printf("%f\n", fitness);
+	org->fitness = fitness;
 	
 	// If the fitness is 10,000 it means that the goal was found
 	if(fitness == 10000.0)
@@ -189,6 +216,7 @@ int petrinet_epoch(Population *pop, int generation, char *filename, int &winnern
   vector<Organism*>::iterator curorg;
   vector<Species*>::iterator curspecies;
   bool win=false;
+
 
   //Evaluate each organism on a test
   for(curorg=(pop->organisms).begin();curorg!=(pop->organisms).end();++curorg) {

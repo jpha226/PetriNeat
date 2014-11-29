@@ -43,8 +43,9 @@ public:
 
 	std::vector<int> *actions;			// Actions vector
 	unsigned int currentAction;					// Index of the current action
- 
+
     void render(wxDC& dc);
+	void step();
  
     // some useful events
     /*

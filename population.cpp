@@ -201,6 +201,9 @@ Population::~Population() {
 	std::vector<Species*>::iterator curspec;
 	std::vector<Organism*>::iterator curorg;
 	//std::vector<Generation_viz*>::iterator cursnap;
+	
+	std::cout << "Deleting population..." << std::endl;
+	std::cout << "Deleting species...";	
 
 	if (species.begin()!=species.end()) {
 		for(curspec=species.begin();curspec!=species.end();++curspec) {
@@ -213,8 +216,14 @@ Population::~Population() {
 		}
 	}
 
+	std::cout << "Deleted." << std::endl;
+	std::cout << "Deleting Innovations...";
+
 	for (std::vector<Innovation*>::iterator iter = innovations.begin(); iter != innovations.end(); ++iter)
 		delete *iter;
+
+	std::cout << "Deleted." << std::endl;
+	std::cout << "Population deleted successfully." << std::endl;
 
 	//Delete the snapshots
 	//		for(cursnap=generation_snapshots.begin();cursnap!=generation_snapshots.end();++cursnap) {
@@ -784,6 +793,7 @@ bool Population::epoch(int generation) {
 
 	}
 
+
 	//cout<<"Reproducing"<<endl;
 
 	//Perform reproduction.  Reproduction is done on a per-Species
@@ -799,7 +809,6 @@ bool Population::epoch(int generation) {
 
 
 	//}    
-
 
 	curspecies=species.begin();
 	int last_id=(*curspecies)->id;
@@ -852,6 +861,7 @@ bool Population::epoch(int generation) {
 
 	}
 
+
 	//Remove all empty Species and age ones that survive
 	//As this happens, create master organism list for the new generation
 	curspecies=species.begin();
@@ -884,6 +894,7 @@ bool Population::epoch(int generation) {
 
 		}
 	}      
+
 
 	//Remove the innovations of the current generation
 	curinnov=innovations.begin();
