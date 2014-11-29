@@ -1248,7 +1248,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
     		// or to have a high number of connections
     		// A lower number gives a preference to more connections, a higher one
     		// will give a preference to add a place and transition off of a node
-    		float sizeConnectionTradeoff = 0.1;
+    		float sizeConnectionTradeoff = 0.0;
 
     		// Check the description of sizeConnectionTradeoff
     		if(r < sizeConnectionTradeoff) {
@@ -1301,12 +1301,8 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 	                	// For every incoming and outgoing link combination, see if the nodes match the ones we chose
 	                	std::vector<NNode*>::iterator inlink, outlink;
 
-	                	//inlink = cNode->incoming.begin();
 	                	for(int inLinks = 0; inLinks < cNode->incoming.size(); inLinks++) {
-	                	//for(; !connectingNodeFound && inlink != cNode->incoming.end(); ++inlink) {
-	                		//outlink = cNode->outgoing.begin();
 	                		for(int outLinks = 0; outLinks < cNode->outgoing.size(); outLinks++) {
-	                		//for(; !connectingNodeFound && outlink != cNode->outgoing.end(); ++outlink) {
 	                			// Check for either node being the in/out node
 	                			// Incoming node to compare cNode->incoming[inLinks]->in_node
 	                			// Outgoing node to compare cNode->outgoing[outLinks]->out_node
@@ -1314,8 +1310,6 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 	                			if((cNode->incoming[inLinks]->in_node == nodep1 && cNode->outgoing[outLinks]->out_node == nodep2)
 	                				|| (cNode->incoming[inLinks]->in_node == nodep2 && cNode->outgoing[outLinks]->out_node == nodep1)) {
 
-	                			//if(((*inlink)->in_node == nodep1 && (*outlink)->out_node == nodep2)
-	                			//	|| ((*inlink)->in_node == nodep2 && (*outlink)->out_node == nodep1)) {
 	                				connectingNodeFound = true;
 	                			}
 	                		} // Finished comparing the incoming link with all outgoing links
@@ -1341,6 +1335,12 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
         //Continue only if an open link was found
         if (found) {
 
+        	//Create the new NNode
+            if(nodep1->type == PLACE)
+				newnode=new NNode(TRANSITION,curnode_id++);
+ 			else
+				newnode = new NNode(PLACE, curnode_id++); 
+
             //Check to see if this innovation already occured in the population
             theinnov=innovs.begin();
 
@@ -1356,14 +1356,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
                     if (phenotype==0) {
                         //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
                         return false;
-					}
-
-					//Create the new NNode
-	                //By convention, it will point to the first trait
-                    if(nodep1->type == PLACE)
-						newnode=new NNode(TRANSITION,curnode_id++);
-         			else
-						newnode = new NNode(PLACE, curnode_id++);   	 
+					}  	 
 
                     //Choose the new weight
                     newweight1 = (int)(randfloat()*3.0);
