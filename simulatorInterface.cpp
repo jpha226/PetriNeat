@@ -11,10 +11,13 @@
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
 wxCoord stepSize = 40;
-wxCoord ROBOT_X = 9;
-wxCoord ROBOT_Y = 6;
-wxCoord GOAL_X = 15;
-wxCoord GOAL_Y = 6;
+
+
+// Define the static member variables
+wxCoord SimulatorInterface::ROBOT_X = 9;
+wxCoord SimulatorInterface::ROBOT_Y = 6;
+wxCoord SimulatorInterface::GOAL_X = 15;
+wxCoord SimulatorInterface::GOAL_Y = 6;
 
 /*
 *	Creates a simulator with a vector of actions
@@ -27,9 +30,14 @@ actions(list)
 /*
 *	Creates a simulator interface with a vector of actions
 */
-SimulatorInterface::SimulatorInterface(std::vector<int> *list) :
-actions(list), currentAction(0)
+SimulatorInterface::SimulatorInterface(std::vector<int> *list)
 {
+	actions = list;
+	currentAction = 0;
+	SimulatorInterface::ROBOT_X = 9;
+	SimulatorInterface::ROBOT_Y = 6;
+	SimulatorInterface::GOAL_X = 15;
+	SimulatorInterface::GOAL_Y = 6;
 }
 
 /*
@@ -39,16 +47,16 @@ void SimulatorInterface::runSimulation() {
 	while(currentAction < actions->size()) {
 		switch((*actions)[currentAction]) {
 			case 0:		// If the action is 0, move right
-				ROBOT_X += 1;
+				SimulatorInterface::ROBOT_X += 1;
 				break;
 			case 2:		// If the action is 2, move left
-				ROBOT_X -= 1;
+				SimulatorInterface::ROBOT_X -= 1;
 				break;
 			case 1:		// If the action is 1, move up
-				ROBOT_Y -= 1;
+				SimulatorInterface::ROBOT_Y -= 1;
 				break;
 			case 3:		// If the action is 3, move down
-				ROBOT_Y += 1;
+				SimulatorInterface::ROBOT_Y += 1;
 				break;
 		}
 		currentAction++;
@@ -71,9 +79,12 @@ void SimulatorInterface::displaySimulation() {
 
 
 float SimulatorInterface::getFitnessValue() {
-	wxCoord x = GOAL_X - ROBOT_X;
-	wxCoord y = GOAL_Y - ROBOT_Y;
-	return sqrt(x*x + y*y);
+	wxCoord x = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;
+	wxCoord y = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y;
+	float distance = sqrt(x*x + y*y);	
+	if(distance == 0.0)
+		return 10000.0;	
+	return 1.0/distance;
 }
  
  
@@ -139,16 +150,16 @@ void BasicDrawPane::leftClick(wxMouseEvent& event)
 	int action = getAction();
 	switch(action) {
 				case 0:		// If the action is 0, move right
-					ROBOT_X += 1;
+					SimulatorInterface::ROBOT_X += 1;
 					break;
 				case 2:		// If the action is 2, move left
-					ROBOT_X -= 1;
+					SimulatorInterface::ROBOT_X -= 1;
 					break;
 				case 1:		// If the action is 1, move up
-					ROBOT_Y -= 1;
+					SimulatorInterface::ROBOT_Y -= 1;
 					break;
 				case 3:		// If the action is 3, move down
-					ROBOT_Y += 1;
+					SimulatorInterface::ROBOT_Y += 1;
 					break;
 	}
 
@@ -168,8 +179,8 @@ void BasicDrawPane::rightClick(wxMouseEvent& event)
 	
 	wxPoint pt(event.GetPosition());
 	
-	GOAL_X = (int)pt.x/stepSize;
-	GOAL_Y = (int)pt.y/stepSize;
+	SimulatorInterface::GOAL_X = (int)pt.x/stepSize;
+	SimulatorInterface::GOAL_Y = (int)pt.y/stepSize;
 
 	// Redraw the window
 	Refresh();
@@ -193,16 +204,16 @@ void BasicDrawPane::keyPressed(wxKeyEvent& event)
         {
             switch(uc) {
 				case 'A':
-					ROBOT_X -= 1;
+					SimulatorInterface::ROBOT_X -= 1;
 					break;
 				case 'D':
-					ROBOT_X += 1;
+					SimulatorInterface::ROBOT_X += 1;
 					break;
 				case 'W':
-					ROBOT_Y -= 1;
+					SimulatorInterface::ROBOT_Y -= 1;
 					break;
 				case 'S':
-					ROBOT_Y += 1;
+					SimulatorInterface::ROBOT_Y += 1;
 					break;
 			}
         }
@@ -217,16 +228,16 @@ void BasicDrawPane::keyPressed(wxKeyEvent& event)
         switch ( event.GetKeyCode() )
         {
             case WXK_LEFT:
-				GOAL_X -= 1;				
+				SimulatorInterface::GOAL_X -= 1;				
 				break;
             case WXK_RIGHT:
-                GOAL_X += 1;
+                SimulatorInterface::GOAL_X += 1;
                 break;			
             case WXK_UP:
-                GOAL_Y -= 1;
+                SimulatorInterface::GOAL_Y -= 1;
                 break;
             case WXK_DOWN:
-                GOAL_Y += 1;
+                SimulatorInterface::GOAL_Y += 1;
                 break;
         }
     }
@@ -300,19 +311,19 @@ void BasicDrawPane::render(wxDC&  dc)
     // draw the goal
     dc.SetBrush(*wxCYAN_BRUSH); // blue filling
     dc.SetPen( wxPen( wxColor(255,175,175), 1 ) ); // 10-pixels-thick pink outline
-    dc.DrawRectangle( stepSize*GOAL_X, stepSize*GOAL_Y, stepSize, stepSize);  // (x,y,w,h)
+    dc.DrawRectangle( stepSize*SimulatorInterface::GOAL_X, stepSize*SimulatorInterface::GOAL_Y, stepSize, stepSize);  // (x,y,w,h)
 
     dc.SetPen( wxPen( wxColor(0,0,0), 2 ) ); // black line, 3 pixels thick 
-    dc.DrawText(wxT("G"), stepSize*GOAL_X+stepSize/2-stepSize/8, stepSize*GOAL_Y+stepSize/2-stepSize/4); 
+    dc.DrawText(wxT("G"), stepSize*SimulatorInterface::GOAL_X+stepSize/2-stepSize/8, stepSize*SimulatorInterface::GOAL_Y+stepSize/2-stepSize/4); 
 
 
     // draw the robot
     dc.SetBrush(*wxGREEN_BRUSH); // green filling
     dc.SetPen( wxPen( wxColor(0,0,180), 1 ) ); // 5-pixels-thick red outline
-    dc.DrawCircle( wxPoint(stepSize*ROBOT_X+stepSize/2,stepSize*ROBOT_Y+stepSize/2), stepSize/2 /* radius */ );
+    dc.DrawCircle( wxPoint(stepSize*SimulatorInterface::ROBOT_X+stepSize/2,stepSize*SimulatorInterface::ROBOT_Y+stepSize/2), stepSize/2 /* radius */ );
 
     dc.SetPen( wxPen( wxColor(0,0,0), 2 ) ); // black line, 3 pixels thick 
-    dc.DrawText(wxT("R"), stepSize*ROBOT_X+stepSize/2-stepSize/8, stepSize*ROBOT_Y+stepSize/2-stepSize/4); 
+    dc.DrawText(wxT("R"), stepSize*SimulatorInterface::ROBOT_X+stepSize/2-stepSize/8, stepSize*SimulatorInterface::ROBOT_Y+stepSize/2-stepSize/4); 
 
 	// draw action
 	std::string actionText = getActionText();
@@ -328,17 +339,17 @@ void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)
 	w /= stepSize;
 	h /= stepSize;
 	
-	ROBOT_X = ROBOT_X >= w? w-1 : ROBOT_X;
-	ROBOT_X = ROBOT_X < 0? 0 : ROBOT_X;
+	SimulatorInterface::ROBOT_X = SimulatorInterface::ROBOT_X >= w? w-1 : SimulatorInterface::ROBOT_X;
+	SimulatorInterface::ROBOT_X = SimulatorInterface::ROBOT_X < 0? 0 : SimulatorInterface::ROBOT_X;
 
-	ROBOT_Y = ROBOT_Y >= h? h-1 : ROBOT_Y;
-	ROBOT_Y = ROBOT_Y < 0? 0 : ROBOT_Y;
+	SimulatorInterface::ROBOT_Y = SimulatorInterface::ROBOT_Y >= h? h-1 : SimulatorInterface::ROBOT_Y;
+	SimulatorInterface::ROBOT_Y = SimulatorInterface::ROBOT_Y < 0? 0 : SimulatorInterface::ROBOT_Y;
 
-	GOAL_X = GOAL_X >= w? w-1 : GOAL_X;
-	GOAL_X = GOAL_X < 0? 0 : GOAL_X;
+	SimulatorInterface::GOAL_X = SimulatorInterface::GOAL_X >= w? w-1 : SimulatorInterface::GOAL_X;
+	SimulatorInterface::GOAL_X = SimulatorInterface::GOAL_X < 0? 0 : SimulatorInterface::GOAL_X;
 
-	GOAL_Y = GOAL_Y >= h? h-1 : GOAL_Y;
-	GOAL_Y = GOAL_Y < 0? 0 : GOAL_Y;
+	SimulatorInterface::GOAL_Y = SimulatorInterface::GOAL_Y >= h? h-1 : SimulatorInterface::GOAL_Y;
+	SimulatorInterface::GOAL_Y = SimulatorInterface::GOAL_Y < 0? 0 : SimulatorInterface::GOAL_Y;
 }
 
 
@@ -375,7 +386,7 @@ int BasicDrawPane::getAction() {
 /*
 * Increases the action counter
 */
-int BasicDrawPane::increaseActionCounter() {
+void BasicDrawPane::increaseActionCounter() {
 	if(currentAction < actions->size())
 		currentAction++;
 }

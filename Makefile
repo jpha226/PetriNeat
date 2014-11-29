@@ -7,10 +7,17 @@ CC = g++ -O3
 
 #CFLAGS = -g -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL
 #CFLAGS = -g -Wall -Werror
-CFLAGS = -g -Wall `wx-config --cxxflags --libs`
+CFLAGS = -g -Wall
 
-neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o #neatswig_wrap.o visual.o
-	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o -o neat
+############### WXWIDGETS LIBS and FLAGS #####################
+# wx-config --libs
+LIBSWX = $(shell wx-config --libs)
+# wx-config --cxxflags
+CFLAGSWX = $(shell wx-config --cxxflags)
+##############################################################
+
+neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o #neatswig_wrap.o visual.o
+	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o -o neat $(LIBSWX)
 #	$(CC) $(CFLAGS) $(LIBS) networks.o genetics.o visual.o experiments.o neatswig_wrap.o pneatmain.o -o neat `gtkmm-config --cflags --libs`
 
 ########################
@@ -48,11 +55,11 @@ species.o: species.cpp species.h organism.h
 population.o: population.cpp population.h organism.h
 	  $(CC) $(CFLAGS) -c population.cpp -o population.o
 
-experiments.o: experiments.cpp experiments.h network.h species.h
-	$(CC) $(CFLAGS) -c experiments.cpp -o experiments.o
+experiments.o: experiments.cpp experiments.h network.h species.h simulatorInterface.h
+	$(CC) $(CFLAGS) $(CFLAGSWX) -c experiments.cpp -o experiments.o
 
-#simulatorInterface.o: simulatorInterface.cpp simulatorInterface.h
-#	$(CC) $(CFLAGS) -c simulatorInterface.cpp -o simulatorInterface.o
+simulatorInterface.o: simulatorInterface.cpp simulatorInterface.h
+	$(CC) $(CFLAGS) $(CFLAGSWX) -c simulatorInterface.cpp -o simulatorInterface.o
 
 neatmain.o: neatmain.cpp neatmain.h neat.h population.h
 	$(CC) $(CFLAGS) -c neatmain.cpp -o neatmain.o

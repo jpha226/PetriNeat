@@ -14,6 +14,11 @@ class SimulatorInterface {
 
 		std::vector<int> *actions;
 		int currentAction;
+		
+		static wxCoord ROBOT_X;
+		static wxCoord ROBOT_Y;
+		static wxCoord GOAL_X;
+		static wxCoord GOAL_Y;
 
 		SimulatorInterface(std::vector<int> *actions);
 };
@@ -34,10 +39,10 @@ public:
 
 	std::string getActionText();		// Get the text for the current action
 	int getAction();					// Get the current action in the vector actions	
-	int	increaseActionCounter();		// Get the next action in the vector actions
+	void	increaseActionCounter();		// Get the next action in the vector actions
 
 	std::vector<int> *actions;			// Actions vector
-	int currentAction;					// Index of the current action
+	unsigned int currentAction;					// Index of the current action
  
     void render(wxDC& dc);
  
