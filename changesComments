@@ -1,0 +1,5 @@
+Changed the minimum link weight in Genome::mutate_link_weights to 1.0
+Added a minimum of 0 and maximum of 25 for the token count when mutating nodes in Genome::mutate_node_trait
+Changed the new weight in Genome::mutate_add_link from 10 to 3
+Changed all the logic in Genome::mutate_add_node, now for every try there's a chance to add a place + transition or a node between nodes of the same type that are not already connected by another node, TODO add  place + transition
+Changed constructors for nodes no action_ID, tok_count, capacity etc was being set. Currently capacity is not being used anywhere, limit handcoded to 25 

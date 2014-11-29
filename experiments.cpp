@@ -63,17 +63,7 @@ Population *petrinet_test(int gens) {
 
       pop=new Population(start_genome,NEAT::pop_size);
 	
-	std::vector<Organism*>::iterator curorg;
-
-	for(curorg = pop->organisms.begin(); curorg != pop->organisms.end(); ++curorg ) {
-		std::cout << "----------------- Transitions -------------------" << std::endl;
-		Network *network = (*curorg)->net;		
-		for(int i = 0; i < network->transitions.size(); i++) {
-			// If a transition is enabled, then fire it
-			std::cout << "Transition " << i << " action " << network->transitions[i]->action_ID;
-			std::cout << " enabled " << network->isEnabled(network->transitions[i]) << std::endl;		
-		} 
-	}
+	     std::vector<Organism*>::iterator curorg;
 
       cout<<"Verifying Spawned Pop"<<endl;
       pop->verify();
@@ -82,7 +72,7 @@ Population *petrinet_test(int gens) {
         cout<<"Epoch "<<gen<<endl;
 
         //This is how to make a custom filename
-	 fnamebuf=new ostringstream();
+	       fnamebuf=new ostringstream();
         (*fnamebuf)<<"gen_"<<gen<<ends;  //needs end marker
 
         #ifndef NO_SCREEN_OUT
@@ -159,15 +149,8 @@ bool petrinet_evaluate(Organism *org) {
 		
 	Network *network = org->net;
 	std::vector<int> actions;
-	// For testing purposes {Read note below}
-	/*actions.push_back(0);
-	actions.push_back(0);
-	actions.push_back(1);
-	actions.push_back(1);
-	actions.push_back(2);
-	actions.push_back(1);*/
-
-	std::cout << "----------------- Transitions -------------------" << std::endl;
+	/* Some code for testing the transitions seen by the simulator
+  std::cout << "----------------- Transitions -------------------" << std::endl;
 	for(int i = 0; i < network->transitions.size(); i++) {
 		// If a transition is enabled, then fire it
 		std::cout << "Transition " << i << " action " << network->transitions[i]->action_ID;
@@ -179,8 +162,7 @@ bool petrinet_evaluate(Organism *org) {
 		for(std::vector<Link*>::iterator it = network->transitions[i]->outgoing.begin(); it != network->transitions[i]->outgoing.end(); it++) {
 			std::cout << "Incoming node tokens " << ((*it)->out_node)->tok_count << " adding " << (*it)->weight << std::endl;
 		}
-		
-	} 
+	} */
 	
 	int maxIterations = 50;
 	bool fired = true;
@@ -199,8 +181,8 @@ bool petrinet_evaluate(Organism *org) {
 	}
 
 	SimulatorInterface si(&actions);	
-	//si.runSimulation();
-	si.displaySimulation();
+	si.runSimulation();
+	//si.displaySimulation();
 	float fitness = si.getFitnessValue();
 	org->fitness = fitness;
 	

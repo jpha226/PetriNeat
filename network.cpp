@@ -585,12 +585,10 @@ void Network::destroy() {
 
 	// Erase all nodes from all_nodes list 
 
-	for(curnode=places.begin();curnode!=places.end();++curnode) {
-		std::cout << "Deleting node " << (*curnode) << " net " << this << std::endl;		
+	for(curnode=places.begin();curnode!=places.end();++curnode) {		
 		delete (*curnode);
 	}
 	for(curnode=transitions.begin(); curnode != transitions.end(); ++curnode) {
-		std::cout << "Deleting node " << (*curnode) << " net " << this << std::endl;
 		delete (*curnode);
 	}
 

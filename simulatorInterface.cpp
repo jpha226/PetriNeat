@@ -3,6 +3,7 @@
 #include <wx/init.h>
 #include <wx/app.h>
 #include <wx/font.h>
+#include <wx/utils.h>
 #include "simulatorInterface.h"
 #include <math.h>
 #include <stdio.h>
@@ -116,7 +117,7 @@ BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
 // catch paint events
 EVT_LEFT_DOWN(BasicDrawPane::leftClick)
 EVT_RIGHT_DOWN(BasicDrawPane::rightClick)
-EVT_KEY_DOWN(BasicDrawPane::keyPressed)
+//EVT_KEY_DOWN(BasicDrawPane::keyPressed)
 EVT_PAINT(BasicDrawPane::paintEvent)
  
 END_EVENT_TABLE()
@@ -169,7 +170,6 @@ void BasicDrawPane::step()
 {
 	// Get the next action
 	int action = getAction();
-	printf("Action %d\n", action);
 	if(action != 100) {
 		switch(action) {
 					case 0:		// If the action is 0, move right
@@ -196,7 +196,7 @@ void BasicDrawPane::step()
  * The robot can me moved with W,A,S,D and the goal with the arrows.
  */
 
-void BasicDrawPane::keyPressed(wxKeyEvent& event) 
+/*void BasicDrawPane::keyPressed(wxKeyEvent& event) 
 {
 	wxChar uc = event.GetUnicodeKey();
     if ( uc != WXK_NONE )
@@ -232,8 +232,8 @@ void BasicDrawPane::keyPressed(wxKeyEvent& event)
         switch ( event.GetKeyCode() )
         {
             case WXK_LEFT:
-		SimulatorInterface::GOAL_X -= 1;				
-		break;
+				SimulatorInterface::GOAL_X -= 1;				
+				break;
             case WXK_RIGHT:
                 SimulatorInterface::GOAL_X += 1;
                 break;			
@@ -243,11 +243,14 @@ void BasicDrawPane::keyPressed(wxKeyEvent& event)
             case WXK_DOWN:
                 SimulatorInterface::GOAL_Y += 1;
                 break;
+            case WXK_ESCAPE:
+            	// Clos
+            	break;
         }
     }
 
 	Refresh();
-}
+} */
 
  
 /*
@@ -381,7 +384,6 @@ std::string BasicDrawPane::getActionText() {
 * Gets the current action in the actions vector
 */
 int BasicDrawPane::getAction() {
-	printf("Current = %d, size = %d", currentAction, actions->size());
 	if(currentAction == actions->size())
 		return 100;
 	return (*actions)[currentAction];

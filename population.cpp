@@ -202,9 +202,6 @@ Population::~Population() {
 	std::vector<Organism*>::iterator curorg;
 	//std::vector<Generation_viz*>::iterator cursnap;
 	
-	std::cout << "Deleting population..." << std::endl;
-	std::cout << "Deleting species...";	
-
 	if (species.begin()!=species.end()) {
 		for(curspec=species.begin();curspec!=species.end();++curspec) {
 			delete (*curspec);
@@ -216,14 +213,9 @@ Population::~Population() {
 		}
 	}
 
-	std::cout << "Deleted." << std::endl;
-	std::cout << "Deleting Innovations...";
-
 	for (std::vector<Innovation*>::iterator iter = innovations.begin(); iter != innovations.end(); ++iter)
 		delete *iter;
 
-	std::cout << "Deleted." << std::endl;
-	std::cout << "Population deleted successfully." << std::endl;
 
 	//Delete the snapshots
 	//		for(cursnap=generation_snapshots.begin();cursnap!=generation_snapshots.end();++cursnap) {

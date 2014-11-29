@@ -36,6 +36,10 @@ NNode::NNode(nodetype ntype,int nodeid) {
 	frozen=false;
 	//trait_id=1;
 	override=false;
+
+	// PetriNet parameters, type is above
+	tok_count = randint(0,5);
+	action_ID = randint(0,3);
 }
 
 NNode::NNode(NNode *n) {
@@ -58,6 +62,11 @@ NNode::NNode(NNode *n) {
 	//	trait_id=t->trait_id;
 	//else trait_id=1;
 	override=false;
+
+
+	// PetriNet parameters, type is above
+	tok_count = randint(0,5);
+	action_ID = randint(0,3);
 }
 
 NNode::NNode (const char *argline) {
@@ -98,6 +107,10 @@ NNode::NNode (const NNode& nnode)
 	frozen = nnode.frozen;
 //	trait_id = nnode.trait_id;
 	override = nnode.override;
+
+	// PetriNet parameters, type is above
+	tok_count = nnode.tok_count;
+	action_ID = nnode.action_ID;
 }
 
 NNode::~NNode() {
@@ -106,7 +119,6 @@ NNode::~NNode() {
 	//Kill off all incoming links
 	for(curlink=incoming.begin();curlink!=incoming.end();++curlink) {
 		if ((*curlink) != NULL){
-			std::cout << "Deleting link " << (*curlink) << " Node " << this << std::endl;
 			delete (*curlink);
 			(*curlink) = NULL;
 		}

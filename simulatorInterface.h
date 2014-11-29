@@ -32,7 +32,7 @@ public:
     void paintEvent(wxPaintEvent & evt);
 	void leftClick(wxMouseEvent& event);
 	void rightClick(wxMouseEvent& event);
-    void keyPressed(wxKeyEvent& event);
+    //void keyPressed(wxKeyEvent& event);
     void paintNow();
 
 	void checkPosition(wxCoord width, wxCoord height);

@@ -602,11 +602,8 @@ Network *Genome::genesis(int id) {
 	//The new network
 	Network *newnet;
 
-	std::cout << "---------------All nodes in genome------------" << this << std::endl;
-
 	//Create the nodes
 	for(curnode=nodes.begin();curnode!=nodes.end();++curnode) {
-		std::cout << "Type " << (*curnode)->type << " id " << (*curnode)->node_id << std::endl;
 		newnode=new NNode((*curnode)->type,(*curnode)->node_id);
 
 
@@ -948,7 +945,7 @@ void Genome::mutate_node_trait(int times) {
 	std::vector<Gene*>::iterator thegene;  //Gene to record innovation
 	int count;
 	int loop;
-	float rand;
+	float r;
 	for(loop=1;loop<=times;loop++) {
 
 		//Choose a random nodenum
@@ -970,16 +967,22 @@ void Genome::mutate_node_trait(int times) {
 				else
 					(*thenode)->tok_count--;
 
+				if((*thenode)->tok_count < 0)
+					(*thenode)->tok_count = 0;
+				else if((*thenode)->tok_count > 25)
+					(*thenode)->tok_count = 25;
+
+
 			} else{ // Mutate actions for transitions
 
-				rand = randfloat();
-
-				if (rand > 0.75)
+				r = randfloat();
+				
+				if (r > 0.75)
 					(*thenode)->action_ID = (*thenode)->action_ID ^ 3; // flip all bits
-				else if (rand > 0.5)
+				else if (r > 0.5)
 					(*thenode)->action_ID = (*thenode)->action_ID ^ 2; // flip the first bit
-				else if (rand > 0.25)
-					(*thenode)->action_ID = (*thenode)->action_ID ^ 1; //
+				else if (r > 0.25)
+					(*thenode)->action_ID = (*thenode)->action_ID ^ 1; // flip the second bit
 
 			}
 
@@ -1010,7 +1013,7 @@ void Genome::mutate_link_weights(double power,double rate,mutator mut_type) {
 
 			//Cap the weights at 8.0 (experimental)
 			if (((*curgene)->lnk)->weight > 5.0) ((*curgene)->lnk)->weight = 5.0;
-			else if (((*curgene)->lnk)->weight < 0.0) ((*curgene)->lnk)->weight = 0.0;
+			else if (((*curgene)->lnk)->weight < 1.0) ((*curgene)->lnk)->weight = 1.0;
 
 			//Record the innovation
 			//(*curgene)->mutation_num+=randnum;
@@ -1173,7 +1176,7 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 
 				//Choose the new weight
 				//newweight=(gaussrand())/1.5;  //Could use a gaussian
-				newweight = (int)(randfloat()*10.0); //used to be 10.0
+				newweight = (int)(randfloat()*3.0); //used to be 10.0
 
 				//Create the new gene
 				newgene=new Gene(newweight,nodep1,nodep2,curinnov,newweight);
@@ -1224,21 +1227,43 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
         int trycount; //Iterates over attempts to find an unconnected pair of nodes
         NNode *nodep1; //Pointers to the nodes
         NNode *nodep2; //Pointers to the nodes
-	NNode *newnode; // Pointer to the new node
+		NNode *newnode; // Pointer to the new node
         std::vector<Gene*>::iterator thegene; //Searches for existing link
         bool found=false;  //Tells whether an open pair was found
         std::vector<Innovation*>::iterator theinnov; //For finding a historical match
         Gene *newgene1;  //The new Gene
-	Gene *newgene2;
+		Gene *newgene2;
         double newweight1, newweight2;  //The new weight for the new link
 
         bool done;
         
-	//Make attempts to find an unconnected pair
+		//Make attempts to find an unconnected pair
         trycount=0;
 
         //Loop to find a valid link
         while(trycount<tries) {
+    		float r = randfloat();
+
+    		// A threshold that will tell wether the network is more likely to expand
+    		// or to have a high number of connections
+    		// A lower number gives a preference to more connections, a higher one
+    		// will give a preference to add a place and transition off of a node
+    		float sizeConnectionTradeoff = 0.1;
+
+    		// Check the description of sizeConnectionTradeoff
+    		if(r < sizeConnectionTradeoff) {
+    			// Add a place and a transition from a random node
+
+    			// TODO If this is chosen we need to add the corresponding nodes and genes
+    			// Haven't been implemented yet cause I'm not sure what to do with the innovation
+
+
+    			trycount = tries;
+    			found = true;
+    		}
+    		else {
+    			// Look for a pair of nodes of the same type without a node between them
+    			// Add a new node between them and the respective links
 
                 //Choose random nodenums
                 nodenum1=randint(0,nodes.size()-1);
@@ -1257,102 +1282,132 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
                 nodep1=(*thenode1);
                 nodep2=(*thenode2);
 
-                //See if a link already exists  ALSO STOP AT END OF GENES!!!!
-                thegene=genes.begin();
-                while ((thegene!=genes.end()) &&
-                        (!((((*thegene)->lnk)->in_node==nodep1)&&
-                        (((*thegene)->lnk)->out_node==nodep2)))) {
-                                ++thegene;
-                        }
+                // See if the nodes are of the same type, otherwise retry
+				if (nodep1->type == PLACE && nodep2->type == TRANSITION)
+                    trycount++;
+                else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
+                    trycount++;
+                else {
+                	// If both nodes are of the same type, see if there's a node between them
+                	std::vector<NNode*>::iterator thenode3;
+                	NNode *cNode;
+                	bool connectingNodeFound = false;
+                	
+                	//thenode3=nodes.begin();
+                	for(int connectionNode = 0; connectionNode < nodes.size(); connectionNode++) {
 
-                        if (thegene!=genes.end())
-                                trycount++;
-                        else if (nodep1->type == PLACE && nodep2->type == TRANSITION)
-                                trycount++;
-                        else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
-                                trycount++;
-                        else {
+	                //for(; !connectingNodeFound && thenode3 != nodes.end(); ++thenode3) {
+	                	cNode = nodes[connectionNode];
+	                	// For every incoming and outgoing link combination, see if the nodes match the ones we chose
+	                	std::vector<NNode*>::iterator inlink, outlink;
 
-                                //count=0;
-                                trycount=tries;
-                                found=true;
+	                	//inlink = cNode->incoming.begin();
+	                	for(int inLinks = 0; inLinks < cNode->incoming.size(); inLinks++) {
+	                	//for(; !connectingNodeFound && inlink != cNode->incoming.end(); ++inlink) {
+	                		//outlink = cNode->outgoing.begin();
+	                		for(int outLinks = 0; outLinks < cNode->outgoing.size(); outLinks++) {
+	                		//for(; !connectingNodeFound && outlink != cNode->outgoing.end(); ++outlink) {
+	                			// Check for either node being the in/out node
+	                			// Incoming node to compare cNode->incoming[inLinks]->in_node
+	                			// Outgoing node to compare cNode->outgoing[outLinks]->out_node
 
-                        }
+	                			if((cNode->incoming[inLinks]->in_node == nodep1 && cNode->outgoing[outLinks]->out_node == nodep2)
+	                				|| (cNode->incoming[inLinks]->in_node == nodep2 && cNode->outgoing[outLinks]->out_node == nodep1)) {
 
-        } //End of normal link finding loop
+	                			//if(((*inlink)->in_node == nodep1 && (*outlink)->out_node == nodep2)
+	                			//	|| ((*inlink)->in_node == nodep2 && (*outlink)->out_node == nodep1)) {
+	                				connectingNodeFound = true;
+	                			}
+	                		} // Finished comparing the incoming link with all outgoing links
+
+	                	} // Finished checking all the incoming links for the node
+	                	
+	                } // Finished looking for connection nodes
+
+	                // If a node connecting the nodes was found, then retry
+	                if(connectingNodeFound) {
+	                	trycount++;
+	                }
+	                // Otherwise, a pair of nodes was found
+	                else {
+	                	trycount = tries;
+	                	found = true;
+	                }
+                }
+    		}
+        } //End of normal node finding loop
 
 
         //Continue only if an open link was found
         if (found) {
 
-                //Check to see if this innovation already occured in the population
-                theinnov=innovs.begin();
+            //Check to see if this innovation already occured in the population
+            theinnov=innovs.begin();
 
-                done=false;
+            done=false;
 
-                while(!done) {
+            while(!done) {
 
-                        //The innovation is totally novel
-                        if (theinnov==innovs.end()) {
+                //The innovation is totally novel
+                if (theinnov==innovs.end()) {
 
-                                //If the phenotype does not exist, exit on false,print error
-                                //Note: This should never happen- if it does there is a bug
-                                if (phenotype==0) {
-                                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
-                                        return false;
-				}
+                    //If the phenotype does not exist, exit on false,print error
+                    //Note: This should never happen- if it does there is a bug
+                    if (phenotype==0) {
+                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
+                        return false;
+					}
 
-				//Create the new NNode
-        	                //By convention, it will point to the first trait
-	                        if(nodep1->type == PLACE)
-					newnode=new NNode(TRANSITION,curnode_id++);
-             			else
-					newnode = new NNode(PLACE, curnode_id++);   	 
+					//Create the new NNode
+	                //By convention, it will point to the first trait
+                    if(nodep1->type == PLACE)
+						newnode=new NNode(TRANSITION,curnode_id++);
+         			else
+						newnode = new NNode(PLACE, curnode_id++);   	 
 
+                    //Choose the new weight
+                    newweight1 = (int)(randfloat()*3.0);
+					newweight2 = (int)(randfloat()*3.0);
+	
+                    //Create the new gene
+                    newgene1 =new Gene(newweight1,nodep1,newnode,curinnov,newweight1);		// Why is the other weight being asigned as the mutation number?
+					newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);		// Why is the other weight being asigned as the mutation number?
 
-                                //Choose the new weight
-                                newweight1 = (int)(randfloat()*10.0);
-				newweight2 = (int)(randfloat()*10.0);
-				
-                                //Create the new gene
-                                newgene1 =new Gene(newweight1,nodep1,newnode,curinnov,newweight1);
-				newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);
+                    //Add the innovation
+                    innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
 
-                                //Add the innovation
-                                innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
+                    curinnov=curinnov+2.0;
 
-                                curinnov=curinnov+2.0;
-
-                                done=true;
-                        }
-                        //OTHERWISE, match the innovation in the innovs list
-                        else if (((*theinnov)->innovation_type==NEWNODE)&&
-                                ((*theinnov)->node_in_id==(nodep1->node_id))&&
-                                ((*theinnov)->node_out_id==(nodep2->node_id))) {
-
-                                        
-                                        //Create new gene
-                                        newgene1=new Gene((*theinnov)->new_weight,nodep1,newnode,(*theinnov)->innovation_num1,0);
-                                        newgene2 = new Gene((*theinnov)->new_weight,newnode,nodep2,(*theinnov)->innovation_num2,0);
-					done=true;
-
-                                }
-                        else {
-                                //Keep looking for a matching innovation from this generation
-                                ++theinnov;
-                        }
+                    done=true;
                 }
+                //OTHERWISE, match the innovation in the innovs list
+                else if (((*theinnov)->innovation_type==NEWNODE)&&
+                        ((*theinnov)->node_in_id==(nodep1->node_id))&&
+                        ((*theinnov)->node_out_id==(nodep2->node_id))) {
 
-                //Now add the new Genes to the Genome
-                //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
-                add_gene(genes,newgene1);  //Adds the gene in correct order
-		add_gene(genes,newgene2);
-		node_insert(nodes, newnode);
+                                
+                            //Create new gene
+                            newgene1=new Gene((*theinnov)->new_weight,nodep1,newnode,(*theinnov)->innovation_num1,0);
+                            newgene2 = new Gene((*theinnov)->new_weight,newnode,nodep2,(*theinnov)->innovation_num2,0);
+							done=true;
 
-                return true;
+                }
+                else {
+                        //Keep looking for a matching innovation from this generation
+                        ++theinnov;
+                }
+            }
+
+            //Now add the new Genes to the Genome
+            //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
+            add_gene(genes,newgene1);  //Adds the gene in correct order
+			add_gene(genes,newgene2);
+			node_insert(nodes, newnode);
+
+            return true;
         }
         else {
-                return false;
+            return false;
         }
 }
 
