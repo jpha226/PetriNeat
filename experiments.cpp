@@ -17,6 +17,10 @@
 #include "simulatorInterface.h"
 #include <cstring>
 
+
+
+int displaySim = -1;
+
 // Perform evolution for Petri Nets, for gens generations
 Population *petrinet_test(int gens) {
 
@@ -41,7 +45,6 @@ Population *petrinet_test(int gens) {
     int expcount;
     int samples;  //For averaging
 
-    displaySimulation = -1;
 
     memset (evals, 0, NEAT::num_runs * sizeof(int));
     memset (genes, 0, NEAT::num_runs * sizeof(int));
@@ -184,10 +187,10 @@ bool petrinet_evaluate(Organism *org) {
 
 	SimulatorInterface si(&actions);	
 	
-  if(displaySimulation != 2) {
+  if(displaySim != 2) {
     std::cout << "Do you want to run or display the simulation? 0 - run, 1 - display, 2 - run all" << std::endl;
-    cin >> displaySimulation;
-    if(displaySimulation == 1)
+    cin >> displaySim;
+    if(displaySim == 1)
       si.displaySimulation();
     else
       si.runSimulation();
