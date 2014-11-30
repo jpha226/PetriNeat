@@ -41,7 +41,7 @@ Population *petrinet_test(int gens) {
     int expcount;
     int samples;  //For averaging
 
-    displaySimulation = -1;
+    displaySimulationVar = -1;
 
     memset (evals, 0, NEAT::num_runs * sizeof(int));
     memset (genes, 0, NEAT::num_runs * sizeof(int));
@@ -184,10 +184,10 @@ bool petrinet_evaluate(Organism *org) {
 
 	SimulatorInterface si(&actions);	
 	
-  if(displaySimulation != 2) {
+  if(displaySimulationVar != 2) {
     std::cout << "Do you want to run or display the simulation? 0 - run, 1 - display, 2 - run all" << std::endl;
-    cin >> displaySimulation;
-    if(displaySimulation == 1)
+    cin >> displaySimulationVar;
+    if(displaySimulationVar == 1)
       si.displaySimulation();
     else
       si.runSimulation();
