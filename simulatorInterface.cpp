@@ -337,7 +337,7 @@ void BasicDrawPane::render(wxDC&  dc)
 	wxFont font(18, wxDEFAULT, wxNORMAL, wxBOLD);	
 	dc.SetFont(font);
 	dc.SetTextForeground(wxColor(0,100,0)); // Color for the text
-	dc.DrawText(wxString(actionText), 10, 10);
+	dc.DrawText(wxString(actionText.c_str(), wxConvUTF8), 10, 10);
 }
 
 void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)

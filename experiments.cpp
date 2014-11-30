@@ -41,6 +41,8 @@ Population *petrinet_test(int gens) {
     int expcount;
     int samples;  //For averaging
 
+    displaySimulation = -1;
+
     memset (evals, 0, NEAT::num_runs * sizeof(int));
     memset (genes, 0, NEAT::num_runs * sizeof(int));
     memset (nodes, 0, NEAT::num_runs * sizeof(int));
@@ -181,9 +183,20 @@ bool petrinet_evaluate(Organism *org) {
 	}
 
 	SimulatorInterface si(&actions);	
-	si.runSimulation();
-	//si.displaySimulation();
-	float fitness = si.getFitnessValue();
+	
+  if(displaySimulation != 2) {
+    std::cout << "Do you want to run or display the simulation? 0 - run, 1 - display, 2 - run all" << std::endl;
+    cin >> displaySimulation;
+    if(displaySimulation == 1)
+      si.displaySimulation();
+    else
+      si.runSimulation();
+  }
+  else {
+    si.runSimulation();
+  }
+  
+ 	float fitness = si.getFitnessValue();
 	org->fitness = fitness;
 	
 	// If the fitness is 10,000 it means that the goal was found
