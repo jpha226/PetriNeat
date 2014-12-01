@@ -575,6 +575,10 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 						delete net_analogue;
 						mut_struct_baby=true;
 					}
+					else if (randfloat() <NEAT::mutate_add_two_node_prob) {
+//						new_genome->mutate_add_two_node(pop->innovations,pop->cur_node_id,pop->cur_innov_num,NEAT::newlink_tries);
+						mut_struct_baby=true;
+					}
 					//NOTE:  A link CANNOT be added directly after a node was added because the phenotype
 					//       will not be appropriately altered to reflect the change
 					else {
