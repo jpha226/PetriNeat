@@ -1,12 +1,11 @@
 #include "network.h"
-#include "iostream"
-#include "sstream"
-#include "fstream"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <map>
 #include "math.h"
 
 using namespace NEAT;
-
-class Network;
 
 //void setPosition(double &x, double &y, double Min, double Max){
 void setPosition(double &x, double &y){
@@ -14,11 +13,11 @@ void setPosition(double &x, double &y){
 	double Min = 0.0, Max = 1000.0;
 	double p = (double)rand() / RAND_MAX;
 	x = Min + p * (Max - Min);
-	x = (std::floor(x * 10))/10; //only keep one digit after the decimal point
+	x = (floor(x * 10))/10; //only keep one digit after the decimal point
 	
 	double q = (double)rand() / RAND_MAX;
 	y = Min + q * (Max - Min);
-	y = (std::floor(y * 10))/10;
+	y = (floor(y * 10))/10;
 	
 	return;
 }
@@ -69,8 +68,8 @@ void printLink(Link* nlink, std::map<NNode*, int> npos, std::vector<double> xpos
 	int in_ptr = npos[in];
 	int out_ptr = npos[out];
 	
-	myfile << "<arc id=\"" << in->node_id << " to " << out_node_id << "\" ";
-	myfile << "source=\"" << in->node_id << "\" target=\"" << out_node_id <<"\">\n";
+	myfile << "<arc id=\"" << in->node_id << " to " << out->node_id << "\" ";
+	myfile << "source=\"" << in->node_id << "\" target=\"" << out->node_id <<"\">\n";
 	myfile << "<graphics/>\n";
 	myfile << "<inscription>\n";
 	myfile << "<value>" << (int)nlink->weight << "</value>\n";
@@ -98,7 +97,7 @@ int netdrawer(const Network &network){
 	std::vector<double> ypos;
 
 	//Write all the places
-	std::vector<NNode*>::const_interator curnode;
+	std::vector<NNode*>::const_iterator curnode;
 	int count = 0;
 	double x, y;
 	for(curnode = network.places.begin(); curnode != network.places.end(); ++curnode) {
@@ -117,7 +116,7 @@ int netdrawer(const Network &network){
 	for(curnode = network.transitions.begin(); curnode != network.transitions.end(); ++curnode){
 		//generate an position
 		setPosition(&x, &y);
-		nodePos[*curnode] = count;
+		nodepos[*curnode] = count;
 		xpos.push_back(x);
 		ypos.push_back(y);
 		
@@ -127,7 +126,7 @@ int netdrawer(const Network &network){
 	}
 	
 	//Write all the links
-	std::vector<Link*>::const_interator curlink;
+	std::vector<Link*>::const_iterator curlink;
 	for(curnode = network.places.begin(); curnode != network.places.end(); ++curnode) {
 		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
 			printLink(*curlink, nodepos, xpos, ypos, &myfile);
