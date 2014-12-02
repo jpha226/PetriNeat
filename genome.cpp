@@ -1239,10 +1239,12 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
         bool createTwo = false;
 		//Make attempts to find an unconnected pair
         trycount=0;
+	
+	float r = randfloat();
 
         //Loop to find a valid link
         while(trycount<tries) {
-    		float r = randfloat();
+    		//float r = randfloat();
 
     		// A threshold that will tell wether the network is more likely to expand
     		// or to have a high number of connections
