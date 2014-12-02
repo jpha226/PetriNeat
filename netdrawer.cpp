@@ -6,6 +6,7 @@
 #include "math.h"
 #include "nnode.h"
 #include "link.h"
+#include <string>
 
 using namespace NEAT;
 
@@ -91,7 +92,8 @@ int netdrawer(const Network* network){
 	//build an xml file for the network
 	//initialize the xml file
 	std::ofstream myfile;
-	myfile.open( "net.xml");
+	std::string str = "PetriNet_" + std::to_string(network->net_id) + ".xml";
+	myfile.open(str);
 	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
 	
 	//a hashmap to record posiitons of nodes using node pointer (NNode*) and position number(int)
