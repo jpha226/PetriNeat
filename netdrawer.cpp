@@ -23,8 +23,10 @@ void setPosition(double &x, double &y){
 }
 
 void printNode(NNode* node, double x, double y, std::ofstream &myfile){
+
+	int type = node->type;
 	//nodetype is 1, which is transition
-	if(node.get_type()){
+	if(type){
 		myfile << "<transition id=\"" << node->node_id << "\">\n";
 		myfile << "<graphics>\n";
 		myfile << "<position x=\"" << x << "\" y=\"" << y << "\"/>\n";
@@ -82,7 +84,7 @@ void printLink(Link* nlink, std::map<NNode*, int> npos, std::vector<double> xpos
 	myfile << "</arc>\n";
 }
 
-int netdrawer(const Network &network){
+int netdrawer(const Network* network){
 	
 	//build an xml file for the network
 	//initialize the xml file
@@ -100,42 +102,42 @@ int netdrawer(const Network &network){
 	std::vector<NNode*>::const_iterator curnode;
 	int count = 0;
 	double x, y;
-	for(curnode = network.places.begin(); curnode != network.places.end(); ++curnode) {
+	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
 		//generate an random position for curnode;
-		setPosition(&x, &y);
+		setPosition(x, y);
 		nodepos[*curnode] = count;
 		xpos.push_back(x);
 		ypos.push_back(y);
 		
-		printNode(*curnode, x, y, &myfile);
+		printNode(*curnode, x, y, myfile);
 		
 		count++;
 	}
 	
 	//Write all the transitions
-	for(curnode = network.transitions.begin(); curnode != network.transitions.end(); ++curnode){
+	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
 		//generate an position
-		setPosition(&x, &y);
+		setPosition(x, y);
 		nodepos[*curnode] = count;
 		xpos.push_back(x);
 		ypos.push_back(y);
 		
-		printNode(*curnode, x, y, &myfile);
+		printNode(*curnode, x, y, myfile);
 		
 		count++;
 	}
 	
 	//Write all the links
 	std::vector<Link*>::const_iterator curlink;
-	for(curnode = network.places.begin(); curnode != network.places.end(); ++curnode) {
+	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
 		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
-			printLink(*curlink, nodepos, xpos, ypos, &myfile);
+			printLink(*curlink, nodepos, xpos, ypos, myfile);
 		}
 	}
 	
-	for(curnode = network.transitions.begin(); curnode != network.transitions.end(); ++curnode){
+	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
 		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
-			printLink(*curlink, nodepos, xpos, ypos, &myfile);
+			printLink(*curlink, nodepos, xpos, ypos, myfile);
 		}
 	}
 	
@@ -144,5 +146,4 @@ int netdrawer(const Network &network){
 	myfile.close();
 	return 0;
 }
-	
 	
