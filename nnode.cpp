@@ -38,8 +38,14 @@ NNode::NNode(nodetype ntype,int nodeid) {
 	override=false;
 
 	// PetriNet parameters, type is above
-	tok_count = randint(0,5);
-	action_ID = randint(0,3);
+	if(ntype == PLACE){
+		tok_count = randint(0,5);
+		action_ID = -1;
+	}
+	else{
+		action_ID = randint(0,3);
+		tok_count = -1;
+	}
 }
 
 NNode::NNode(NNode *n) {
@@ -65,8 +71,15 @@ NNode::NNode(NNode *n) {
 
 
 	// PetriNet parameters, type is above
-	tok_count = randint(0,5);
-	action_ID = randint(0,3);
+        if(type == PLACE){
+                tok_count = randint(0,5);
+                action_ID = -1;
+        }
+        else{
+                action_ID = randint(0,3);
+                tok_count = -1;
+        }
+
 }
 
 NNode::NNode (const char *argline) {

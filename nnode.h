@@ -103,6 +103,7 @@ namespace NEAT {
 		int action_ID; // Action ID for transition nodes
 		int capacity; // member for places
 		int tok_count; // current token count for places
+		int curr_tok_count;
 		std::vector<Link*> incoming; // A list of pointers to incoming weighted signals from other nodes
 		std::vector<Link*> outgoing;  // A list of pointers to links carrying this node's signal
 		nodetype type;

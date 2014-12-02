@@ -109,7 +109,7 @@ bool Network::isEnabled(NNode* t) {
 
 	for(std::vector<Link*>::iterator it = t->incoming.begin(); it != t->incoming.end() && enabled; it++) {
 
-		if (((*it)->in_node)->tok_count < (*it)->weight)
+		if (((*it)->in_node)->curr_tok_count < (*it)->weight)
 			enabled = false;
 
 	}
@@ -128,14 +128,14 @@ bool Network::fire(NNode* t) {
 		for(std::vector<Link*>::iterator it = t->incoming.begin(); it != t->incoming.end(); it++) {
 
 			// Consume incoming tokens
-			((*it)->in_node)->tok_count = ((*it)->in_node)->tok_count - (*it)->weight;
+			((*it)->in_node)->curr_tok_count -= (*it)->weight;
 			
         	}
 		
 		for(std::vector<Link*>::iterator it = t->outgoing.begin(); it != t->outgoing.end(); it++) {
 
 			// Produce outgoing tokens
-			((*it)->out_node)->tok_count += (*it)->weight;
+			((*it)->out_node)->curr_tok_count += (*it)->weight;
 
 		}
 
@@ -146,6 +146,15 @@ bool Network::fire(NNode* t) {
 	return true;
 
 }
+
+void Network::setCurrentTokenCount(){
+
+	for (std::vector<NNode*>::iterator it = places.begin(); it != places.end(); it++){
+		(*it)->curr_tok_count = (*it)->tok_count;
+	}
+
+}
+
 
 bool execute(){return false;}
 

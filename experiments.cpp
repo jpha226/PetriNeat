@@ -155,6 +155,7 @@ bool petrinet_evaluate(Organism *org) {
 		
 	Network *network = org->net;
 	std::vector<int> actions;
+	network->setCurrentTokenCount();
 	/* Some code for testing the transitions seen by the simulator
   std::cout << "----------------- Transitions -------------------" << std::endl;
 	for(int i = 0; i < network->transitions.size(); i++) {
