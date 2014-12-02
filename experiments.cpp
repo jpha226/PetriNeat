@@ -17,7 +17,7 @@
 #include "simulatorInterface.h"
 #include <cstring>
 
-
+#include "netdrawer.h"
 
 int displaySim = -1;
 int minNumActions = 50;
@@ -215,6 +215,7 @@ bool petrinet_evaluate(Organism *org) {
 	// If the fitness has the max value, then the goal was found
 	if(fitness == maxFitness) {
 	  minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
+	netdrawer(network);
   	return true;
   }
 

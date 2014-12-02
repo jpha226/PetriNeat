@@ -1,6 +1,7 @@
 #include "netdrawer.h"
 
 using namespace NEAT;
+using namespace std;
 
 //void setPosition(double &x, double &y, double Min, double Max){
 void setPosition(double &x, double &y){

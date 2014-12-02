@@ -16,8 +16,8 @@ LIBSWX = $(shell wx-config --libs)
 CFLAGSWX = $(shell wx-config --cxxflags)
 ##############################################################
 
-neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o #neatswig_wrap.o visual.o
-	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o -o neat $(LIBSWX)
+neat: neat.o network.o netdrawer.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o #neatswig_wrap.o visual.o
+	$(CC) $(CFLAGS) $(LIBS) neat.o network.o netdrawer.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o simulatorInterface.o -o neat $(LIBSWX)
 #	$(CC) $(CFLAGS) $(LIBS) networks.o genetics.o visual.o experiments.o neatswig_wrap.o pneatmain.o -o neat `gtkmm-config --cflags --libs`
 
 ########################
@@ -54,6 +54,9 @@ species.o: species.cpp species.h organism.h
 
 population.o: population.cpp population.h organism.h
 	  $(CC) $(CFLAGS) -c population.cpp -o population.o
+
+netdrawer.o: netdrawer.cpp netdrawer.h
+	$(CC) $(CFLAGS) -c netdrawer.cpp -o netdrawer.o
 
 experiments.o: experiments.cpp experiments.h network.h species.h simulatorInterface.h
 	$(CC) $(CFLAGS) $(CFLAGSWX) -c experiments.cpp -o experiments.o
