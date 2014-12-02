@@ -4,6 +4,8 @@
 #include <fstream>
 #include <map>
 #include "math.h"
+#include "nnode.h"
+#include "link.h"
 
 using namespace NEAT;
 
