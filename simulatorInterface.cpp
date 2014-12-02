@@ -20,6 +20,9 @@ wxCoord SimulatorInterface::ROBOT_Y = 6;
 wxCoord SimulatorInterface::GOAL_X = 15;
 wxCoord SimulatorInterface::GOAL_Y = 6;
 
+wxCoord SimulatorInterface::INITIAL_ROBOT_X = 9;
+wxCoord SimulatorInterface::INITIAL_ROBOT_Y = 6;
+
 /*
 *	Creates a simulator with a vector of actions
 */
@@ -39,6 +42,9 @@ SimulatorInterface::SimulatorInterface(std::vector<int> *list)
 	SimulatorInterface::ROBOT_Y = 6;
 	SimulatorInterface::GOAL_X = 15;
 	SimulatorInterface::GOAL_Y = 6;
+
+	SimulatorInterface::INITIAL_ROBOT_X = 9;
+	SimulatorInterface::INITIAL_ROBOT_Y = 6;
 }
 
 /*
@@ -80,12 +86,37 @@ void SimulatorInterface::displaySimulation() {
 
 
 float SimulatorInterface::getFitnessValue() {
+	// Calculate the initial distance between the robot and the goal
+	wxCoord x_ini = SimulatorInterface::GOAL_X - SimulatorInterface::INITIAL_ROBOT_X;
+	wxCoord y_ini = SimulatorInterface::GOAL_Y - SimulatorInterface::INITIAL_ROBOT_Y;
+	float distance_ini = sqrt(x_ini*x_ini + y_ini*y_ini); // Not used at the moment
+
+	// Calculate the minimum number of steps needed to reach the goal (can't make any diagonal movements)
+	float min_steps = abs(x_ini) + abs(y_ini);	
+
+	// Calculate the distance between the finishing position of the robot and the goal
 	wxCoord x = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;
 	wxCoord y = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y;
 	float distance = sqrt(x*x + y*y);	
-	if(distance == 0.0)
-		return 10000.0;	
-	return 1.0/distance;
+
+	// Take into account the number of steps taken
+	float steps = actions->size();
+
+	// Add modifiers to play with the weight of the distance/steps
+	float stepModifier = 1.0;
+	float distanceModifier = 1.0;
+
+	steps *= stepModifier;
+	distance *= distanceModifier;
+
+	float fitness = 1.0 / (1.0 + steps + 3*distance); 
+
+	if(distance == 0.0) {
+		// The goal was reached exactly, give an additional reward
+		fitness *= 2.0;
+	}
+
+	return fitness;
 }
  
  

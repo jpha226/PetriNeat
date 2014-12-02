@@ -639,6 +639,8 @@ Network *Genome::genesis(int id) {
 			onode=(curlink->out_node)->analogue;
 			//NOTE: This line could be run through a recurrency check if desired
 			// (no need to in the current implementation of NEAT)
+
+
 			newlink=new Link(curlink->weight,inode,onode);
 
 
@@ -1178,6 +1180,7 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 				//newweight=(gaussrand())/1.5;  //Could use a gaussian
 				newweight = (int)(randfloat()*3.0); //used to be 10.0
 
+
 				//Create the new gene
 				newgene=new Gene(newweight,nodep1,nodep2,curinnov,newweight);
 
@@ -1240,7 +1243,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 		//Make attempts to find an unconnected pair
         trycount=0;
 	
-	float r = randfloat();
+		float r = randfloat();
 
         //Loop to find a valid link
         while(trycount<tries) {
@@ -1258,21 +1261,21 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 
     			// TODO If this is chosen we need to add the corresponding nodes and genes
     			// Haven't been implemented yet cause I'm not sure what to do with the innovation
-			nodenum1=randint(0,nodes.size()-1);
+				nodenum1=randint(0,nodes.size()-1);
 
-			thenode1=nodes.begin();
-			for(nodecount=0; nodecount<nodenum1; nodecount++)
-				++thenode1;
+				thenode1=nodes.begin();
+				for(nodecount=0; nodecount<nodenum1; nodecount++)
+					++thenode1;
 
-			nodep1=(*thenode1);
+				nodep1=(*thenode1);
 
-			if (nodep1->type == TRANSITION)
-				trycount++;
-			else{
-    				trycount = tries;
-	    			found = true;
-				createTwo = true;	
-			}
+				if (nodep1->type == TRANSITION)
+					trycount++;
+				else{
+	    				trycount = tries;
+		    			found = true;
+					createTwo = true;	
+				}
     		}
     		else {
     			// Look for a pair of nodes of the same type without a node between them
@@ -1296,7 +1299,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
                 nodep2=(*thenode2);
 
                 // See if the nodes are of the same type, otherwise retry
-		if (nodep1->type == PLACE && nodep2->type == TRANSITION)
+				if (nodep1->type == PLACE && nodep2->type == TRANSITION)
                     trycount++;
                 else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
                     trycount++;
@@ -1347,85 +1350,97 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 
         //Continue only if an open link was found
         if (found) {
-		done = false;
-		if (createTwo){
-
-			nodep2 = new NNode(TRANSITION,curnode_id++);
-			newnode = new NNode(PLACE,curnode_id++);
-			newweight1 = (int)(randfloat()*3.0);
-			newweight2 = (int)(randfloat()*3.0);
-
-			// Create new genes
-			newgene1 = new Gene(newweight1,nodep1,nodep2,curinnov,newweight1);
-			newgene2 = new Gene(newweight2,nodep2,newnode,curinnov,newweight2);
 			
-			add_gene(genes,newgene1);
-			add_gene(genes,newgene2);
-			node_insert(nodes,nodep2);
-			node_insert(nodes,newnode);
-		}
+			done = false;
 
-        	//Create the new NNode
-            if(nodep1->type == PLACE)
-				newnode=new NNode(TRANSITION,curnode_id++);
- 			else
-				newnode = new NNode(PLACE, curnode_id++); 
+			if (createTwo){
 
-            //Check to see if this innovation already occured in the population
-            theinnov=innovs.begin();
+				// Create a new transition and place
+				// Make newnode the transition and nodep2 the place for consistency
+				newnode = new NNode(TRANSITION,curnode_id++);
+				nodep2 = new NNode(PLACE,curnode_id++);
+				newweight1 = (int)(randfloat()*3.0);
+				newweight2 = (int)(randfloat()*3.0);
 
-      
+				// Create new genes
+				newgene1 = new Gene(newweight1,nodep1,newnode,curinnov,newweight1);
+				newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);
 
-            while(!done) {
+				// These nodes are new, so 
+                //Add the innovation
+                innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
 
-                //The innovation is totally novel
-                if (theinnov==innovs.end()) {
+                curinnov=curinnov+2.0;
+				
+				add_gene(genes,newgene1);
+				add_gene(genes,newgene2);
+				node_insert(nodes,nodep2);
+				node_insert(nodes,newnode);
+			}
 
-                    //If the phenotype does not exist, exit on false,print error
-                    //Note: This should never happen- if it does there is a bug
-                    if (phenotype==0) {
-                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
-                        return false;
-					}  	 
+			else {
+	        	//Create the new NNode
+	            if(nodep1->type == PLACE)
+					newnode=new NNode(TRANSITION,curnode_id++);
+	 			else
+					newnode = new NNode(PLACE, curnode_id++); 
 
-                    //Choose the new weight
-                    newweight1 = (int)(randfloat()*3.0);
-					newweight2 = (int)(randfloat()*3.0);
-	
-                    //Create the new gene
-                    newgene1 =new Gene(newweight1,nodep1,newnode,curinnov,newweight1);		// Why is the other weight being asigned as the mutation number?
-					newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);		// Why is the other weight being asigned as the mutation number?
+	            //Check to see if this innovation already occured in the population
+	            theinnov=innovs.begin();
 
-                    //Add the innovation
-                    innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
+	      
 
-                    curinnov=curinnov+2.0;
+	            while(!done) {
 
-                    done=true;
-                }
-                //OTHERWISE, match the innovation in the innovs list
-                else if (((*theinnov)->innovation_type==NEWNODE)&&
-                        ((*theinnov)->node_in_id==(nodep1->node_id))&&
-                        ((*theinnov)->node_out_id==(nodep2->node_id))) {
+	                //The innovation is totally novel
+	                if (theinnov==innovs.end()) {
 
-                                
-                            //Create new gene
-                            newgene1=new Gene((*theinnov)->new_weight,nodep1,newnode,(*theinnov)->innovation_num1,0);
-                            newgene2 = new Gene((*theinnov)->new_weight,newnode,nodep2,(*theinnov)->innovation_num2,0);
-							done=true;
+	                    //If the phenotype does not exist, exit on false,print error
+	                    //Note: This should never happen- if it does there is a bug
+	                    if (phenotype==0) {
+	                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
+	                        return false;
+						}  	 
 
-                }
-                else {
-                        //Keep looking for a matching innovation from this generation
-                        ++theinnov;
-                }
-            }
+	                    //Choose the new weight
+	                    newweight1 = (int)(randfloat()*3.0);
+						newweight2 = (int)(randfloat()*3.0);
+		
+	                    //Create the new gene
+	                    newgene1 =new Gene(newweight1,nodep1,newnode,curinnov,newweight1);		// Why is the other weight being asigned as the mutation number?
+						newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);		// Why is the other weight being asigned as the mutation number?
 
-            //Now add the new Genes to the Genome
-            //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
-            add_gene(genes,newgene1);  //Adds the gene in correct order
-			add_gene(genes,newgene2);
-	node_insert(nodes, newnode);
+	                    //Add the innovation
+	                    innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
+
+	                    curinnov=curinnov+2.0;
+
+	                    done=true;
+	                }
+	                //OTHERWISE, match the innovation in the innovs list
+	                else if (((*theinnov)->innovation_type==NEWNODE)&&
+	                        ((*theinnov)->node_in_id==(nodep1->node_id))&&
+	                        ((*theinnov)->node_out_id==(nodep2->node_id))) {
+
+	                                
+	                            //Create new gene
+	                            newgene1=new Gene((*theinnov)->new_weight,nodep1,newnode,(*theinnov)->innovation_num1,0);
+	                            newgene2 = new Gene((*theinnov)->new_weight,newnode,nodep2,(*theinnov)->innovation_num2,0);
+								done=true;
+
+	                }
+	                else {
+	                        //Keep looking for a matching innovation from this generation
+	                        ++theinnov;
+	                }
+	            }
+
+	            //Now add the new Genes to the Genome
+	            //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
+	            add_gene(genes,newgene1);  //Adds the gene in correct order
+				add_gene(genes,newgene2);
+				node_insert(nodes, newnode);
+			}
 
             return true;
         }

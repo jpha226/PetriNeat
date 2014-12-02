@@ -20,6 +20,9 @@ class SimulatorInterface {
 		static wxCoord GOAL_X;
 		static wxCoord GOAL_Y;
 
+		static wxCoord INITIAL_ROBOT_X;
+		static wxCoord INITIAL_ROBOT_Y;
+
 		SimulatorInterface(std::vector<int> *actions);
 };
  

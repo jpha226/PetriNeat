@@ -20,6 +20,7 @@
 
 
 int displaySim = -1;
+int minNumActions = 50;
 
 // Perform evolution for Petri Nets, for gens generations
 Population *petrinet_test(int gens) {
@@ -135,6 +136,7 @@ Population *petrinet_test(int gens) {
     cout<<"Average Nodes: "<<(samples>0 ? (double)totalnodes/samples : 0)<<endl;
     cout<<"Average Genes: "<<(samples>0 ? (double)totalgenes/samples : 0)<<endl;
     cout<<"Average Evals: "<<(samples>0 ? (double)totalevals/samples : 0)<<endl;
+    cout<<"Minimum number of actions: " << minNumActions << endl;
 
     return pop;
 
@@ -200,10 +202,20 @@ bool petrinet_evaluate(Organism *org) {
   
  	float fitness = si.getFitnessValue();
 	org->fitness = fitness;
-	
-	// If the fitness is 10,000 it means that the goal was found
-	if(fitness == 10000.0)
-		return true;
+
+  // Get Maximum Fitness
+  float x_ini = (float)(SimulatorInterface::GOAL_X - SimulatorInterface::INITIAL_ROBOT_X);
+  float y_ini = (float)(SimulatorInterface::GOAL_Y - SimulatorInterface::INITIAL_ROBOT_Y);
+  // Calculate the minimum number of steps needed to reach the goal (can't make any diagonal movements)
+  float minSteps = abs(x_ini) + abs(y_ini);  
+  // Calculate the maximum fitness
+  float maxFitness = 2.0 / (1.0 + minSteps);
+
+	// If the fitness has the max value, then the goal was found
+	if(fitness == maxFitness) {
+	  minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
+  	return true;
+  }
 
 	return false;
 }
