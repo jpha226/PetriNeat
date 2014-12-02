@@ -16,7 +16,7 @@
 #include "experiments.h"
 #include "simulatorInterface.h"
 #include <cstring>
-
+#include <fstream>
 #include "netdrawer.h"
 
 int displaySim = -1;
@@ -216,6 +216,13 @@ bool petrinet_evaluate(Organism *org) {
 	if(fitness == maxFitness) {
 	  minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
 	   netdrawer(network);
+	ofstream actionsfile;
+	actionsfile.open("actions", std::ofstream::out);
+	for(int i=0; i<actions.size(); i++)
+		actionsfile << actions[i] << " ";
+	actionsfile << "\n";
+	org->gnome->print_to_file(actionsfile);
+	actionsfile.close();
   	return true;
   }
 
@@ -271,6 +278,7 @@ int petrinet_epoch(Population *pop, int generation, char *filename, int &winnern
 	  else return 0;
 
 }
+
 
 
 /******************** End Petri Net Code *************************************/
