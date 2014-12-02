@@ -52,7 +52,7 @@ namespace NEAT {
 		double added_weight;  // The amount of weight adjustment 
 		double params[NEAT::num_trait_params];
 
-		Link(int w,NNode *in,NNode *out);
+		Link(int w, NNode *in, NNode *out);
 
 		// Including a trait pointer in the Link creation
 		//Link(Trait *lt,int w,NNode *in,NNode *out);
