@@ -66,16 +66,91 @@ void printNode(NNode* node, double x, double y, std::ofstream &myfile){
 		 
 }
 
+void printLink(Link* nlink, std::map<NNode*, int> npos, std::vector<double> xpos, std::vector<double> ypos, std::ofstream &myfile){
+	NNode* in = nlink->in_node;
+	NNode* out = nlink->out_node;
+	int in_ptr = npos[in];
+	int out_ptr = npos[out];
+	
+	myfile << "<arc id=\"" << in->node_id << " to " << out->node_id << "\" ";
+	myfile << "source=\"" << in->node_id << "\" target=\"" << out->node_id <<"\">\n";
+	myfile << "<graphics/>\n";
+	myfile << "<inscription>\n";
+	myfile << "<value>" << (int)nlink->weight << "</value>\n";
+	myfile << "<graphics/>\n";
+	myfile << "</inscription>\n";
+	myfile << "<arcpath id=\"000\" x=\"" << ((int)xpos[in_ptr]) + 11;
+	myfile << "\" y=\"" << ((int)ypos[in_ptr]) + 5 << "\" curvePoint=\"false\"/>\n";
+	myfile << "<arcpath id=\"001\" x=\"" << ((int)xpos[out_ptr]) + 11;
+	myfile << "\" y=\"" << ((int)ypos[out_ptr]) + 5 << "\" curvePoint=\"false\"/>\n";
+	myfile << "</arc>\n";
+}
+
 
 int main(){
-	
+
+/*	
 	//test setPosition
 	double x = 0.0, y = 0.0;
-	
 	for(int i = 0; i < 10; i++){
 		setPosition(x, y);
 		std::cout << " x = " << x << " y = " << y << std::endl;
 	}
+*/
+/*	//testing printNode	
+	std::ofstream myfile;
+	myfile.open( "net.xml");
+	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
+	
+	NNode* nodep = new NNode(TRANSITION, 1111);
+	NNode* nodet = new NNode(PLACE, 2222);
+	
+	double x = 0.0, y = 0.0;
+	setPosition(x, y);
+	printNode(nodep, x, y, myfile);
+	
+	setPosition(x, y);
+	printNode(nodet, x, y, myfile);
+	
+	//closing xml file
+	myfile <<"</net>\n</pnml>";
+	myfile.close();
+*/
+	//testing printLink
+	std::ofstream myfile;
+	myfile.open( "net.xml");
+	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
+	
+	//a hashmap to record posiitons of nodes using node pointer (NNode*) and position number(int)
+	std::map<NNode*, int> nodepos; 
+	//two vectors to record positions of the nodes
+	std::vector<double> xpos; 
+	std::vector<double> ypos;
+	NNode* nodep = new NNode(TRANSITION, 1111);
+	NNode* nodet = new NNode(PLACE, 2222);
+	
+	double x = 0.0, y = 0.0;
+	int count = 0;
+
+	setPosition(x, y);
+	nodepos[nodep] = count;
+	xpos.push_back(x);
+	ypos.push_back(y);
+	printNode(nodep, x, y, myfile);
+
+	count++;
+	setPosition(x, y);
+	nodepos[nodet] = count;
+	xpos.push_back(x);
+	ypos.push_back(y);
+	printNode(nodet, x, y, myfile);
+	
+	Link* nlink = new Link(2, nodep, nodet);
+	printLink(nlink, nodepos, xpos, ypos, myfile);
+	
+	//closing xml file
+	myfile <<"</net>\n</pnml>";
+	myfile.close();
 	
 	return 0;
 }
