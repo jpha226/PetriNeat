@@ -32,7 +32,7 @@ void printNode(NNode* node, double x, double y, std::ofstream &myfile){
 		myfile << "<graphics/>\n";
 		myfile << "</name>\n";
 		myfile << "<orientation>\n";
-		myfile << "<value>90</value>\n";
+		myfile << "<value>0</value>\n";
 		myfile << "</orientation>\n";
 		myfile << "<rate>\n";
 		myfile << "<value>1.0</value>\n";
