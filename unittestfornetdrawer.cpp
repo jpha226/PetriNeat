@@ -87,6 +87,70 @@ void printLink(Link* nlink, std::map<NNode*, int> npos, std::vector<double> xpos
 }
 
 
+int netdrawer(const Network* network){
+	
+	//build an xml file for the network
+	//initialize the xml file
+	std::ofstream myfile;
+	myfile.open( "net.xml");
+	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
+	
+	//a hashmap to record posiitons of nodes using node pointer (NNode*) and position number(int)
+	std::map<NNode*, int> nodepos; 
+	//two vectors to record positions of the nodes
+	std::vector<double> xpos; 
+	std::vector<double> ypos;
+
+	//Write all the places
+	std::vector<NNode*>::const_iterator curnode;
+	int count = 0;
+	double x, y;
+	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
+		//generate an random position for curnode;
+		setPosition(x, y);
+		nodepos[*curnode] = count;
+		xpos.push_back(x);
+		ypos.push_back(y);
+		
+		printNode(*curnode, x, y, myfile);
+		
+		count++;
+	}
+	
+	//Write all the transitions
+	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
+		//generate an position
+		setPosition(x, y);
+		nodepos[*curnode] = count;
+		xpos.push_back(x);
+		ypos.push_back(y);
+		
+		printNode(*curnode, x, y, myfile);
+		
+		count++;
+	}
+	
+	//Write all the links
+	std::vector<Link*>::const_iterator curlink;
+	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
+		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
+			printLink(*curlink, nodepos, xpos, ypos, myfile);
+		}
+	}
+	
+	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
+		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
+			printLink(*curlink, nodepos, xpos, ypos, myfile);
+		}
+	}
+	
+	//closing xml file
+	myfile <<"</net>\n</pnml>";
+	myfile.close();
+	return 0;
+}
+	
+
 int main(){
 
 /*	
@@ -116,6 +180,7 @@ int main(){
 	myfile <<"</net>\n</pnml>";
 	myfile.close();
 */
+/*
 	//testing printLink
 	std::ofstream myfile;
 	myfile.open( "net.xml");
@@ -151,7 +216,38 @@ int main(){
 	//closing xml file
 	myfile <<"</net>\n</pnml>";
 	myfile.close();
+*/
+
+	std::vector<NNode*> ps;
+	std::vector<NNode*> ts;
+	std::vector<NNode*> all;
 	
+	NNode* np1 = new NNode(TRANSITION, 1111);
+	NNode* np2 = new NNode(TRANSITION, 1112);
+	NNode* np3 = new NNode(TRANSITION, 1113);
+	NNode* nt1 = new NNode(PLACE, 2221);
+	NNode* nt2 = new NNode(PLACE, 2222);
+	NNode* nt3 = new NNode(PLACE, 2223);	
+	NNode* nodegroup[] = {np1, np2, np3, nt1, nt2, nt3};
+	
+
+	for(int i = 0; i < 6; i++){
+		if(nodegroup[i]->type == 0)
+			ps.push_back(nodegroup[i]);
+		else
+			ts.push_back(nodegroup[i]);
+		all.push_back(nodegroup[i]);
+	}
+	
+	Link* linkgroup[4];
+	linkgroup[1] = new Link(2, np1, nt1);
+	linkgroup[2] = new Link(1, np1, nt2);
+	linkgroup[3] = new Link(3, np2, nt3);
+	linkgroup[0] = new Link(2, np3, nt1);
+	
+	Network* network = new Network(ps, ts, all, 1);
+	netdrawer(network);
+		
 	return 0;
 }
 
