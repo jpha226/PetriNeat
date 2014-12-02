@@ -1,12 +1,4 @@
-#include "network.h"
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <map>
-#include "math.h"
-#include "nnode.h"
-#include "link.h"
-#include <string>
+#include "netdrawer.h"
 
 using namespace NEAT;
 
