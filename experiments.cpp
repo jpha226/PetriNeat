@@ -215,7 +215,7 @@ bool petrinet_evaluate(Organism *org) {
 	// If the fitness has the max value, then the goal was found
 	if(fitness == maxFitness) {
 	  minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
-	netdrawer(network);
+	   netdrawer(network);
   	return true;
   }
 

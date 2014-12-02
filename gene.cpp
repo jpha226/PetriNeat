@@ -86,13 +86,13 @@ Gene::Gene(const char *argline, std::vector<NNode*> &nodes) {
 
 	//Get a pointer to the input node
 	curnode=nodes.begin();
-	while(((*curnode)->node_id)!=inodenum)
+	while(!(*curnode) && ((*curnode)->node_id)!=inodenum)
 		++curnode;
 	inode=(*curnode);
 
 	//Get a pointer to the output node
 	curnode=nodes.begin();
-	while(((*curnode)->node_id)!=onodenum)
+	while(!(*curnode) && ((*curnode)->node_id)!=onodenum)
 		++curnode;
 	onode=(*curnode);
 

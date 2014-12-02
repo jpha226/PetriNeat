@@ -46,6 +46,7 @@ NNode::NNode(nodetype ntype,int nodeid) {
 		action_ID = randint(0,3);
 		tok_count = -1;
 	}
+	curr_tok_count = tok_count;
 }
 
 NNode::NNode(NNode *n) {
@@ -71,14 +72,16 @@ NNode::NNode(NNode *n) {
 
 
 	// PetriNet parameters, type is above
-        if(type == PLACE){
-                tok_count = randint(0,5);
-                action_ID = -1;
-        }
-        else{
-                action_ID = randint(0,3);
-                tok_count = -1;
-        }
+    if(type == PLACE){
+            tok_count = randint(0,5);
+            action_ID = -1;
+    }
+    else{
+            action_ID = randint(0,3);
+            tok_count = -1;
+    }
+
+	curr_tok_count = tok_count;
 
 }
 
@@ -91,6 +94,7 @@ NNode::NNode (const char *argline) {
 
     ss >> node_id  >> nodety >> action_ID >> tok_count;
     type = (nodetype)nodety;
+	curr_tok_count = tok_count;
     //gen_node_label = (nodeplace)nodepl;
 
 	// Get the Sensor Identifier and Parameter String
@@ -124,6 +128,7 @@ NNode::NNode (const NNode& nnode)
 	// PetriNet parameters, type is above
 	tok_count = nnode.tok_count;
 	action_ID = nnode.action_ID;
+	curr_tok_count = nnode.curr_tok_count;
 }
 
 NNode::~NNode() {
