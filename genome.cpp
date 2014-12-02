@@ -1236,7 +1236,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
         double newweight1, newweight2;  //The new weight for the new link
 
         bool done;
-        
+        bool createTwo = false;
 		//Make attempts to find an unconnected pair
         trycount=0;
 
@@ -1248,7 +1248,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
     		// or to have a high number of connections
     		// A lower number gives a preference to more connections, a higher one
     		// will give a preference to add a place and transition off of a node
-    		float sizeConnectionTradeoff = 0.0;
+    		float sizeConnectionTradeoff = 0.5;
 
     		// Check the description of sizeConnectionTradeoff
     		if(r < sizeConnectionTradeoff) {
@@ -1256,10 +1256,21 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 
     			// TODO If this is chosen we need to add the corresponding nodes and genes
     			// Haven't been implemented yet cause I'm not sure what to do with the innovation
+			nodenum1=randint(0,nodes.size()-1);
 
+			thenode1=nodes.begin();
+			for(nodecount=0; nodecount<nodenum1; nodecount++)
+				++thenode1;
 
-    			trycount = tries;
-    			found = true;
+			nodep1=(*thenode1);
+
+			if (nodep1->type == TRANSITION)
+				trycount++;
+			else{
+    				trycount = tries;
+	    			found = true;
+				createTwo = true;	
+			}
     		}
     		else {
     			// Look for a pair of nodes of the same type without a node between them
@@ -1283,7 +1294,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
                 nodep2=(*thenode2);
 
                 // See if the nodes are of the same type, otherwise retry
-				if (nodep1->type == PLACE && nodep2->type == TRANSITION)
+		if (nodep1->type == PLACE && nodep2->type == TRANSITION)
                     trycount++;
                 else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
                     trycount++;
@@ -1334,6 +1345,23 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
 
         //Continue only if an open link was found
         if (found) {
+		done = false;
+		if (createTwo){
+
+			nodep2 = new NNode(TRANSITION,curnode_id++);
+			newnode = new NNode(PLACE,curnode_id++);
+			newweight1 = (int)(randfloat()*3.0);
+			newweight2 = (int)(randfloat()*3.0);
+
+			// Create new genes
+			newgene1 = new Gene(newweight1,nodep1,nodep2,curinnov,newweight1);
+			newgene2 = new Gene(newweight2,nodep2,newnode,curinnov,newweight2);
+			
+			add_gene(genes,newgene1);
+			add_gene(genes,newgene2);
+			node_insert(nodes,nodep2);
+			node_insert(nodes,newnode);
+		}
 
         	//Create the new NNode
             if(nodep1->type == PLACE)
@@ -1344,7 +1372,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
             //Check to see if this innovation already occured in the population
             theinnov=innovs.begin();
 
-            done=false;
+      
 
             while(!done) {
 
@@ -1395,7 +1423,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
             //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
             add_gene(genes,newgene1);  //Adds the gene in correct order
 			add_gene(genes,newgene2);
-			node_insert(nodes, newnode);
+	node_insert(nodes, newnode);
 
             return true;
         }
@@ -1403,6 +1431,184 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id, d
             return false;
         }
 }
+/*
+bool Genome::mutate_add_two_node(std::vector<Innovation*> &innovs,int &curnode_id, double &curinnov,int tries) {
+
+        int nodenum1,nodenum2;  //Random node numbers
+        std::vector<NNode*>::iterator thenode1,thenode2;  //Random node iterators
+        int nodecount;  //Counter for finding nodes
+        int trycount; //Iterates over attempts to find an unconnected pair of nodes
+        NNode *nodep1; //Pointers to the nodes
+        NNode *nodep2; //Pointers to the nodes
+                NNode *newnode; // Pointer to the new node
+        std::vector<Gene*>::iterator thegene; //Searches for existing link
+        bool found=false;  //Tells whether an open pair was found
+        std::vector<Innovation*>::iterator theinnov; //For finding a historical match
+        Gene *newgene1;  //The new Gene
+                Gene *newgene2;
+        double newweight1, newweight2;  //The new weight for the new link
+
+        bool done;
+
+                //Make attempts to find an unconnected pair
+        trycount=0;
+
+        //Loop to find a valid place
+        while(trycount<tries) {
+                float r = randfloat();
+
+                // A threshold that will tell wether the network is more likely to expand
+                // or to have a high number of connections
+                // A lower number gives a preference to more connections, a higher one
+                // will give a preference to add a place and transition off of a node
+                float sizeConnectionTradeoff = 0.0;
+
+                // Check the description of sizeConnectionTradeoff
+                if(r < sizeConnectionTradeoff) {
+                        // Add a place and a transition from a random node
+
+                        // TODO If this is chosen we need to add the corresponding nodes and genes
+                        // Haven't been implemented yet cause I'm not sure what to do with the innovation
+
+
+                        trycount = tries;
+                        found = true;
+                }
+                else {
+                        // Look for a pair of nodes of the same type without a node between them
+                        // Add a new node between them and the respective links
+
+                //Choose random nodenums
+                nodenum1=randint(0,nodes.size()-1);
+                nodenum2=randint(0,nodes.size()-1);
+//Find the first node
+                thenode1=nodes.begin();
+                for(nodecount=0;nodecount<nodenum1;nodecount++)
+                        ++thenode1;
+
+                //Find the second node
+                thenode2=nodes.begin();
+                for(nodecount=0;nodecount<nodenum2;nodecount++)
+                       ++thenode2;
+
+                nodep1=(*thenode1);
+                nodep2=(*thenode2);
+
+                // See if the nodes are of the same type, otherwise retry
+                                if (nodep1->type == PLACE && nodep2->type == TRANSITION)
+                    trycount++;
+                else if (nodep1->type == TRANSITION && nodep2->type == PLACE)
+                    trycount++;
+                else {
+                        // If both nodes are of the same type, see if there's a node between them
+                        std::vector<NNode*>::iterator thenode3;
+                        NNode *cNode;
+                        bool connectingNodeFound = false;
+
+                        //thenode3=nodes.begin();
+                        for(int connectionNode = 0; connectionNode < nodes.size(); connectionNode++) {
+
+                        //for(; !connectingNodeFound && thenode3 != nodes.end(); ++thenode3) {
+                                cNode = nodes[connectionNode];
+                                // For every incoming and outgoing link combination, see if the nodes match the ones we chose
+                                std::vector<NNode*>::iterator inlink, outlink;
+
+                                for(int inLinks = 0; inLinks < cNode->incoming.size(); inLinks++) {
+                                        for(int outLinks = 0; outLinks < cNode->outgoing.size(); outLinks++) {
+                                                // Check for either node being the in/out node
+                                                // Incoming node to compare cNode->incoming[inLinks]->in_node
+                                                // Outgoing node to compare cNode->outgoing[outLinks]->out_node
+
+                                                if((cNode->incoming[inLinks]->in_node == nodep1 && cNode->outgoing[outLinks]->out_node == nodep2)
+                                                        || (cNode->incoming[inLinks]->in_node == nodep2 && cNode->outgoing[outLinks]->out_node == nodep1)) {
+
+                                                        connectingNodeFound = true;
+                                                }
+                                        } // Finished comparing the incoming link with all outgoing links
+
+                                } // Finished checking all the incoming links for the node
+
+                        } // Finished looking for connection nodes
+ // If a node connecting the nodes was found, then retry
+                        if(connectingNodeFound) {
+                                trycount++;
+                        }
+                        // Otherwise, a pair of nodes was found
+                        else {
+                                trycount = tries;
+                                found = true;
+                        }
+                }
+                }
+        } //End of normal node finding loop
+
+        //Continue only if an open link was found
+        if (found) {
+
+                //Create the new NNode
+            if(nodep1->type == PLACE)
+                                newnode=new NNode(TRANSITION,curnode_id++);
+                        else
+                                newnode = new NNode(PLACE, curnode_id++);
+
+            //Check to see if this innovation already occured in the population
+            theinnov=innovs.begin();
+
+            done=false;
+
+            while(!done) {
+
+                //The innovation is totally novel
+                if (theinnov==innovs.end()) {
+
+                    //If the phenotype does not exist, exit on false,print error
+                    //Note: This should never happen- if it does there is a bug
+                    if (phenotype==0) {
+                        //cout<<"ERROR: Attempt to add link to genome with no phenotype"<<std::endl;
+                        return false;
+                                        }
+                    //Choose the new weight
+                    newweight1 = (int)(randfloat()*3.0);
+                                        newweight2 = (int)(randfloat()*3.0);
+
+                    //Create the new gene
+                    newgene1 =new Gene(newweight1,nodep1,newnode,curinnov,newweight1);          // Why is the other weight being asigned as the mutation number?
+                                        newgene2 = new Gene(newweight2,newnode,nodep2,curinnov,newweight2);             // Why is the other weight being asigned as the mutation number?
+
+ //Add the innovation
+                    innovs.push_back(new Innovation(nodep1->node_id,nodep2->node_id,curinnov,curinnov+1.0,newnode->node_id));
+                    curinnov=curinnov+2.0;
+
+                    done=true;
+                }
+                //OTHERWISE, match the innovation in the innovs list
+                else if (((*theinnov)->innovation_type==NEWNODE)&&
+                        ((*theinnov)->node_in_id==(nodep1->node_id))&&
+                        ((*theinnov)->node_out_id==(nodep2->node_id))) {
+
+                            //Create new gene
+                            newgene1=new Gene((*theinnov)->new_weight,nodep1,newnode,(*theinnov)->innovation_num1,0);
+                            newgene2 = new Gene((*theinnov)->new_weight,newnode,nodep2,(*theinnov)->innovation_num2,0);
+                                                        done=true;
+
+                }
+                else {
+                        //Keep looking for a matching innovation from this generation
+                        ++theinnov;
+                }
+            }
+            //Now add the new Genes to the Genome
+            //genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
+            add_gene(genes,newgene1);  //Adds the gene in correct order
+                        add_gene(genes,newgene2);
+                        node_insert(nodes, newnode);
+            return true;
+        }
+        else {
+            return false;
+        }
+}*/
+
 
 //Adds a new gene that has been created through a mutation in the
 //*correct order* into the list of genes in the genome
