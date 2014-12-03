@@ -49,7 +49,27 @@ void printNode(NNode* node, double x, double y, std::ofstream &myfile){
 		myfile << "<position x=\"" << x << "\" y=\"" << y << "\"/>\n";
 		myfile << "</graphics>\n";
 		myfile << "<name>\n";
-		myfile << "<value>" << node->node_id << "</value>\n";
+		myfile << "<value>" << node->node_id << "_";
+		
+		switch(node->action_ID){
+			case 0: 
+			myfile << "move right";
+			break;
+			
+			case 1: 
+			myfile << "move up";
+			break;
+			
+			case 2:
+			myfile << "move left";
+			break;
+			
+			case 3:
+			myfile << "move down";
+			break;
+		}
+		
+		myfile << "</value>\n";
 		myfile << "<graphics/>\n";
 		myfile << "</name>\n";
 		myfile << "<orientation>\n";
