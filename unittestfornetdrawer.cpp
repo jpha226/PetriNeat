@@ -25,6 +25,24 @@ void setPosition(double &x, double &y){
 	return;
 }
 
+void setPositionX(double &x, int side){
+	//side can only be 0, 1, 2 (representing left, right, middle)
+	switch(side){
+		case 0:
+		x = 100.0;
+		break;
+		
+		case 1:
+		x = 500.0;
+		break;
+		
+		case 2:
+		x = 300.0;
+	}
+	
+	return;
+}
+
 void printNode(NNode* node, double x, double y, std::ofstream &myfile){
 
 	int type = node->type;
@@ -92,8 +110,9 @@ int netdrawer(const Network* network){
 	//build an xml file for the network
 	//initialize the xml file
 	std::ofstream myfile;
-	std::string str = "PetriNet_" + network->net_id + ".xml";
-	myfile.open(str);
+	char buff[100];
+ 	sprintf(buff, "PetriNet_%d.xml", network->net_id);
+	myfile.open(buff, std::ofstream::out);
 	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
 	
 	//a hashmap to record posiitons of nodes using node pointer (NNode*) and position number(int)
@@ -105,26 +124,31 @@ int netdrawer(const Network* network){
 	//Write all the places
 	std::vector<NNode*>::const_iterator curnode;
 	int count = 0;
-	double x, y;
-	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
-		//generate an random position for curnode;
-		setPosition(x, y);
-		nodepos[*curnode] = count;
-		xpos.push_back(x);
-		ypos.push_back(y);
-		
-		printNode(*curnode, x, y, myfile);
-		
-		count++;
-	}
-	
+	double x, y = 50.0;
+	setPositionX(x, 2); //setting positions for transitions
+
 	//Write all the transitions
 	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
 		//generate an position
-		setPosition(x, y);
 		nodepos[*curnode] = count;
 		xpos.push_back(x);
 		ypos.push_back(y);
+		printNode(*curnode, x, y, myfile);
+
+		y += 50;
+		count++;
+	}
+
+	y = 50.0;
+	//Write all the places
+	for(curnode = network->places.begin(); curnode != network->places.end(); ++curnode) {
+		//generate an random position for curnode;
+		int side = randint(0, 1);
+		setPositionX(x, side);
+		nodepos[*curnode] = count;
+		xpos.push_back(x);
+		ypos.push_back(y);
+		y += 50;
 		
 		printNode(*curnode, x, y, myfile);
 		
@@ -138,7 +162,7 @@ int netdrawer(const Network* network){
 			printLink(*curlink, nodepos, xpos, ypos, myfile);
 		}
 	}
-	
+		
 	for(curnode = network->transitions.begin(); curnode != network->transitions.end(); ++curnode){
 		for(curlink = (*curnode)->incoming.begin(); curlink != (*curnode)->incoming.end(); ++curlink){
 			printLink(*curlink, nodepos, xpos, ypos, myfile);
@@ -224,15 +248,18 @@ int main(){
 	std::vector<NNode*> ts;
 	std::vector<NNode*> all;
 	
-	NNode* np1 = new NNode(TRANSITION, 1111);
-	NNode* np2 = new NNode(TRANSITION, 1112);
-	NNode* np3 = new NNode(TRANSITION, 1113);
-	NNode* nt1 = new NNode(PLACE, 2221);
-	NNode* nt2 = new NNode(PLACE, 2222);
-	NNode* nt3 = new NNode(PLACE, 2223);	
+	NNode* np1 = new NNode(PLACE, 1111);
+	NNode* np2 = new NNode(PLACE, 1112);
+	NNode* np3 = new NNode(PLACE, 1113);
+	NNode* nt1 = new NNode(TRANSITION, 2221);
+	NNode* nt2 = new NNode(TRANSITION, 2222);
+	NNode* nt3 = new NNode(TRANSITION, 2223);	
 	NNode* nodegroup[] = {np1, np2, np3, nt1, nt2, nt3};
 	
-
+	for(int i = 0; i < 3; i++){
+		std::cout << i << " : " << nodegroup[i]->tok_count << std::endl;
+	}
+	
 	for(int i = 0; i < 6; i++){
 		if(nodegroup[i]->type == 0)
 			ps.push_back(nodegroup[i]);
