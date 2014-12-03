@@ -72,16 +72,9 @@ NNode::NNode(NNode *n) {
 
 
 	// PetriNet parameters, type is above
-    if(type == PLACE){
-            tok_count = randint(0,5);
-            action_ID = -1;
-    }
-    else{
-            action_ID = randint(0,3);
-            tok_count = -1;
-    }
-
-	curr_tok_count = tok_count;
+	tok_count = n->tok_count;
+	action_ID = n->action_ID;
+	curr_tok_count = n->curr_tok_count;
 
 }
 

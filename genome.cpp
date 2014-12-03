@@ -604,7 +604,7 @@ Network *Genome::genesis(int id) {
 
 	//Create the nodes
 	for(curnode=nodes.begin();curnode!=nodes.end();++curnode) {
-		newnode=new NNode((*curnode)->type,(*curnode)->node_id);
+		newnode=new NNode((*curnode));
 
 
 		//Check for input or output designation of node

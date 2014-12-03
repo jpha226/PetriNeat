@@ -222,6 +222,10 @@ bool petrinet_evaluate(Organism *org) {
 		actionsfile << actions[i] << " ";
 	actionsfile << "\n";
 	org->gnome->print_to_file(actionsfile);
+  actionsfile << "!!!!!!!!!!!! Network !!!!!!!!!!!\n";
+  for(int i = 0; i < network->places.size(); i++) {
+    actionsfile << "Node " << network->places[i]->node_id << " token_count " << network->places[i]->tok_count << " curr_token_count " << network->places[i]->curr_tok_count << "\n";  
+  }
 	actionsfile.close();
   	return true;
   }
