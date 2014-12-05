@@ -985,13 +985,71 @@ void Genome::mutate_node_trait(int times) {
 					(*thenode)->action_ID = (*thenode)->action_ID ^ 2; // flip the first bit
 				else if (r > 0.25)
 					(*thenode)->action_ID = (*thenode)->action_ID ^ 1; // flip the second bit
-
 			}
-
 		}
 	}
 }
 
+void Genome::mutate_node_condition() {
+
+	int nodenum;
+        std::vector<NNode*>::iterator thenode;     //Link to be mutated
+        std::vector<Gene*>::iterator thegene;  //Gene to record innovation
+        int count;
+        int loop;
+        float r;
+	bool done = false;
+        while (!done) {
+
+                //Choose a random nodenum
+                nodenum=randint(0,nodes.size()-1);
+                //set the link to point to the new trait
+                thenode=nodes.begin();
+                for(count=0;count<nodenum;count++)
+                        ++thenode;
+                //Do not mutate frozen nodes
+                if (!((*thenode)->frozen)) {
+
+                        // If place node mutate the token count
+                        if ((*thenode)->type == TRANSITION){
+
+                                r = randfloat();
+
+                                if (r > 0.5)
+                                        (*thenode)->condition = 0;
+                        	else
+					(*thenode)->condition = 1;
+				
+				done = true;
+			}
+                }
+        }
+}
+
+void Genome::mutate_toggle_enableCondition() {
+
+	int nodenum;
+	std::vector<NNode*>::iterator thenode;
+	bool done = false;
+	float r;
+	while (!done) {
+
+		nodenum=randint(0,nodes.size()-1);
+
+		thenode = nodes.begin();
+		for(int i=0; i<nodenum; i++)
+			++thenode;
+
+		if ((*thenode)->type == TRANSITION){
+
+			r = randfloat();
+
+			if (r > 0.5)
+				(*thenode)->hasCondition = true;
+			done = true;
+		}
+	}
+}
 
 void Genome::mutate_link_weights(double power,double rate,mutator mut_type) {
 	std::vector<Gene*>::iterator curgene;

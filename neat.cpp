@@ -36,8 +36,8 @@ double NEAT::mutate_random_trait_prob = 0;
 double NEAT::mutate_link_trait_prob = 0;
 double NEAT::mutate_node_trait_prob = 0;
 double NEAT::mutate_link_weights_prob = 0;
-double NEAT::mutate_toggle_enable_prob = 0;
-double NEAT::mutate_gene_reenable_prob = 0;
+double NEAT::mutate_toggle_enable_condition_prob = 0; // Changed for mutating sensors
+double NEAT::mutate_node_condition_prob = 0; // Changed for mutating sensors
 double NEAT::mutate_add_node_prob = 0;
 double NEAT::mutate_add_link_prob = 0;
 double NEAT::mutate_add_two_node_prob = 0;
@@ -270,14 +270,14 @@ bool NEAT::load_neat_params(const char *filename, bool output) {
 	//curwordnum += 2;
 	
     paramFile>>curword;
-	paramFile>>NEAT::mutate_toggle_enable_prob;
+	paramFile>>NEAT::mutate_toggle_enable_condition_prob;
 	
     //strcpy(curword, getUnit(filestring, curwordnum, delimiters));
 	//NEAT::mutate_toggle_enable_prob = atof(curword);
 	//curwordnum += 2;
 
 	paramFile>>curword;
-	paramFile>>NEAT::mutate_gene_reenable_prob;
+	paramFile>>NEAT::mutate_node_condition_prob;
 	
     //strcpy(curword, getUnit(filestring, curwordnum, delimiters));
 	//NEAT::mutate_gene_reenable_prob = atof(curword);
@@ -396,8 +396,8 @@ bool NEAT::load_neat_params(const char *filename, bool output) {
 	    printf("mutate_link_trait_prob=%f\n",mutate_link_trait_prob);
 	    printf("mutate_node_trait_prob=%f\n",mutate_node_trait_prob);
 	    printf("mutate_link_weights_prob=%f\n",mutate_link_weights_prob);
-	    printf("mutate_toggle_enable_prob=%f\n",mutate_toggle_enable_prob);
-	    printf("mutate_gene_reenable_prob=%f\n",mutate_gene_reenable_prob);
+	    printf("mutate_toggle_enable_prob=%f\n",mutate_toggle_enable_condition_prob);
+	    printf("mutate_gene_reenable_prob=%f\n",mutate_node_condition_prob);
 	    printf("mutate_add_node_prob=%f\n",mutate_add_node_prob);
 	    printf("mutate_add_link_prob=%f\n",mutate_add_link_prob);
 	    printf("interspecies_mate_rate=%f\n",interspecies_mate_rate);

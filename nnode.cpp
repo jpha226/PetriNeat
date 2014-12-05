@@ -45,6 +45,8 @@ NNode::NNode(nodetype ntype,int nodeid) {
 	else{
 		action_ID = randint(0,3);
 		tok_count = -1;
+		hasCondition = false;
+		condition = 0;
 	}
 	curr_tok_count = tok_count;
 }
@@ -75,7 +77,8 @@ NNode::NNode(NNode *n) {
 	tok_count = n->tok_count;
 	action_ID = n->action_ID;
 	curr_tok_count = n->curr_tok_count;
-
+	hasCondition = n->hasCondition;
+	condition = n->condition;
 }
 
 NNode::NNode (const char *argline) {
@@ -84,10 +87,11 @@ NNode::NNode (const char *argline) {
 
     std::stringstream ss(argline);
     int nodety;//, nodeact, node_ct;
-
-    ss >> node_id  >> nodety >> action_ID >> tok_count;
+    int hasCondish;
+    ss >> node_id  >> nodety >> action_ID >> tok_count >> hasCondish >> condition;
     type = (nodetype)nodety;
 	curr_tok_count = tok_count;
+    hasCondition = (hasCondish == 1);
     //gen_node_label = (nodeplace)nodepl;
 
 	// Get the Sensor Identifier and Parameter String
@@ -122,6 +126,8 @@ NNode::NNode (const NNode& nnode)
 	tok_count = nnode.tok_count;
 	action_ID = nnode.action_ID;
 	curr_tok_count = nnode.curr_tok_count;
+	hasCondition = nnode.hasCondition;
+	condition = nnode.condition;
 }
 
 NNode::~NNode() {

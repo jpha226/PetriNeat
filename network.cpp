@@ -114,7 +114,6 @@ bool Network::isEnabled(NNode* t) {
 
 	}
 
-
 	return enabled;
 }
 

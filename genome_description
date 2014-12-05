@@ -1,10 +1,10 @@
-/* node (id) (type: place or transition) (action_ID - Xiaorong you can ignore this) (token count)*/
-/* gene (input node) (output node) (weight) (innovation #) (mutation #) (enable)*/
+/* node (id) (type: place or transition) (action_ID - Xiaorong you can ignore this) (token count) (hasCondition) (condition value) */
+/* gene (input node) (output node) (weight) (innovation #) (mutation #) (enable) */
 /* Xiaorong you can ignore everything after weight for genes. Genes represent links */
 genomestart 1
-node 1 0 0 1
-node 2 0 0 1
-node 3 1 0 1
+node 1 0 -1 1 -1 -1
+node 2 0 -1 1 -1 -1
+node 3 1 0 -1 0 1
 gene 1 3 1 1 0 1
 gene 3 2 1 2 0 1
 genomeend 1

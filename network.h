@@ -63,6 +63,7 @@ namespace NEAT {
 		bool fire(NNode* t);
 		bool execute();
 		void setCurrentTokenCount();		
+		int sensor_value;
 		/**************************************************/
 
 		int net_id; // Allow for a network id

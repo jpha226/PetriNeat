@@ -52,8 +52,8 @@ namespace NEAT {
 	extern double mutate_link_trait_prob;
 	extern double mutate_node_trait_prob;
 	extern double mutate_link_weights_prob;
-	extern double mutate_toggle_enable_prob;
-	extern double mutate_gene_reenable_prob;
+	extern double mutate_toggle_enable_condition_prob;
+	extern double mutate_node_condition_prob;
 	extern double mutate_add_node_prob;
 	extern double mutate_add_link_prob;
 	extern double mutate_add_two_node_prob;

@@ -122,6 +122,12 @@ namespace NEAT {
 		// This can mutate action_ids or place token count
 		void mutate_node_trait(int times);
 
+		// Changes the condition of a node. Currently this is either 0 or 1
+		void mutate_node_condition();
+
+		// Toggles if a transition node has a condition or not
+		void mutate_toggle_enableCondition();
+
 		// Add Gaussian noise to linkweights either GAUSSIAN or COLDGAUSSIAN (from zero)
 		void mutate_link_weights(double power,double rate,mutator mut_type);
 
