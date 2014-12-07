@@ -48,6 +48,7 @@ Network::Network(int netid) {
 			numlinks=-1;
 			net_id=netid;
 			adaptable=false;
+			sensor_value = 0;
 		}
 
 Network::Network(int netid, bool adaptval) {
@@ -56,6 +57,7 @@ Network::Network(int netid, bool adaptval) {
   numlinks=-1;
   net_id=netid;
   adaptable=adaptval;
+  sensor_value = 0;
 }
 
 
@@ -86,6 +88,7 @@ Network::Network(const Network& network)
 	numlinks = network.numlinks;
 	net_id = network.net_id;
 	adaptable = network.adaptable;
+	sensor_value = network.sensor_value;
 }
 
 Network::~Network() {
@@ -113,6 +116,9 @@ bool Network::isEnabled(NNode* t) {
 			enabled = false;
 
 	}
+
+	if(t->hasCondition)
+		enabled = enabled && (sensor_value == t->condition);
 
 	return enabled;
 }
