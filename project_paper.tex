@@ -1,5 +1,4 @@
 \documentclass[12pt,a4paper,twocolumn]{article}
-\usepackage[latin1]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
@@ -7,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage{cite}
 \usepackage{tikz}
-\usetikzlibrary{arrows,shapes,automata,petri}
+\usetikzlibrary{arrows,shapes,automata,petri,shadows}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 
 \newtheorem{myDef}{Definition}
@@ -15,6 +14,8 @@
 \author{Josiah Hanna, David Tamez, and Xiaorong Zhu}
 \title{Evolving Petri Networks for High Level Robot Control}
 \begin{document}
+
+
 
 \maketitle
 
@@ -42,21 +43,22 @@ Petri nets have many applications including data analysis, simulation of systems
 
 \subsection{The NEAT Algorithm}
 
+The Neuroevolution of Augmenting Topologies (NEAT) algorithm is a powerful tool for evolving the structure and weights of an artificial neural network. NEAT specifies the structure of a neural network with node and connection genes. Each gene has an innovation number associated with it which allows genomes of networks with very different structures to match up during cross over operations. Mutation operations can change the structure of a new network by addings nodes or connections between nodes. In addition to the normal evolutionary algorithm techniques, NEAT utilizes speciation give new topological innovations time to develop \cite{neat}. Finally, NEAT starts with a uniform population of simple networks thus biasing the search towards simpler networks.
+
 \section{Related Work}
 
-\section{Approach}
 
 
-We propose that the Neuroevolution of Augmenting Topologies (NEAT) could be used to evolve Petri Nets.
-\begin{itemize}
-\item NEAT evolves topologies and weights of neural networks.
-\item NEAT allows complex structures to evolve through speciation.
-\item We modify the NEAT genome and mutation operators
-\end{itemize}
-NEAT becomes PetriNEAT!
+\section{Evolution of Petri Networks}
 
-Node Genes
-\begin{table}
+We propose that the Neuroevolution of Augmenting Topologies (NEAT) could be used to evolve Petri Nets. Like neural networks, Petri nets are a combination of nodes and connections with weights on the connections. We only must modify the genome specification and the mutation operators to adapt NEAT to evolve Petri nets. With these changes NEAT becomes the PetriNEAT algorithm. The following subsections describe these changes in more detail.
+
+\subsection{Petri Net Genes}
+
+PetriNEAT evolves individuals that are specified by a genome. A genome contains genes of two types: nodes and arcs. Node genes can represent either places or transitions depending on a specified type. The type of node determines what other node properties will be expressed. For instance, transition nodes do not express the initial tokens trait. Alternatively, transitions and place nodes can be viewed as having their own type of gene however it was simpler to only implicitly do this. All gene values are integers with the exception of Action I.D.s which are bit strings. This allows us to mutate actions easier.
+
+\begin{figure}
+%\begin{table}
 \centering
 \begin{tabular}{|c|}
 \hline
@@ -65,57 +67,48 @@ I.D. \\
 Type \\
 Initial Tokens \\
 Action I.D. \\
+Condition \\
 \hline
 \end{tabular}
-\end{table}
-
-Link Gene
-\begin{table}
-\centering
 \begin{tabular}{|c|}
 \hline
 Arc Gene\\ \hline
-Node Place \\
-Node Transition \\
+Place I.D.\\
+Transition I.D.\\
 Weight \\
+ - \\
+ -\\
 \hline
 \end{tabular}
-\end{table}
+%\end{table}
+\caption{PetriNEAT uses two types of genes: node and arc genes.}
+\end{figure}
 
-We use the following mutation operators in evolving our network:
+
+\subsection{Petri Net Mutation Operators}
+
+PetriNEAT uses very similar mutation operators to the original NEAT algorithm. The only change is that each mutation must result in a valid network. Our operators are:
 \begin{itemize}
-\item mutate add node
-\item mutate add link
-\item mutate node
-\item mutate link
+\item \emph{Mutate{\_}Add{\_}Node:} Increases the number of transitions or places in the network
+\item \emph{Mutate{\_}Add{\_}Link:}  Increases connectivity of the network
+\item \emph{Mutate{\_}Node:}  Changes the token count for place nodes. Changes the action associated with transitions.
+\item \emph{Mutate{\_}Link:} Changes the weight of the link.
 \end{itemize}
 
+Mutations are applied when reproducing the top individuals of each species. The Mutate Add Link operator adds a link between a random place and transition node when an offspring is created. This mutation occurs with probability 0.1. Mutating initial token counts and link weights is done by either incrementing or decrementing with equal probabilities. These mutations occur with probability 0.1. For transition nodes, a mutation can flip bits in the action I.D. with probability 0.5. 
+
+Mutate{\_}Add{\_}Node can happen in two different ways. The first method randomly chooses two nodes of the same type and adds a node of the opposite type between them. Then a link is added from the first node to the new node and from the new node to the second node. The node and link genes are initialized with random values for tokens, actions I.D.s, weights, etc. The second method chooses a random place node and creates a new transition and place node. Then connections from the original place to the new transition and from the new transition to the new place are added. This serves to grow the size of the network more effectively.
+
   \begin{figure}
     \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
   \tikzstyle{place}=[circle,thick,draw=blue!75,fill=blue!20,minimum size=6mm]
   \tikzstyle{transition}=[rectangle,thick,draw=black!75,
               fill=black!20,minimum size=4mm]
-    \node [place,tokens=1] (p1){};
+    \node [place,tokens=1,xshift=5cm] (p1){};
     \node [transition] (t1) [right of=p1, label=above:$action1$] {}  edge [pre] (p1);
     \node [place] (p2)  [right of=t1] {} edge [pre] (t1);
 \end{tikzpicture}
-\caption{Adding connectivity}
-\end{figure}
-
-\begin{figure}
 \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
-  \tikzstyle{place}=[circle,thick,draw=blue!75,fill=blue!20,minimum size=6mm]
-  \tikzstyle{transition}=[rectangle,thick,draw=black!75,
-              fill=black!20,minimum size=4mm]
-    \node [place,tokens=1] (p1){};
-    \node [transition] (t1) [right of=p1, label=above:$action1$] {}  edge [pre] (p1);
-    \node [place] (p2)  [right of=t1] {} edge [pre] (t1);
-\end{tikzpicture}
-\caption{Grow the network}
-\end{figure}
-
-  \begin{figure}
-    \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
   \tikzstyle{place}=[circle,thick,draw=blue!75,fill=blue!20,minimum size=6mm]
   \tikzstyle{transition}=[rectangle,thick,draw=black!75,
         fill=black!20,minimum size=4mm]
@@ -124,10 +117,21 @@ We use the following mutation operators in evolving our network:
     \node [place] (p2)  [right of=t1] {} edge [pre] (t1);
     \node [transition] (p3) [below of=t1, label=right:$action2$] {} edge [pre] (p1) edge [post] (p2);
 \end{tikzpicture}
+
+\caption{Adding connectivity}
 \end{figure}
 
- \begin{figure}
-    \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+\begin{figure}
+\begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+  \tikzstyle{place}=[circle,thick,draw=blue!75,fill=blue!20,minimum size=6mm]
+  \tikzstyle{transition}=[rectangle,thick,draw=black!75,
+              fill=black!20,minimum size=4mm]
+    \node [place,tokens=1, yshift=5em] (p1){};
+    \node [transition] (t1) [right of=p1, label=above:$action1$] {}  edge [pre] (p1);
+    \node [place] (p2)  [right of=t1] {} edge [pre] (t1);
+\end{tikzpicture}
+\hspace{5mm}
+ \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
   \tikzstyle{place}=[circle,thick,draw=blue!75,fill=blue!20,minimum size=6mm]
   \tikzstyle{transition}=[rectangle,thick,draw=black!75,
         fill=black!20,minimum size=4mm]
@@ -138,10 +142,32 @@ We use the following mutation operators in evolving our network:
     \node [transition] (p3) [below of=t1, label=left:$action2$] {} edge [pre] (p1) edge [post] (p4);
     
 \end{tikzpicture}
+\caption{Grow the network}
 \end{figure}
 
 
+
 \section{Experiments}
+
+\begin{figure}[h]
+
+\begin{tikzpicture}
+
+\tikzstyle{line} = [draw, -stealth, thick]
+\tikzstyle{elli}=[draw, ellipse, minimum height=8mm, text width=5em, text centered]
+\tikzstyle{block} = [draw, rectangle,  text width=5em, text centered, minimum height=10mm, node distance=10em]
+
+\node [block] (population) {Population};
+\node [block, below of=population, yshift=6em] (simulator) {Simulator};
+\node [block, left of=population] (algorithm) {PetriNEAT};
+
+%arrows
+\path [line] (algorithm) -- (population);
+\path [line] (population) -- (simulator);
+\path [line] (simulator) -| node[yshift=0.5em, xshift=2em, yshift=-1.5em] {fitness values} (algorithm);
+\end{tikzpicture}
+\caption{Each individual is produced by the PetriNEAT algorithm and then evaluated in the simulator. The fitness values are then used to guide PetriNEAT in producing the next generation of the population.}
+\end{figure}
 
 We evolve Petri net solutions for a robot moving towards a goal in a grid world.
 \begin{figure}
