@@ -96,7 +96,6 @@ Population *petrinet_test(int gens) {
           evals[expcount]=NEAT::pop_size*(gen-1)+winnernum;
           genes[expcount]=winnergenes;
           nodes[expcount]=winnernodes;
-          gen=gens;
 
         }
 
@@ -194,12 +193,11 @@ bool petrinet_evaluate(Organism *org) {
     fitness = si.runSimulation();
   }
   
-  fitnessReached = fitnessReached < fitness? fitness : fitnessReached;
 	org->fitness = fitness;
 
   // Check if the goal was reached
-	if (si.goalReached()){
-
+	if (si.goalReached() && fitness > fitnessReached){
+     fitnessReached = fitness;
      si.showSolution();
 
 	   minNumActions = si.actions.size() < minNumActions? si.actions.size() : minNumActions;
