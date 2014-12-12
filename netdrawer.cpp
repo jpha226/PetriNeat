@@ -53,19 +53,29 @@ void printNode(NNode* node, double x, double y, std::ofstream &myfile){
 		
 		switch(node->action_ID){
 			case 0: 
-			myfile << "move right";
+			myfile << "Turn 90";
 			break;
 			
 			case 1: 
-			myfile << "move up";
+			myfile << "Turn 180";
 			break;
 			
 			case 2:
-			myfile << "move left";
+			myfile << "Turn 270";
 			break;
 			
 			case 3:
-			myfile << "move down";
+			myfile << "Step Forward";
+			break;
+		}
+
+		switch(node->condition) {
+			case 0:
+			myfile << " - No Condition";
+			break;
+
+			case 1:
+			myfile << " - Facing Sensor";
 			break;
 		}
 		
@@ -121,13 +131,13 @@ void printLink(Link* nlink, std::map<NNode*, int> npos, std::vector<double> xpos
 	myfile << "</arc>\n";
 }
 
-int netdrawer(const Network* network){
+int netdrawer(const Network* network, int solution){
 	
 	//build an xml file for the network
 	//initialize the xml file
 	std::ofstream myfile;
 	char buff[100];
- 	sprintf(buff, "PetriNet_%d.xml", network->net_id);
+ 	sprintf(buff, "PetriNet_%d.xml", solution);
 	myfile.open(buff, std::ofstream::out);
 	myfile <<"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<pnml>\n<net id=\"Net-One\" type=\"P/T net\">";
 	

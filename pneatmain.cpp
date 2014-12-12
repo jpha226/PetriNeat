@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   cout<<"loaded"<<endl;
   
   cout<<"Beginning experiement: "<<endl;
-  p = petrinet_test(100000);
+  p = petrinet_test(10000);
 
   if (p)
     delete p;

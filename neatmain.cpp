@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
   cout<<"loaded"<<endl;
   
-  p = petrinet_test(100);
+  p = petrinet_test(1000);
 
   /*
   //Test a genome file on pole balancing

@@ -22,6 +22,7 @@
 int displaySim = -1;
 int minNumActions = 50;
 float fitnessReached = 0;
+int solution = 0;
 
 // Perform evolution for Petri Nets, for gens generations
 Population *petrinet_test(int gens) {
@@ -198,10 +199,13 @@ bool petrinet_evaluate(Organism *org) {
   // Check if the goal was reached
 	if (si.goalReached() && fitness > fitnessReached){
      fitnessReached = fitness;
+     cout << "Fitness: " << fitness << endl;
+     cout << "Solution: " << solution << endl;
      si.showSolution();
 
 	   minNumActions = si.actions.size() < minNumActions? si.actions.size() : minNumActions;
-	   netdrawer(network);
+	   netdrawer(network, solution);
+     solution++;
 	   ofstream actionsfile;
 	   actionsfile.open("actions", std::ofstream::out);
 	   for(int i=0; i<si.actions.size(); i++)
