@@ -21,6 +21,8 @@
 
 int displaySim = -1;
 int minNumActions = 50;
+float fitnessReached = 0;
+float fitnessPossible = 0;
 
 // Perform evolution for Petri Nets, for gens generations
 Population *petrinet_test(int gens) {
@@ -45,6 +47,7 @@ Population *petrinet_test(int gens) {
     int totalnodes=0;
     int expcount;
     int samples;  //For averaging
+
 
     memset (evals, 0, NEAT::num_runs * sizeof(int));
     memset (genes, 0, NEAT::num_runs * sizeof(int));
@@ -137,6 +140,8 @@ Population *petrinet_test(int gens) {
     cout<<"Average Genes: "<<(samples>0 ? (double)totalgenes/samples : 0)<<endl;
     cout<<"Average Evals: "<<(samples>0 ? (double)totalevals/samples : 0)<<endl;
     cout<<"Minimum number of actions: " << minNumActions << endl;
+    cout<<"Maximum fitness reached: " << fitnessReached << endl;
+    cout<<"Maximum fitness possible: " << fitnessPossible << endl;
 
     return pop;
 
@@ -171,23 +176,10 @@ bool petrinet_evaluate(Organism *org) {
 		}
 	} */
 	
-	int maxIterations = 50;
-	bool fired = true;
-	// Iterate for the max number of iterations or until no transition was fired
-	//	I'm not sure what approach we want to take for this, I'm leaving this as a placeholder
-	for(int iteration = 0; iteration < maxIterations && fired; iteration++) {
-		fired = false;
-		for(int i = 0; i < network->transitions.size(); i++) {
-			// If a transition is enabled, then fire it
-			if(network->isEnabled(network->transitions[i])) {
-				network->fire(network->transitions[i]);
-				actions.push_back(network->transitions[i]->action_ID);				
-				fired = true;			
-			}
-		}
-	}
 
-	SimulatorInterface si(&actions);	
+	//SimulatorInterface si(&actions);	
+
+  SimulatorInterface si(network);
 	
   if(displaySim != 2) {
     std::cout << "Do you want to run or display the simulation? 0 - run, 1 - display, 2 - run all" << std::endl;
@@ -202,6 +194,7 @@ bool petrinet_evaluate(Organism *org) {
   }
   
  	float fitness = si.getFitnessValue();
+  fitnessReached = fitnessReached < fitness? fitness : fitnessReached;
 	org->fitness = fitness;
 
   // Get Maximum Fitness
@@ -212,22 +205,24 @@ bool petrinet_evaluate(Organism *org) {
   // Calculate the maximum fitness
   float maxFitness = 2.0 / (1.0 + minSteps);
 
+  fitnessPossible = maxFitness;
+
 	// If the fitness has the max value, then the goal was found
 	if(fitness == maxFitness) {
-	  minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
+	   minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
 	   netdrawer(network);
-	ofstream actionsfile;
-	actionsfile.open("actions", std::ofstream::out);
-	for(int i=0; i<actions.size(); i++)
-		actionsfile << actions[i] << " ";
-	actionsfile << "\n";
-	org->gnome->print_to_file(actionsfile);
-  actionsfile << "!!!!!!!!!!!! Network !!!!!!!!!!!\n";
-  for(int i = 0; i < network->places.size(); i++) {
-    actionsfile << "Node " << network->places[i]->node_id << " token_count " << network->places[i]->tok_count << " curr_token_count " << network->places[i]->curr_tok_count << "\n";  
-  }
-	actionsfile.close();
-  	return true;
+	   ofstream actionsfile;
+	   actionsfile.open("actions", std::ofstream::out);
+	   for(int i=0; i<actions.size(); i++)
+		    actionsfile << actions[i] << " ";
+	   actionsfile << "\n";
+	   org->gnome->print_to_file(actionsfile);
+     actionsfile << "!!!!!!!!!!!! Network !!!!!!!!!!!\n";
+     for(int i = 0; i < network->places.size(); i++) {
+        actionsfile << "Node " << network->places[i]->node_id << " token_count " << network->places[i]->tok_count << " curr_token_count " << network->places[i]->curr_tok_count << "\n";  
+     }
+	   actionsfile.close();
+  	 return true;
   }
 
 	return false;

@@ -5,6 +5,7 @@
 #include <wx/font.h>
 #include <wx/utils.h>
 #include "simulatorInterface.h"
+#include "network.h"
 #include <math.h>
 #include <stdio.h>
 #include <vector>
@@ -14,14 +15,17 @@ int WINDOW_HEIGHT = 600;
 wxCoord stepSize = 40;
 
 
-// Define the static member variables
+// Define the static member variables for ROBOT and GOAL POSITION
 wxCoord SimulatorInterface::ROBOT_X = 9;
 wxCoord SimulatorInterface::ROBOT_Y = 6;
-wxCoord SimulatorInterface::GOAL_X = 15;
-wxCoord SimulatorInterface::GOAL_Y = 6;
+wxCoord SimulatorInterface::GOAL_X = 2;
+wxCoord SimulatorInterface::GOAL_Y = 10;
 
 wxCoord SimulatorInterface::INITIAL_ROBOT_X = 9;
 wxCoord SimulatorInterface::INITIAL_ROBOT_Y = 6;
+
+// Define the static member varaibles for ROBOT Facing direction
+char SimulatorInterface::DIRECTION = RIGHT;
 
 /*
 *	Creates a simulator with a vector of actions
@@ -34,23 +38,25 @@ actions(list)
 /*
 *	Creates a simulator interface with a vector of actions
 */
-SimulatorInterface::SimulatorInterface(std::vector<int> *list)
+SimulatorInterface::SimulatorInterface(Network *net)
 {
-	actions = list;
-	currentAction = 0;
+	network = net;
+	stepCount = 0;
 	SimulatorInterface::ROBOT_X = 9;
 	SimulatorInterface::ROBOT_Y = 6;
-	SimulatorInterface::GOAL_X = 15;
-	SimulatorInterface::GOAL_Y = 6;
+	SimulatorInterface::GOAL_X = 2;
+	SimulatorInterface::GOAL_Y = 10;
 
 	SimulatorInterface::INITIAL_ROBOT_X = 9;
 	SimulatorInterface::INITIAL_ROBOT_Y = 6;
+
+	SimulatorInterface::DIRECTION = RIGHT;
 }
 
 /*
 *	Runs the simulation without displaying it
 */
-void SimulatorInterface::runSimulation() {	
+/*void SimulatorInterface::runSimulation() {	
 	while(currentAction < actions->size()) {
 		switch((*actions)[currentAction]) {
 			case 0:		// If the action is 0, move right
@@ -68,6 +74,81 @@ void SimulatorInterface::runSimulation() {
 		}
 		currentAction++;
 	} 
+} */
+
+
+void SimulatorInterface::stepForward() {
+	switch(SimulatorInterface::DIRECTION) {
+		case RIGHT: SimulatorInterface::ROBOT_X += 1; break;
+		case UP: SimulatorInterface::ROBOT_Y -= 1; break;
+		case LEFT: SimulatorInterface::ROBOT_X -= 1; break;
+		case DOWN: SimulatorInterface::ROBOT_Y += 1; break;
+	}
+}
+
+bool SimulatorInterface::conditionMet(int condition) {
+	switch(condition) {
+		case NO_CONDITION: return true;
+		case GOAL_VISIBLE: // Check if the goal is visible (90 degrees field of view)
+			float distanceX = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;	// If the distance is positive, then the goal is to the right, otherwise to the left
+			float distanceY = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y; // If the distance is positive, then the goal is below, otherwise above
+
+			// Check the direction the robot is facing and compare the distances to see if the goal is within the FOV
+			switch(SimulatorInterface::DIRECTION) {
+				case RIGHT: if(distanceX > 0 && abs(distanceY) <= distanceX) return true; break;
+				case UP: if(distanceY < 0 && abs(distanceX) <= -distanceY) return true; break;
+				case LEFT: if(distanceX < 0 && abs(distanceY) <= -distanceX) return true; break;
+				case DOWN: if(distanceY > 0 && abs(distanceX) <= distanceY) return true; break;
+			}
+
+			break;
+
+	}
+	return false;
+}
+
+bool SimulatorInterface::goalReached() {
+	return (SimulatorInterface::ROBOT_X == SimulatorInterface::GOAL_X && SimulatorInterface::ROBOT_Y == SimulatorInterface::GOAL_Y);
+}
+
+void SimulatorInterface::execute(int action) {
+	switch(action) {
+			case ROTATE_90:		// Rotate 90 degrees left
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 1) % 4;
+				break;
+			case ROTATE_180:	// Rotate 180 degrees
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 2) % 4;
+				break;
+			case ROTATE_270:	// Rotate 270 degrees left
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 3) % 4;
+				break;
+			case STEP_FORWARD:	// If the action is 4, step forward
+				stepForward();
+				break;
+		}
+}
+
+/*
+*	Runs the simulation without displaying it
+*/
+void SimulatorInterface::runSimulation() {	
+
+	int maxIterations = 50;
+	bool fired = true;
+	// Iterate for the max number of iterations or until no transition was fired
+	for(int iteration = 0; iteration < maxIterations && fired && !goalReached(); iteration++) {
+		fired = false;
+		for(int i = 0; i < network->transitions.size() && !goalReached(); i++) {
+			// If a transition is enabled, then fire it
+			if(network->isEnabled(network->transitions[i]) && conditionMet(network->transitions[i]->condition)) {
+				network->fire(network->transitions[i]);
+				execute(network->transitions[i]->action_ID);
+				stepCount++;
+				fired = true;			
+			}
+		}
+	}
+
 }
 
 
@@ -78,7 +159,26 @@ void SimulatorInterface::displaySimulation() {
 	int argc = 0;
 	char ** argv = 0;
 
-	wxApp* simulator = new Simulator(actions);
+	std::vector<int> actions;
+
+	int maxIterations = 50;
+	bool fired = true;
+	// Iterate for the max number of iterations or until no transition was fired
+	for(int iteration = 0; iteration < maxIterations && fired && !goalReached(); iteration++) {
+		fired = false;
+		for(int i = 0; i < network->transitions.size() && !goalReached(); i++) {
+			// If a transition is enabled, then fire it
+			if(network->isEnabled(network->transitions[i]) && conditionMet(network->transitions[i]->condition)) {
+				network->fire(network->transitions[i]);
+				actions.push_back(network->transitions[i]->action_ID);			
+				fired = true;			
+			}
+		}
+	}
+
+	stepCount = actions.size();
+
+	wxApp* simulator = new Simulator(&actions);
 	wxApp::SetInstance(simulator);	
 	wxEntry(argc, argv);
 	wxEntryCleanup();
@@ -99,17 +199,18 @@ float SimulatorInterface::getFitnessValue() {
 	wxCoord y = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y;
 	float distance = sqrt(x*x + y*y);	
 
-	// Take into account the number of steps taken
-	float steps = actions->size();
+	float steps = stepCount;
 
 	// Add modifiers to play with the weight of the distance/steps
 	float stepModifier = 1.0;
-	float distanceModifier = 1.0;
+	float distanceModifier = 3.0;
 
 	steps *= stepModifier;
 	distance *= distanceModifier;
 
-	float fitness = 1.0 / (1.0 + steps + 3*distance); 
+	float fitness = 1.0 / (1.0 + steps + distance); 
+
+	if(conditionMet(1)) fitness *= 2.0;
 
 	if(distance == 0.0) {
 		// The goal was reached exactly, give an additional reward
@@ -170,6 +271,7 @@ wxPanel(parent), actions(list), currentAction(0)
 {
 }
 
+
 /*
  * When a left clicked is detected execute the next action in the simulation
  *
@@ -202,7 +304,7 @@ void BasicDrawPane::step()
 	// Get the next action
 	int action = getAction();
 	if(action != 100) {
-		switch(action) {
+		/*switch(action) {
 					case 0:		// If the action is 0, move right
 						SimulatorInterface::ROBOT_X += 1;
 						break;
@@ -215,6 +317,21 @@ void BasicDrawPane::step()
 					case 3:		// If the action is 3, move down
 						SimulatorInterface::ROBOT_Y += 1;
 						break;
+		}*/
+
+		switch(action) {
+			case ROTATE_90:		// Rotate 90 degrees left
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 1) % 4;
+				break;
+			case ROTATE_180:	// Rotate 180 degrees
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 2) % 4;
+				break;
+			case ROTATE_270:	// Rotate 270 degrees left
+				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 3) % 4;
+				break;
+			case STEP_FORWARD:	// If the action is 4, step forward
+				SimulatorInterface::stepForward();
+				break;
 		}
 
 		increaseActionCounter();	
@@ -344,7 +461,7 @@ void BasicDrawPane::render(wxDC&  dc)
 	}	
 
 	// Check the position of the robot and the goal
-	checkPosition(width, height);
+	//checkPosition(width, height);
 
     // draw the goal
     dc.SetBrush(*wxCYAN_BRUSH); // blue filling
@@ -362,6 +479,13 @@ void BasicDrawPane::render(wxDC&  dc)
 
     dc.SetPen( wxPen( wxColor(0,0,0), 2 ) ); // black line, 3 pixels thick 
     dc.DrawText(wxT("R"), stepSize*SimulatorInterface::ROBOT_X+stepSize/2-stepSize/8, stepSize*SimulatorInterface::ROBOT_Y+stepSize/2-stepSize/4); 
+
+    switch(SimulatorInterface::DIRECTION) {
+    	case RIGHT: dc.DrawCircle( wxPoint(stepSize*SimulatorInterface::ROBOT_X+stepSize/2+stepSize/4,stepSize*SimulatorInterface::ROBOT_Y+stepSize/2), stepSize/8 /* radius */ ); break;
+    	case UP: dc.DrawCircle( wxPoint(stepSize*SimulatorInterface::ROBOT_X+stepSize/2,stepSize*SimulatorInterface::ROBOT_Y+stepSize/2-stepSize/4), stepSize/8 /* radius */ ); break;
+    	case LEFT: dc.DrawCircle( wxPoint(stepSize*SimulatorInterface::ROBOT_X+stepSize/2-stepSize/4,stepSize*SimulatorInterface::ROBOT_Y+stepSize/2), stepSize/8 /* radius */ ); break;
+    	case DOWN: dc.DrawCircle( wxPoint(stepSize*SimulatorInterface::ROBOT_X+stepSize/2,stepSize*SimulatorInterface::ROBOT_Y+stepSize/2+stepSize/4), stepSize/8 /* radius */ ); break;
+    }
 
 	// draw action
 	std::string actionText = getActionText();
@@ -396,19 +520,19 @@ void BasicDrawPane::checkPosition(wxCoord w, wxCoord h)
 std::string BasicDrawPane::getActionText() {
 	std::string base("Next Action: ");	
 	switch(getAction()) {
-		case 0:
-			return base+"Move Right";
-		case 2:
-			return base+"Move Left";
-		case 1:
-			return base+"Move Up";
-		case 3:
-			return base+"Move Down";
+		case ROTATE_90:
+			return base+"Rotate 90 degrees";
+		case ROTATE_180:
+			return base+"Rotate 180 degrees";
+		case ROTATE_270:
+			return base+"Rotate 270 degrees";
+		case STEP_FORWARD:
+			return base+"Step Forward";
 		case 100:		// The code 100 is returned when there are no actions left
 			return "Finished";
 	}
 	
-	return "Unkown Action - "+getAction();
+	return "Unknown action";
 }
 
 /*

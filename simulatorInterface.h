@@ -5,15 +5,41 @@
 #include <wx/sizer.h>
 #include <vector>
 #include <string>
+#include "network.h"
+
+using namespace NEAT;
+
+enum Direction {
+	RIGHT = 0,
+	UP = 1,
+	LEFT = 2,
+	DOWN = 3,
+};
+
+enum Conditions {
+	NO_CONDITION = 0,
+	GOAL_VISIBLE = 1,
+};
+
+enum Actions {
+	ROTATE_90 = 0,
+	ROTATE_180 = 1,
+	ROTATE_270 = 2,
+	STEP_FORWARD = 3,
+};
 
 class SimulatorInterface {
 	public:
-		void runSimulation();		// Runs the simulation internally and gets the fitness value
-		void displaySimulation();	// Opens the simulator and shows the actual simulation
-		float getFitnessValue();	// Returns the fitness value found by either running or displaying the simulation
+		void runSimulation();				// Runs the simulation internally and gets the fitness value
+		void displaySimulation();			// Opens the simulator and shows the actual simulation
+		float getFitnessValue();			// Returns the fitness value found by either running or displaying the simulation
+		static void stepForward();			// Checks the directions that the robot is facing and steps in that direction
+		bool conditionMet(int condition);	// Returns whether the given condition is met at this point in the simulation
+		void execute(int action);			// Executes an action in the network
+		static bool goalReached();			// Returns weather the robot is in the goal state or not
 
-		std::vector<int> *actions;
-		int currentAction;
+		Network *network;					// Network that contains the actions to be simulated
+		int stepCount;						// Number of actions executed in the simulation
 		
 		static wxCoord ROBOT_X;
 		static wxCoord ROBOT_Y;
@@ -23,7 +49,9 @@ class SimulatorInterface {
 		static wxCoord INITIAL_ROBOT_X;
 		static wxCoord INITIAL_ROBOT_Y;
 
-		SimulatorInterface(std::vector<int> *actions);
+		static char DIRECTION;
+
+		SimulatorInterface(Network *net);
 };
  
 class BasicDrawPane : public wxPanel
@@ -31,7 +59,7 @@ class BasicDrawPane : public wxPanel
  
 public:
     BasicDrawPane(wxFrame* parent, std::vector<int> *actions);
- 
+    
     void paintEvent(wxPaintEvent & evt);
 	void leftClick(wxMouseEvent& event);
 	void rightClick(wxMouseEvent& event);

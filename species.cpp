@@ -600,11 +600,11 @@ bool Species::reproduce(int generation, Population *pop,std::vector<Species*> &s
 							//std::cout<<"mutate_link_weights"<<std::endl;
 							new_genome->mutate_link_weights(mut_power,1.0,GAUSSIAN);
 						}
-						if (randfloat()<NEAT::mutate_toggle_enable_condition_prob) {
+						/*if (randfloat()<NEAT::mutate_toggle_enable_condition_prob) {
 							//std::cout<<"mutate toggle enable"<<std::endl;
 							new_genome->mutate_toggle_enableCondition();
 
-						}
+						}*/
 						if (randfloat()<NEAT::mutate_node_condition_prob) {
 							//std::cout<<"mutate gene reenable"<<std::endl;
 							new_genome->mutate_node_condition();

@@ -107,7 +107,6 @@ namespace NEAT {
 		std::vector<Link*> incoming; // A list of pointers to incoming weighted signals from other nodes
 		std::vector<Link*> outgoing;  // A list of pointers to links carrying this node's signal
 		nodetype type;
-		bool hasCondition;
 		int condition;
 		/*******************************************/
 

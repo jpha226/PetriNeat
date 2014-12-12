@@ -1026,7 +1026,7 @@ void Genome::mutate_node_condition() {
         }
 }
 
-void Genome::mutate_toggle_enableCondition() {
+/*void Genome::mutate_toggle_enableCondition() {
 
 	int nodenum;
 	std::vector<NNode*>::iterator thenode;
@@ -1049,7 +1049,7 @@ void Genome::mutate_toggle_enableCondition() {
 			done = true;
 		}
 	}
-}
+}*/
 
 void Genome::mutate_link_weights(double power,double rate,mutator mut_type) {
 	std::vector<Gene*>::iterator curgene;
