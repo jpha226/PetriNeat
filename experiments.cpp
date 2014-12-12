@@ -22,7 +22,6 @@
 int displaySim = -1;
 int minNumActions = 50;
 float fitnessReached = 0;
-float fitnessPossible = 0;
 
 // Perform evolution for Petri Nets, for gens generations
 Population *petrinet_test(int gens) {
@@ -141,7 +140,6 @@ Population *petrinet_test(int gens) {
     cout<<"Average Evals: "<<(samples>0 ? (double)totalevals/samples : 0)<<endl;
     cout<<"Minimum number of actions: " << minNumActions << endl;
     cout<<"Maximum fitness reached: " << fitnessReached << endl;
-    cout<<"Maximum fitness possible: " << fitnessPossible << endl;
 
     return pop;
 
