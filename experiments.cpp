@@ -179,36 +179,31 @@ bool petrinet_evaluate(Organism *org) {
 
 	//SimulatorInterface si(&actions);	
 
+
+  float fitness = 0.0;
+
   SimulatorInterface si(network);
 	
   if(displaySim != 2) {
     std::cout << "Do you want to run or display the simulation? 0 - run, 1 - display, 2 - run all" << std::endl;
     cin >> displaySim;
     if(displaySim == 1)
-      si.displaySimulation();
+      fitness = si.displaySimulation();
     else
-      si.runSimulation();
+      fitness = si.runSimulation();
   }
   else {
-    si.runSimulation();
+    fitness = si.runSimulation();
   }
   
- 	float fitness = si.getUpdatedFitness(); //si.getFitnessValue();
   fitnessReached = fitnessReached < fitness? fitness : fitnessReached;
 	org->fitness = fitness;
 
-  // Get Maximum Fitness
-  float x_ini = (float)(SimulatorInterface::GOAL_X - SimulatorInterface::INITIAL_ROBOT_X);
-  float y_ini = (float)(SimulatorInterface::GOAL_Y - SimulatorInterface::INITIAL_ROBOT_Y);
-  // Calculate the minimum number of steps needed to reach the goal (can't make any diagonal movements)
-  float minSteps = abs(x_ini) + abs(y_ini);  
-  // Calculate the maximum fitness
-  float maxFitness = 2.0 / (1.0 + minSteps);
+  // Check if the goal was reached
+	if (si.goalReached()){
 
-  fitnessPossible = maxFitness;
+     si.showSolution();
 
-	// If the fitness has the max value, then the goal was found
-	if (si.goalReached()){ //	if(fitness == maxFitness) {
 	   minNumActions = si.actions.size() < minNumActions? si.actions.size() : minNumActions;
 	   netdrawer(network);
 	   ofstream actionsfile;

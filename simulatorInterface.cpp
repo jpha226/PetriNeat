@@ -10,22 +10,45 @@
 #include <stdio.h>
 #include <vector>
 
+// WXWIDGETS Window Related Variables
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 600;
+
+// Simulation related variables
 wxCoord stepSize = 40;
+wxCoord InitialRobotX = 9;
+wxCoord InitialRobotY = 6;
+wxCoord goalX = 2;
+wxCoord goalY = 10;
+
+// Fitness related variables
+float StartingFitness = 10.0;
+float actionReward = 0.02;
+float facingReward = 0.05;
+float distanceReward = 0.15;
 
 
 // Define the static member variables for ROBOT and GOAL POSITION
-wxCoord SimulatorInterface::ROBOT_X = 9;
-wxCoord SimulatorInterface::ROBOT_Y = 6;
-wxCoord SimulatorInterface::GOAL_X = 2;
-wxCoord SimulatorInterface::GOAL_Y = 10;
+wxCoord SimulatorInterface::ROBOT_X = InitialRobotX;
+wxCoord SimulatorInterface::ROBOT_Y = InitialRobotY;
+wxCoord SimulatorInterface::GOAL_X = goalX;
+wxCoord SimulatorInterface::GOAL_Y = goalY;
 
-wxCoord SimulatorInterface::INITIAL_ROBOT_X = 9;
-wxCoord SimulatorInterface::INITIAL_ROBOT_Y = 6;
+wxCoord SimulatorInterface::ROBOT_X_TMP = InitialRobotX;
+wxCoord SimulatorInterface::ROBOT_Y_TMP = InitialRobotY;
+wxCoord SimulatorInterface::GOAL_X_TMP = goalX;
+wxCoord SimulatorInterface::GOAL_Y_TMP = goalY;
+
+wxCoord SimulatorInterface::INITIAL_ROBOT_X = InitialRobotX;
+wxCoord SimulatorInterface::INITIAL_ROBOT_Y = InitialRobotY;
 
 // Define the static member varaibles for ROBOT Facing direction
-char SimulatorInterface::DIRECTION = RIGHT;
+Direction SimulatorInterface::DIRECTION = RIGHT;
+Direction SimulatorInterface::DIRECTION_TMP = RIGHT;
+bool SimulatorInterface::wasFacingGoal = false;
+float SimulatorInterface::prevDistance = 0.0;
+float SimulatorInterface::fitness_value = StartingFitness;
+
 
 /*
 *	Creates a simulator with a vector of actions
@@ -42,16 +65,29 @@ SimulatorInterface::SimulatorInterface(Network *net)
 {
 	network = net;
 	stepCount = 0;
-	SimulatorInterface::ROBOT_X = 9;
-	SimulatorInterface::ROBOT_Y = 6;
-	SimulatorInterface::GOAL_X = 2;
-	SimulatorInterface::GOAL_Y = 10;
+	ROBOT_X = InitialRobotX;
+	ROBOT_Y = InitialRobotY;
+	GOAL_X = goalX;
+	GOAL_Y = goalY;
 
-	SimulatorInterface::INITIAL_ROBOT_X = 9;
-	SimulatorInterface::INITIAL_ROBOT_Y = 6;
 
-	SimulatorInterface::DIRECTION = RIGHT;
-	fitness_value = 0;
+	ROBOT_X_TMP = InitialRobotX;
+	ROBOT_Y_TMP = InitialRobotY;
+	GOAL_X_TMP = goalX;
+	GOAL_Y_TMP = goalY;
+
+	INITIAL_ROBOT_X = InitialRobotX;
+	INITIAL_ROBOT_Y = InitialRobotY;
+
+	wxCoord x_ini = GOAL_X - INITIAL_ROBOT_X;
+    wxCoord y_ini = GOAL_Y - INITIAL_ROBOT_Y;
+    float distance = sqrt(x_ini*x_ini + y_ini*y_ini);
+
+	DIRECTION = RIGHT;
+	DIRECTION_TMP = RIGHT;
+	wasFacingGoal = conditionMet(GOAL_VISIBLE);
+	prevDistance = distance;
+	fitness_value = StartingFitness;
 }
 
 /*
@@ -115,13 +151,13 @@ bool SimulatorInterface::goalReached() {
 void SimulatorInterface::execute(int action) {
 	switch(action) {
 			case ROTATE_90:		// Rotate 90 degrees left
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 1) % 4;
+				SimulatorInterface::DIRECTION = (Direction)((SimulatorInterface::DIRECTION + 1) % 4);
 				break;
 			case ROTATE_180:	// Rotate 180 degrees
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 2) % 4;
+				SimulatorInterface::DIRECTION = (Direction)((SimulatorInterface::DIRECTION + 2) % 4);
 				break;
 			case ROTATE_270:	// Rotate 270 degrees left
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 3) % 4;
+				SimulatorInterface::DIRECTION = (Direction)((SimulatorInterface::DIRECTION + 3) % 4);
 				break;
 			case STEP_FORWARD:	// If the action is 4, step forward
 				stepForward();
@@ -132,7 +168,7 @@ void SimulatorInterface::execute(int action) {
 /*
 *	Runs the simulation without displaying it
 */
-void SimulatorInterface::runSimulation() {	
+float SimulatorInterface::runSimulation() {	
 
 	int maxIterations = 50;
 	bool fired = true;
@@ -152,100 +188,20 @@ void SimulatorInterface::runSimulation() {
 		}
 	}
 
-}
-
-/*
-*	updates the fitness value as the simulator runs
-*/
-void SimulatorInterface::updateFitness() {
-	
-	wxCoord x_ini = SimulatorInterface::GOAL_X - SimulatorInterface::INITIAL_ROBOT_X;
-        wxCoord y_ini = SimulatorInterface::GOAL_Y - SimulatorInterface::INITIAL_ROBOT_Y;
-
-	 // Calculate the initial distance between the robot and the goal
-        float distance_ini = sqrt(x_ini*x_ini + y_ini*y_ini); // Not used at the moment
-	float min_steps = abs(x_ini) + abs(y_ini);
-
-	float steps = stepCount;
-	// Reward for closeness to facing goal
-	float distanceX = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;     // If the distance is positive, then the goal is to the right, otherwise to the left
-        float distanceY = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y; // If the distance is positive, then the goal is below, otherwise above
-	float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
-
-	Direction goal_dir;
-	int turns_to_goal;	
-
-	if(distanceX > 0 && abs(distanceY) <= distanceX) goal_dir = RIGHT; 
-	else if(distanceY < 0 && abs(distanceX) <= -distanceY) goal_dir = UP; 
-        else if(distanceX < 0 && abs(distanceY) <= -distanceX) goal_dir = LEFT; 
-	else if(distanceY > 0 && abs(distanceX) <= distanceY) goal_dir = DOWN; 
-
-        // Check the direction the robot is facing and compare the distances to see if the goal is within the FOV
-        switch(SimulatorInterface::DIRECTION) {
-                      case RIGHT: {
-				switch(goal_dir){
-					case RIGHT: turns_to_goal = 0; break;
-					case UP: turns_to_goal = 1; break;
-					case LEFT: turns_to_goal = 2; break;
-					case DOWN: turns_to_goal = 3; break;
-				}break;
-			}
-                      case UP: {
-				 switch(goal_dir){
-                                        case RIGHT: turns_to_goal = 3; break;
-                                        case UP: turns_to_goal = 0; break;
-                                        case LEFT: turns_to_goal = 1; break;
-                                        case DOWN: turns_to_goal = 2; break;
-                                }break;
-
-			}
-                      case LEFT: {
-				 switch(goal_dir){
-                                        case RIGHT: turns_to_goal = 2; break;
-                                        case UP: turns_to_goal = 3; break;
-                                        case LEFT: turns_to_goal = 0; break;
-                                        case DOWN: turns_to_goal = 1; break;
-                                }break;
-			}
-                      case DOWN: {
-				 switch(goal_dir){
-                                        case RIGHT: turns_to_goal = 1; break;
-                                        case UP: turns_to_goal = 2; break;
-                                        case LEFT: turns_to_goal = 3; break;
-                                        case DOWN: turns_to_goal = 0; break;
-                                }break;
-			}
-        }
-
-	fitness_value += 1.0 / (1.0 + turns_to_goal);
-
-	if (turns_to_goal == 0) {
-	
-		// Robot is facing goal!!!
-		float stepModifier = 1.0;
-        	float distanceModifier = 3.0;
-
-        	steps *= stepModifier;
-        	distance *= distanceModifier;
-
-        	fitness_value += 1.0 / (1.0 + steps + distance);
-
+	if(goalReached()) {
+		SimulatorInterface::fitness_value *= 3.0;
 	}
 
-        if(distance == 0.0) {
-                // The goal was reached exactly, give an additional reward
-                fitness_value *= 10.0;
-        }
+	return SimulatorInterface::fitness_value;
+
 }
 
 /*
 *	Opens a GUI that displays the simulation
 */
-void SimulatorInterface::displaySimulation() {
+float SimulatorInterface::displaySimulation() {
 	int argc = 0;
 	char ** argv = 0;
-
-	std::vector<int> actions;
 
 	int maxIterations = 50;
 	bool fired = true;
@@ -268,6 +224,85 @@ void SimulatorInterface::displaySimulation() {
 	wxApp::SetInstance(simulator);	
 	wxEntry(argc, argv);
 	wxEntryCleanup();
+
+
+	if(goalReached()) {
+		SimulatorInterface::fitness_value *= 3.0;
+	}
+
+	return SimulatorInterface::fitness_value;
+}
+
+
+// This is meant to be used by itself and not as a part of a simulation
+void SimulatorInterface::showSolution() {
+	int argc = 0;
+	char ** argv = 0;
+
+	saveAndResetValues();
+
+	wxApp* simulator = new Simulator(&actions);
+	wxApp::SetInstance(simulator);	
+	wxEntry(argc, argv);
+	wxEntryCleanup();	
+
+	loadValues();
+}
+
+void SimulatorInterface::saveAndResetValues() {
+		ROBOT_X_TMP = ROBOT_X;
+		ROBOT_Y_TMP = ROBOT_Y;
+		GOAL_X_TMP = GOAL_X;
+		GOAL_Y_TMP = GOAL_Y;
+		DIRECTION_TMP  = DIRECTION;
+
+		ROBOT_X = InitialRobotX;
+		ROBOT_Y = InitialRobotY;
+		GOAL_X = goalX;
+		GOAL_Y = goalY;
+		DIRECTION = RIGHT;
+
+}
+
+void SimulatorInterface::loadValues() {
+		ROBOT_X = ROBOT_X_TMP;
+		ROBOT_Y = ROBOT_Y_TMP;
+		GOAL_X = GOAL_X_TMP;
+		GOAL_Y = GOAL_Y_TMP;
+		DIRECTION = DIRECTION_TMP;
+}
+
+/*
+*	updates the fitness value as the simulator runs
+*/
+void SimulatorInterface::updateFitness() {
+
+	float distanceX = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;     // If the distance is positive, then the goal is to the right, otherwise to the left
+    float distanceY = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y; // If the distance is positive, then the goal is below, otherwise above
+	float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
+	bool facingGoal = conditionMet(GOAL_VISIBLE);
+
+	// Give a negative reward for taking one more action
+	SimulatorInterface::fitness_value -= actionReward;
+
+	// Give a positive reward if the distance to the goal is shorter than the distance during the previous action
+	if(distance < prevDistance)
+		SimulatorInterface::fitness_value += distanceReward;
+	// Give a negative reward if the distance to the goal is greater than the distance during the previous action
+	else if(distance > prevDistance)
+		SimulatorInterface::fitness_value -= distanceReward;
+	// Give a small positive reward if we were not facing the goal and now we are
+	if(!wasFacingGoal && facingGoal)
+		SimulatorInterface::fitness_value += facingReward;
+	// Give a small negative reward if we were facing the goal and now we're not
+	else if(wasFacingGoal && !facingGoal)
+		SimulatorInterface::fitness_value -= facingReward;
+
+
+	// Update the distance
+	SimulatorInterface::prevDistance = distance;
+	// Update the goal facing variable
+	SimulatorInterface::wasFacingGoal = facingGoal;
 }
 
 
@@ -305,8 +340,6 @@ float SimulatorInterface::getFitnessValue() {
 
 	return fitness;
 }
- 
-float SimulatorInterface::getUpdatedFitness() { return fitness_value;}
 
  
 bool Simulator::OnInit()
@@ -367,6 +400,7 @@ wxPanel(parent), actions(list), currentAction(0)
 void BasicDrawPane::leftClick(wxMouseEvent& event)
 {
 	step();
+	SimulatorInterface::updateFitness();
 
 	// Redraw the window
 	Refresh();
@@ -381,6 +415,7 @@ void BasicDrawPane::rightClick(wxMouseEvent& event)
 {
 	while(getAction() != 100) {
 		step();
+		SimulatorInterface::updateFitness();
 	}
 
 	// Redraw the window
@@ -407,20 +442,7 @@ void BasicDrawPane::step()
 						break;
 		}*/
 
-		switch(action) {
-			case ROTATE_90:		// Rotate 90 degrees left
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 1) % 4;
-				break;
-			case ROTATE_180:	// Rotate 180 degrees
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 2) % 4;
-				break;
-			case ROTATE_270:	// Rotate 270 degrees left
-				SimulatorInterface::DIRECTION = (SimulatorInterface::DIRECTION + 3) % 4;
-				break;
-			case STEP_FORWARD:	// If the action is 4, step forward
-				SimulatorInterface::stepForward();
-				break;
-		}
+		SimulatorInterface::execute(action);
 
 		increaseActionCounter();	
 	}
