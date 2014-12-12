@@ -51,6 +51,7 @@ SimulatorInterface::SimulatorInterface(Network *net)
 	SimulatorInterface::INITIAL_ROBOT_Y = 6;
 
 	SimulatorInterface::DIRECTION = RIGHT;
+	fitness_value = 0;
 }
 
 /*
@@ -143,6 +144,8 @@ void SimulatorInterface::runSimulation() {
 			if(network->isEnabled(network->transitions[i]) && conditionMet(network->transitions[i]->condition)) {
 				network->fire(network->transitions[i]);
 				execute(network->transitions[i]->action_ID);
+				actions.push_back(network->transitions[i]->action_ID);
+				updateFitness();
 				stepCount++;
 				fired = true;			
 			}
@@ -151,6 +154,89 @@ void SimulatorInterface::runSimulation() {
 
 }
 
+/*
+*	updates the fitness value as the simulator runs
+*/
+void SimulatorInterface::updateFitness() {
+	
+	wxCoord x_ini = SimulatorInterface::GOAL_X - SimulatorInterface::INITIAL_ROBOT_X;
+        wxCoord y_ini = SimulatorInterface::GOAL_Y - SimulatorInterface::INITIAL_ROBOT_Y;
+
+	 // Calculate the initial distance between the robot and the goal
+        float distance_ini = sqrt(x_ini*x_ini + y_ini*y_ini); // Not used at the moment
+	float min_steps = abs(x_ini) + abs(y_ini);
+
+	float steps = stepCount;
+	// Reward for closeness to facing goal
+	float distanceX = SimulatorInterface::GOAL_X - SimulatorInterface::ROBOT_X;     // If the distance is positive, then the goal is to the right, otherwise to the left
+        float distanceY = SimulatorInterface::GOAL_Y - SimulatorInterface::ROBOT_Y; // If the distance is positive, then the goal is below, otherwise above
+	float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
+
+	Direction goal_dir;
+	int turns_to_goal;	
+
+	if(distanceX > 0 && abs(distanceY) <= distanceX) goal_dir = RIGHT; 
+	else if(distanceY < 0 && abs(distanceX) <= -distanceY) goal_dir = UP; 
+        else if(distanceX < 0 && abs(distanceY) <= -distanceX) goal_dir = LEFT; 
+	else if(distanceY > 0 && abs(distanceX) <= distanceY) goal_dir = DOWN; 
+
+        // Check the direction the robot is facing and compare the distances to see if the goal is within the FOV
+        switch(SimulatorInterface::DIRECTION) {
+                      case RIGHT: {
+				switch(goal_dir){
+					case RIGHT: turns_to_goal = 0; break;
+					case UP: turns_to_goal = 1; break;
+					case LEFT: turns_to_goal = 2; break;
+					case DOWN: turns_to_goal = 3; break;
+				}break;
+			}
+                      case UP: {
+				 switch(goal_dir){
+                                        case RIGHT: turns_to_goal = 3; break;
+                                        case UP: turns_to_goal = 0; break;
+                                        case LEFT: turns_to_goal = 1; break;
+                                        case DOWN: turns_to_goal = 2; break;
+                                }break;
+
+			}
+                      case LEFT: {
+				 switch(goal_dir){
+                                        case RIGHT: turns_to_goal = 2; break;
+                                        case UP: turns_to_goal = 3; break;
+                                        case LEFT: turns_to_goal = 0; break;
+                                        case DOWN: turns_to_goal = 1; break;
+                                }break;
+			}
+                      case DOWN: {
+				 switch(goal_dir){
+                                        case RIGHT: turns_to_goal = 1; break;
+                                        case UP: turns_to_goal = 2; break;
+                                        case LEFT: turns_to_goal = 3; break;
+                                        case DOWN: turns_to_goal = 0; break;
+                                }break;
+			}
+        }
+
+	fitness_value += 1.0 / (1.0 + turns_to_goal);
+
+	if (turns_to_goal == 0) {
+	
+		// Robot is facing goal!!!
+		float stepModifier = 1.0;
+        	float distanceModifier = 3.0;
+
+        	steps *= stepModifier;
+        	distance *= distanceModifier;
+
+        	fitness_value += 1.0 / (1.0 + steps + distance);
+
+	}
+
+        if(distance == 0.0) {
+                // The goal was reached exactly, give an additional reward
+                fitness_value *= 10.0;
+        }
+}
 
 /*
 *	Opens a GUI that displays the simulation
@@ -220,6 +306,8 @@ float SimulatorInterface::getFitnessValue() {
 	return fitness;
 }
  
+float SimulatorInterface::getUpdatedFitness() { return fitness_value;}
+
  
 bool Simulator::OnInit()
 {

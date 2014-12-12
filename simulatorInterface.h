@@ -40,7 +40,11 @@ class SimulatorInterface {
 
 		Network *network;					// Network that contains the actions to be simulated
 		int stepCount;						// Number of actions executed in the simulation
-		
+		float fitness_value;		
+		void updateFitness();
+		float getUpdatedFitness();		
+		std::vector<int> actions;
+
 		static wxCoord ROBOT_X;
 		static wxCoord ROBOT_Y;
 		static wxCoord GOAL_X;

@@ -159,7 +159,7 @@ bool petrinet_evaluate(Organism *org) {
 	*/
 		
 	Network *network = org->net;
-	std::vector<int> actions;
+	//std::vector<int> actions;
 	network->setCurrentTokenCount();
 	/* Some code for testing the transitions seen by the simulator
   std::cout << "----------------- Transitions -------------------" << std::endl;
@@ -193,7 +193,7 @@ bool petrinet_evaluate(Organism *org) {
     si.runSimulation();
   }
   
- 	float fitness = si.getFitnessValue();
+ 	float fitness = si.getUpdatedFitness(); //si.getFitnessValue();
   fitnessReached = fitnessReached < fitness? fitness : fitnessReached;
 	org->fitness = fitness;
 
@@ -208,13 +208,13 @@ bool petrinet_evaluate(Organism *org) {
   fitnessPossible = maxFitness;
 
 	// If the fitness has the max value, then the goal was found
-	if(fitness == maxFitness) {
-	   minNumActions = actions.size() < minNumActions? actions.size() : minNumActions;
+	if (si.goalReached()){ //	if(fitness == maxFitness) {
+	   minNumActions = si.actions.size() < minNumActions? si.actions.size() : minNumActions;
 	   netdrawer(network);
 	   ofstream actionsfile;
 	   actionsfile.open("actions", std::ofstream::out);
-	   for(int i=0; i<actions.size(); i++)
-		    actionsfile << actions[i] << " ";
+	   for(int i=0; i<si.actions.size(); i++)
+		    actionsfile << si.actions[i] << " ";
 	   actionsfile << "\n";
 	   org->gnome->print_to_file(actionsfile);
      actionsfile << "!!!!!!!!!!!! Network !!!!!!!!!!!\n";
