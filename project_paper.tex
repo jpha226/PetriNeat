@@ -11,7 +11,7 @@
 
 \newtheorem{myDef}{Definition}
 
-\author{Josiah Hanna, David Tamez, and Xiaorong Zhu}
+\author{David Tamez, Josiah Hanna and Xiaorong Zhu}
 \title{Evolving Petri Networks for High Level Robot Control}
 \begin{document}
 
@@ -147,10 +147,9 @@ Mutate{\_}Add{\_}Node can happen in two different ways. The first method randoml
 
 
 
-\section{Experiments}
+\section{Methodology and Results}
 
 \begin{figure}[h]
-
 \begin{tikzpicture}
 
 \tikzstyle{line} = [draw, -stealth, thick]
@@ -169,43 +168,134 @@ Mutate{\_}Add{\_}Node can happen in two different ways. The first method randoml
 \caption{Each individual is produced by the PetriNEAT algorithm and then evaluated in the simulator. The fitness values are then used to guide PetriNEAT in producing the next generation of the population.}
 \end{figure}
 
-We evolve Petri net solutions for a robot moving towards a goal in a grid world.
-\begin{figure}
-\includegraphics[trim = 80mm 80mm 20mm 70mm, clip, width = 2.4in, height = 1.6in]{robot_sim.png}
+
+\begin{figure} [b]
+\centering
+\includegraphics[scale = 0.4, trim = 100mm 90mm 20mm 70mm, clip = true]{robot_sim.png}
+\caption{Visualization of the simulator. A grid world with a robot represented by a green circle and a goal represented by a sky blue square.}
+\label{fig:grid}
 \end{figure}
-We define the fitness of a potential solution to be:
-$$fitness = \frac{2^{goalReached}}{1.0 + finalDistanceFromGoal + actionsTaken}$$
-
-\subsection{Experimental Set Up}
-
-\subsection{Results}
 
 
-  \begin{figure}
-\includegraphics[scale=0.3]{PetriNet_1_1}
+In this section we discuss the setup for the environment as well as the two different approaches that were taken to evaluate our hypothesis. The application we chose to evolve Petri Nets for was Robot Control; to accomplish our goal we created a simulator that consisted of a really simple grid world shown in Figure~\ref{fig:grid}. This simulator consists of a robot represented by a green circle and a goal that must be reached represented by a blue square. The actions that the robot could take, the ways in which the robot could interact with the world and the fitness function used to evaluate the actions taken were different in both approaches. In the subsections below we describe what both approaches consist of and what were the environment parameters used to run them.
 
-\end{figure}
-\vspace{-5ex}
-\begin{figure}
-\includegraphics[scale=0.3,width=2in]{PetriNet_1_2}
-
-\end{figure}
-  \begin{figure}
-\includegraphics[scale=0.3]{PetriNet_1_3}
-\vspace{-5ex}
-\end{figure}
- \begin{figure}
-\includegraphics[scale=0.3, width=2in]{PetriNet_1_4}
-
-\end{figure}
+The setup for the environment consisted of the population size, the maximum number of generations, the starting genome, the probabilities for the mutation operators, the maximum number of actions to execute in the Petri net, and the parameters in the fitness function. Since most of the parameters change depending on the approach, they will be discussed in the proper subsections. The only parameter that we didn't change in both approaches was the maximum number of actions that the robot could take while executing a Petri net, which corresponds to the number of transitions fired. We set this value to 50 because the distance between the goal and the initial robot position was a maximum of 10 on each axis for our trials. Since we're mutating the network we can't guarantee that there will be a solution, which is why we needed to set a maximum number of actions to halt the execution of the network.
 
 \begin{figure}
-\includegraphics[scale=0.3]{PetriNet_2_1}
+\[fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\]
+\caption{The fitness function used in the first approach. goalReached is a binary flag, distance is the final distance from the goal multiplied by 3, actions is the number of actions taken by the robot to reach the goal.}
+\label{eq:fitnessFunction}
 \end{figure}
 
-\includegraphics[scale=0.3]{PetriNet_2_2}
+
+\subsection{First Approach}
+\label{subsec:firstApproach}
+As it was said above, both approaches consist of the robot reaching the goal. For this approach the actions that the robot could take were: Move Right, Move Up, Move Left and Move Down. These actions are represented by transitions; whenever the transition fires the action is executed. The goal was always in a fixed position, so we evolved the network to come up with actions to reach that position as efficiently as possible. In order to determine how well was the task executed we used the fitness function shown in Figure~\ref{eq:fitnessFunction}. With this approach and conditions we were finding a solution pretty quickly, as every action taken directly affects the fitness value generated and the task is quite simple. We tested this approach with a population size of 256, a maximum of 100 generations, a starting genome shown in Figure~\ref{fig:genome} and the mutation probabilities shown in Figure~\ref{tab:probabilities}. 
+
+\begin{figure} [b]
+%\begin{table}
+\centering
+\begin{tabular}{|l c r|}
+\hline
+Mutation probabilities & & \\ \hline
+Mutate Add Node & = & 0.0\% \\
+Mutate Add Link & = & 0.0\% \\
+Mutate Node & = & 0.0\% \\
+Mutate Link & = & 0.0\% \\
+Mutate Condition & = & 0.0\% \\
+\hline
+\end{tabular}
+%\end{table}
+\caption{Mutation probabilities for the net.}
+\label{tab:probabilities}
+\end{figure}
+
+\begin{figure} [h]
+\centering
+\caption{Starting genome used for the first approach. Two places with one token and a transition between them that consumes and produces one token. The action associated with the transition is "Move Right"}
+\label{fig:genome}
+\end{figure}
+
+The results found for this approach were what we hoped for, we were able to evolve the networks correctly and generate different plans that solved the task at hand. Figures~\ref{fig:pn1_1} and ~\ref{fig:pn1_2} show us examples of Petri nets evolved to solve the task where the goal is six steps to the right of the starting position. An interesting point to notice about Figure~\ref{fig:pn1_1} is that we can see some of the mutations that arrive at different solutions with the same structure but different weights and initial markings, while in Figure~\ref{fig:pn1_2} we can see different types of architectures we get. Figure~\ref{fig:pn1_3} shows us two different Petri nets that solve a different task where the goal is down and to the left. 
+
+While this approach proves that we can evolve Petri net plans for these kind of tasks, the approach is still very constrained. First of all, the robot can only execute actions in the world and the plan only succeeded if there were no more possible transitions (actions) when the goal was reached. In the real world one of the most valuable components of a robot are their sensors, we may want to execute an action only if a certain condition is met, and of course we would like to determine if the goal has already been reached. Additionally, while the actions described here can easily be performed by most robots, this is not the usual way in which they work. In order to tackle all of these points we changed the simulator and came up with the second approach described below. 
+
+
+
+\begin{figure} [h]
+\centering
+\includegraphics[scale=0.3, trim = 0 5mm 0 30mm, clip = true]{PetriNet_1_1}
+\includegraphics[scale=0.3, trim = 0 5mm 0 35mm, clip = true]{PetriNet_1_2}
+\caption{Example Petri nets generated to solve the task where the goal is six steps to the right. We can see both have the same architecture but different markings and weights.}
+\label{fig:pn1_1}
+\end{figure}
+
+\begin{figure} [t]
+\centering
+\includegraphics[scale=0.3, trim = 0 5mm 0 20mm, clip = true]{PetriNet_1_3}
+\includegraphics[scale=0.3, trim = 0 5mm 0 10mm, clip = true]{PetriNet_1_4}
+\caption{Example Petri nets generated to solve the task where the goal is six steps to the right. Both networks have completely different architectures.}
+\label{fig:pn1_2}
+\end{figure}
+
+\begin{figure} [h]
+\centering
+\includegraphics[scale=0.3, trim = 0 5mm 0 20mm, clip = true] {PetriNet_2_1}
+\includegraphics[scale=0.3, trim = 0 10mm 0 20mm, clip = true] {PetriNet_2_2}
+\caption{Example Petri nets generated to solve the task where the goal is down and to the left.}
+\label{fig:pn1_3}
+\end{figure}
+
+\subsection{Second Approach}
+The second approach that we took aimed to solve the problems discussed at the end of section ~\ref{subsec:firstApproach}. Additionally, with this approach we wanted to solve the task where the goal is at an arbitrary position within the grid. The first important change we made was to have different actions: Rotate 90 degrees, Rotate 180 degrees, Rotate 270 degrees and Step Forward. We gave the robot a direction which he was facing and gave him actions to rotate to the left and to step forward. By doing this, we can achieve all of the possible movements that could be executed in our first approach. The advantage is that now we allowed our robot to sense the world in two different ways: we can halt whenever we identify that we're at the goal and we can see if the goal is within the field of view of the robot. In order to keep things simple we gave the robot a 90 degree FoV, which allowed us to cover one fourth of the grid depending on the direction the robot is facing. 
+
+With the first approach, the only way to solve the new kind of task in which the goal is at an arbitrary position would be to move through every single position in the grid. On the other hand, with the second approach we can think of many useful solutions, e.g. rotating and only moving forward if you're looking at the goal. In order to determine that this approach was correct we first evolved the network for the goal in a fixed position.
+
+While we started out trying the same parameters as the ones used in the first approach, we had to make some changes in order to evolve the network properly. The most important change we made was the way in which the fitness function worked; instead of calculating a fitness value at the end of the execution, we gave a reward (or punishment) every time the robot executed an action. Since we were working only with positive fitness values we gave the robot a starting fitness of 10.0. The behavior/reward rules are as follows:
+\begin{itemize}
+\item Whenever an action is taken: subtract 0.02 from the fitness value.
+\item If the distance was decreased by taking this action: add 0.15 to the fitness value.
+\item If the distance was decreased by taking this action: subtract 0.15 from the fitness value.
+\item If the robot was not facing the goal and this action caused him to face the goal: add 0.05 to the fitness value.
+\item If the robot was facing the goal and this action caused him to turn away from it: subtract 0.05 from the fitness value.
+\end{itemize}
+
+The reward/punishment values are based on the starting fitness and the fact that there's a maximum of 50 actions we're allowing the robot to execute. Additionally, we wanted the distance to have a higher impact than facing the goal and both of these things to have a higher impact than taking an additional actions. 
+
+The transitions were changed by adding a condition to them and could only fire if it was met. We currently have two types of conditions, the first one is always true, i.e. no condition, the second one corresponds to the robot facing the goal. We included the "no condition" condition in order to be able to mutate the condition related to a transition. The "goal reached" sensor was generated by halting the execution if the robot position was the same as the goal position. 
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3, trim = 0 5mm 0 0, clip = true] {PetriNet_3_1}
+\caption{Example Petri net generated to solve the task where the goal is down and to the left with the second approach.}
+\label{fig:pn2_1}
+\end{figure}
+
+For the other parameters, the starting genome used was the same as the one in the first approach, with the action being "Turn 90 degrees" instead of "Move right". We first tried using the same population size and maximum number of generations which did yield good results. However, by increasing the population size to 2048 and the maximum number of generations to 1000 we were able to find solutions which solved the task in a few less steps. It's worth noting that while this might sound like a big change the solutions were still found in a matter of a few seconds (around 8~10) compared to the 2 seconds that it took using a population size of 256 and a maximum of 100 generations. Figure~\ref{fig:pn2_1} shows a sample solution found for the same task as Figure~\ref{fig:pn1_3} using this approach. While it's evident that the network is more complex than the ones found for the first approach, we also know that we're able to accomplish more with this kind of representation.
+
+We're currently working on a way to generalize the solution for the goal at an arbitrary position. Our insight is that we can generate multiple simulations with the goal at different positions and then get an average fitness value that can be used for the organism. However, we haven't finished implementing this and therefore we can't confirm that we can evolve a Petri net that reaches a goal at an arbitrary position. While we weren't able to confirm our hypothesis for these types of tasks, this approach still brings the benefits of evolving by changing our fitness when an action is taken and adding conditions to the transitions in the network. 
+
+
+
 
 \section{Discussion and Future Work}
+The major contribution of this paper is that we show that it's possible to evolve Petri nets for a specific task, which to the best of our knowledge hasn't been attempted by anyone so far. While we were not able to do this for a more complex task such as the goal being in an arbitrary position in the grid, we give some intuition as to why should this work. Additionally, we show a way in which Petri nets can be used for high level robot control (i.e. using transitions as actions to execute) as well as a way to incorporate sensors into the network. 
+
+It's important to notice that while the tasks we show here are pretty simple they can potentially be used as building blocks for more complex tasks. As an example, we could have a more complex task which consists of approaching a ball and the kicking it, where the task shown in this paper could be used to approach the ball. This could also be beneficial since we could use the building blocks as actions for more complex tasks and then apply our mutation operators on this actions to evolve for our complex task. 
+
+We believe that the results found here could have a great impact on the way that robotic plans are made; we would only need a fitness function for the behavior we want to see instead of a detailed plan that we want the robot to perform.  This could also potentially help the robot be more autonomous by coming up with solutions for new problems and adapting to new situations. However, there's still much work to be done in this area to see how viable this evolution mechanisms can be. We list some of the future work avenues that we consider essential below:
+
+\begin{itemize}
+\item Finish the second approach by evaluating the network for an arbitrary goal position.
+\item Add more actions, sensors and obstacles to the world.
+\item Explore different kind of tasks with different reward functions that don't necessarily depend on a distance metric.
+\item Add cross over operations to the evolutionary algorithm.
+\item Explore different mutation operators.
+\item Add methods to combine Petri nets into hierarchies, i.e. ways to use the building blocks described above.
+\item Use the reachability graph to simplify a network for which a solution has been found.
+\end{itemize}
+
+\section{Conclusion}
 
 Conclusion: It is possible to evolve Petri nets
 \begin{itemize}
@@ -213,18 +303,6 @@ Conclusion: It is possible to evolve Petri nets
 \item Networks evolved through mutation can solve a given task.
 \item Simple building blocks can create compound actions.
 \end{itemize}
-
-The next steps in exploring Petri net evolution are:
-\begin{enumerate}
-\item Add cross over operations to the evolutionary algorithm.
-\item Explore different mutation operators.
-\item Generate more complex types of Petri networks.
-\item Increase the complexity of our target task.
-\item Add methods to combine Petri nets into hierarchies.
-\item Use reachability graph to simplify network.
-\end{enumerate}
-
-\section{Conclusion}
 
 \bibliographystyle{plain}
 \bibliography{project}
