@@ -62,7 +62,7 @@ Petri Nets, a graphical modeling tool for dynamic systems, can be used to descri
 
 Behavior representation frameworks based on Petri nets [cite : Ziparo, V. A., Iocchi, L., Lima, P. U., Nardi, D., Palamara, P. F. (2011). Petri net plans. Autonomous Agents and Multi-Agent Systems, 23(3), 344-383.] had been proposed and used for high level description of single robot and multi-robot behaviors. Petri Net Plans (PNPs) [cite : Ziparo, V. A., Iocchi, L., Lima, P. U., Nardi, D., Palamara, P. F. (2011). Petri net plans. Autonomous Agents and Multi-Agent Systems, 23(3), 344-383.] is defined as a formal language for the representation of generic behaviors, which allows complex plans to be designed intuitively. It allows automated plan verification and the implementation of a development environment, and can be used for modeling coordination and collaboration for multi agents. Thus, these features let PNPs become an effective tool for the representation of multi-robot plans, which supports the design of cooperation. It can describe highly expressive plans for dynamic environments that are partially observable and unpredictable. The basic structures of a PNP are ordinary and sensing actions that does not occur instantly. These basic structures are then combined to describe action sequences, interruption, conditional actions, parallel actions and loops. A sub-plan is also used to represent a primitive behavior in order to achieve higher modularity in a PNP. 
 
-
+Inspired by PNPs, we propose the idea of using the evloved Petri Nets for primitive tasks as basic network-block, to gradually build a more complex network by combining these basic network-block into a larger one. 
 
 \section{Evolution of Petri Networks}
 
@@ -312,12 +312,7 @@ We believe that the results found here could have a great impact on the way that
 
 \section{Conclusion}
 
-Conclusion: It is possible to evolve Petri nets
-\begin{itemize}
-\item Petri net weights, markings, and structure can adapt to improve network fitness.
-\item Networks evolved through mutation can solve a given task.
-\item Simple building blocks can create compound actions.
-\end{itemize}
+In this article, we had shown that by properly define the operations to allow evolving and generating new network generations, it is possible to evolve Petri Nets. With the experiment, we showed that in Petri Net, weights of nodes, markings of nodes, and structure of the network can adapt to improve network fitness. We conclude that networks evolved through properly defined mutation operations can solve certain given task. It can also be concluded that by creating simple building blocks, compound actions can be built using the primitive building blocks. 
 
 \bibliographystyle{plain}
 \bibliography{project}
