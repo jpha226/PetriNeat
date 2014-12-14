@@ -202,15 +202,22 @@ This simulator consists of a robot represented by a green circle and a goal that
 
 The setup for the environment consisted of the population size, the maximum number of generations, the starting genome, the probabilities for the mutation operators, the maximum number of actions to execute in the Petri net, and the parameters in the fitness function. Since most of the parameters change depending on the approach, they will be discussed in the proper subsections. The only parameter that was held constant in both approaches was the maximum number of actions that the robot could take while executing a Petri net, which corresponds to the number of transitions fired. We set this value to 50 because the distance between the goal and the initial robot position was a maximum of 10 on each axis for our trials. Since mutations occur randomly we cannot guarantee that there will be a solution, which is why we need to set a maximum number of actions to halt the execution of the network.
 
-\begin{figure}
-\[fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\]
-\caption{The fitness function used in the first approach. goalReached is a binary flag, distance is the final distance from the goal multiplied by 3, actions is the number of actions taken by the robot to reach the goal.}
-\label{eq:fitnessFunction}
-\end{figure}
+%\begin{figure}
+%\[fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\]
+%\caption{The fitness function used in the first approach. goalReached is a binary flag, distance is the final distance from the goal multiplied by 3, actions is the number of actions taken by the robot to reach the goal.}
+%\label{eq:fitnessFunction}
+%\end{figure}
 
 \subsection{First Approach}
 \label{subsec:firstApproach}
-As stated above, both approaches consist of the robot reaching the goal. For this approach the actions that the robot could take were: Move Right, Move Up, Move Left and Move Down. These actions are represented by transitions; whenever the transition fires the action is executed. The goal was always in a fixed position, so we evolved the network to come up with actions to reach that position as efficiently as possible. In order to determine how well was the task executed we used the fitness function shown in Figure~\ref{eq:fitnessFunction}. With this approach and conditions we were finding a solution pretty quickly, as every action taken directly affects the fitness value generated and the task is quite simple. We tested this approach with a population size of 256, a maximum of 100 generations, a starting genome shown in Figure~\ref{fig:genome} and the mutation probabilities shown in Figure~\ref{tab:probabilities}. 
+As stated above, both approaches consist of the robot reaching the goal. For this approach the actions that the robot could take were: Move Right, Move Up, Move Left and Move Down. These actions are represented by transitions; whenever the transition fires the action is executed. The goal was always in a fixed position, so we evolved the network to come up with actions to reach that position as efficiently as possible. In order to determine how well was the task executed we used the fitness function:
+
+\begin{equation}
+fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\label{eq:fitnessFunction}
+\end{equation}
+ where goalReached is a binary flag, distance is the final distance from the goal multiplied by 3, actions is the number of actions taken by the robot to reach the goal.
+% shown in Figure~\ref{eq:fitnessFunction}. 
+ With this approach and conditions we were able to find a solution pretty quickly, as every action taken directly affects the fitness value generated and the task is quite simple. We tested this approach with a population size of 256, a maximum of 100 generations, a starting genome shown in Figure~\ref{fig:genome} and the mutation probabilities shown in Figure~\ref{tab:probabilities}. 
 
 \begin{figure} [b]
 %\begin{table}
