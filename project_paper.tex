@@ -20,7 +20,7 @@
 
 \begin{abstract}
 
-Petri networks are mathematical models for representing dynamic systems. They have been applied to model high level robot control. In previous work, this has involved hand coding the Petri networks using the designers knowledge of the target domain. While Petri nets provide a good tool for control and analysis of the robotics task, the hand coding is limitation for using large networks. In this paper we show how to use an evolutionary algorithm to automatically generate a correct Petri network for a specific task.
+Petri networks are mathematical models for representing dynamic systems. They have been applied to model high level robot control. In previous work, this has involved hand coding the Petri networks using the designers' knowledge of the target domain. While Petri nets provide a good tool for control and analysis of the robotics task, the hand coding is limitation for using large networks. In this paper we show how to use an evolutionary algorithm to automatically generate a correct Petri network for a specific task.
 
 \end{abstract}
 
@@ -45,7 +45,7 @@ A Petri Net is defined as a tuple $(P,T,F,M,W)$ where $P$ is a set of place node
 \includegraphics[scale=0.25]{petri_net.png}
 \caption[]{An example of a Petri network \label{exampleNet}}
 \end{figure}
-Petri nets have many applications including data analysis, simulation of systems, and showing correctness of a system. The techniques we present are for the application of high level robot control. In addition to their many applications, an important advantage of Petri nets is there are many techniques for analyzing them \cite{barrett2010architecture}. The disadvantage of Petri nets for this application is that they must be hand coded using designer knowledge of the domain. For complex tasks this is not scalable.
+Petri nets have many applications including data analysis, simulation of systems, and showing correctness of a system. The techniques we present are for the application of high level robot control. In addition to their many applications, an important advantage of Petri nets is that there are many techniques for analyzing them \cite{barrett2010architecture}. The disadvantage of Petri nets for this application is that they must be hand coded using designer knowledge of the domain. For complex tasks this is not scalable.
 
 \subsection{The NEAT Algorithm}
 
@@ -56,7 +56,7 @@ FSA-based approaches, BDI approaches and PN-based approaches are three broadly u
 
 \subsection{Finite State Automata}
 
-Finite State Automata are widely and explicitly used in many robot programming languages, that support robot-control modeling. FSA-based approaches allow intuitive design of single-robot behavior model, while lacking the ability to model concurrent behaviors such as cooperation and competition between multiple agents. FSA-based approaches require manual design to come up with plans for modeling. Nevertheless, some methods have been developed that automately generate FSA-based plans \cite{kress2009temporal}.  
+Finite State Automata (FSA) is widely and explicitly used in many robot programming languages, that support robot-control modeling. FSA-based approaches allow intuitive design of single-robot behavior model, while lacking the ability to model concurrent behaviors such as cooperation and competition between multiple agents. FSA-based approaches require manual design to come up with plans for modeling. Nevertheless, some methods have been developed that automately generate FSA-based plans \cite{kress2009temporal}.  
 
 \subsection{Belief, Desire, Intention}
 
