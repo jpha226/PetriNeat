@@ -30,7 +30,7 @@ Controlling robots depends on specifying actions on different levels of control.
 
 A Petri net is a mathematical model representing a dynamic system. While decision trees and neural nets can be learned, previous work using Petri nets requires the nets to be hand designed for the task \cite{ziparo2011petri}. In this paper we demonstrate a method for automatically generating Petri nets using an evolutionary algorithm based on the Neuroevolution for Augmenting Topologies algorithm for evolving neural networks.
 
-The layout of this paper is as follows. In section 2 we give background information on Petri networks and neuroevolution. Section 3 describes previous work on Petri nets for high level robot control, section 4 describes a new algorithm that generates Petri nets using the NEAT algorithm as inspiration, section 5 describes our experiments and results. The final two sections discuss our results, conclude our work, and give directions for future research.
+The layout of this paper is as follows. In section 2 we give background information on Petri networks and neuroevolution. Section 3 describes previous work on Petri nets for high level robot control. Section 4 describes a new algorithm that generates Petri nets using the NEAT algorithm as inspiration. Section 5 describes our experiments and results. The final two sections discuss our results, conclude our work, and give directions for future research.
 
 
 \section{Background}
@@ -72,7 +72,7 @@ Inspired by PNPs, we propose that evolved Petri Nets could be used as basic netw
 
 \section{Evolution of Petri Networks}
 
-We propose that the Neuroevolution of Augmenting Topologies (NEAT) could be used to evolve Petri Nets. Like neural networks, Petri nets are a combination of nodes and connections (arcs) with weights on the connections. We only must modify the genome specification and the mutation operators to adapt NEAT to evolve Petri nets. With these changes NEAT becomes the PetriNEAT algorithm. The following subsections describe these changes in more detail.
+We propose that the Neuroevolution of Augmenting Topologies (NEAT) could be used to evolve Petri Nets. Like neural networks, Petri nets are a combination of nodes and connections (arcs) with weights on the connections. We only must modify the genome specification and the mutation operators to adapt NEAT to evolve Petri nets. With these changes NEAT becomes the PetriNEAT algorithm. The following subsections describe these changes in more detail. Additionally, Figure~\ref{fig:petrinetflow} describes the basic flow used in our work.
 
 \subsection{Petri Net Genes}
 
@@ -107,7 +107,7 @@ Weight \\
 
 
 \subsection{Petri Net Mutation Operators}
-
+\label{subsec:mutationOperators}
 PetriNEAT uses very similar mutation operators to the original NEAT algorithm. The only change is that each mutation must result in a valid network. Our operators are:
 \begin{itemize}
 \item \emph{Mutate{\_}Add{\_}Node:} Increases the number of transitions or places in the network
@@ -118,7 +118,7 @@ PetriNEAT uses very similar mutation operators to the original NEAT algorithm. T
 
 Mutations are applied when reproducing the top individuals of each species. The Mutate Add Link operator adds an arc between a random place and transition node when an offspring is created. This mutation occurs with probability 0.1. Mutating initial token counts and arc weights is done by either incrementing or decrementing with equal probabilities. These mutations occur with probability 0.1. For transition nodes, a mutation can flip bits in the action I.D. with probability 0.5. 
 
-Mutate{\_}Add{\_}Node can happen in two different ways. The first method randomly chooses two nodes of the same type and adds a node of the opposite type between them. Then an arc is added from the first node to the new node and from the new node to the second node. The node and arc genes are initialized with random values for tokens, actions I.D.s, weights, etc. The second method chooses a random place node and creates a new transition and place node. Then arcs from the original place to the new transition and from the new transition to the new place are added. This serves to grow the size of the network more effectively.
+Mutate{\_}Add{\_}Node can happen in two different ways. The first method randomly chooses two nodes of the same type and adds a node of the opposite type between them. Then an arc is added from the first node to the new node and from the new node to the second node. The node and arc genes are initialized with random values for tokens, actions I.D.s, weights, etc. The second method chooses a random place node and creates a new transition and place node. Then arcs from the original place to the new transition and from the new transition to the new place are added. This serves to grow the size of the network more effectively. The basic approaches described here can be seen in Figures 3 and 4.
 
   \begin{figure}
     \begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
@@ -169,6 +169,7 @@ Mutate{\_}Add{\_}Node can happen in two different ways. The first method randoml
 \section{Methodology and Results}
 
 \begin{figure}[b]
+\label{fig:petrinetflow}
 \begin{tikzpicture}
 
 \tikzstyle{line} = [draw, -stealth, thick]
@@ -217,7 +218,7 @@ fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\label{eq:fitnessFunct
 \end{equation}
  where goalReached is a binary flag, distance is the final distance from the goal multiplied by 3, actions is the number of actions taken by the robot to reach the goal.
 % shown in Figure~\ref{eq:fitnessFunction}. 
- With this approach and conditions we were able to find a solution pretty quickly, as every action taken directly affects the fitness value generated and the task is quite simple. We tested this approach with a population size of 256, a maximum of 100 generations, a starting genome shown in Figure~\ref{fig:genome} and the mutation probabilities shown in Figure~\ref{tab:probabilities}. 
+ With this approach and conditions we were able to find a solution pretty quickly, as every action taken directly affects the fitness value generated and the task is quite simple. We tested this approach with a population size of 256, a maximum of 100 generations, a starting genome shown in Figure~\ref{fig:genome} and the mutation probabilities discussed in~\ref{subsec:mutationOperators}, summarized in Figure~\ref{tab:probabilities}. 
 
 \begin{figure} [b]
 %\begin{table}
@@ -225,11 +226,11 @@ fitness = \frac{2^{goalReached}}{1.0 + distance + actions}\label{eq:fitnessFunct
 \begin{tabular}{|l c r|}
 \hline
 Mutation probabilities & & \\ \hline
-Mutate Add Node & = & 0.0\% \\
-Mutate Add Link & = & 0.0\% \\
-Mutate Node & = & 0.0\% \\
-Mutate Link & = & 0.0\% \\
-Mutate Condition & = & 0.0\% \\
+Mutate Add Node & = & 0.0025 \\
+Mutate Add Link & = & 0.1 \\
+Mutate Node & = & 0.1, 0.5 \\
+Mutate Link & = & 0.1 \\
+Mutate Condition & = & 0.0025 \\
 \hline
 \end{tabular}
 %\end{table}
@@ -256,7 +257,7 @@ While this approach proves that we can evolve Petri net plans for these kind of 
 \label{fig:pn1_1}
 \end{figure}
 
-\begin{figure} [t]
+\begin{figure} [h]
 \centering
 \includegraphics[scale=0.3, trim = 0 5mm 0 20mm, clip = true]{PetriNet_1_3}
 \includegraphics[scale=0.3, trim = 0 5mm 0 10mm, clip = true]{PetriNet_1_4}
@@ -288,7 +289,7 @@ While we started out trying the same parameters as the ones used in the first ap
 
 The reward/punishment values are based on the starting fitness and the fact that there's a maximum of 50 actions we're allowing the robot to execute. Additionally, we wanted the distance to have a higher impact than facing the goal and both of these things to have a higher impact than taking an additional actions. 
 
-The transitions were changed by adding a condition to them and could only fire if it was met. We currently have two types of conditions, the first one is always true, i.e. no condition, the second one corresponds to the robot facing the goal. We included the ``no condition" condition in order to be able to mutate the condition related to a transition. The ``goal reached" sensor was generated by halting the execution if the robot position was the same as the goal position. 
+The transitions were changed by adding a condition to them and could only fire if it was met. We currently have two types of conditions, the first one is always true, i.e. no condition, the second one corresponds to the robot facing the goal. We added a new mutation operator for this approach which mutated the type of condition related to a transition. It's important to notice that the initial condition was selected randomly. The ``goal reached" sensor was generated by halting the execution if the robot position was the same as the goal position. 
 
 \begin{figure}
 \centering
@@ -320,7 +321,7 @@ We believe that the results found here could have a great impact on the way that
 
 \section{Conclusion}
 
-In this paper, we have shown that it is possible to evolve Petri nets. With the experiments, we showed that for Petri nets, weights of nodes, markings of nodes, and structure of the network can adapt to improve network fitness. By setting an appropriate fitness function, it is possible for the networks to be evolved through properly defined mutation operations and to solve certain given task. It has also been shown that using mutations that create simple structures, higher level actions can be represented using the simple structures as building blocks. Moving forward we hope to further generalize our method to make it applicable for a wider range of robotics and Petri net problems.
+In this paper, we have shown that it is possible to evolve Petri nets. With the experiments, we showed that for Petri nets, weights of nodes, markings of nodes, and structure of the network can adapt to improve network fitness. By setting an appropriate fitness function, it is possible for the networks to be evolved through properly defined mutation operations and to solve a given task. It has also been shown that using mutations that create simple structures; higher level actions could then be represented using these simple structures as building blocks. Moving forward, we hope to further generalize our method to make it applicable for a wider range of robotics and Petri net problems.
 
 \bibliographystyle{plain}
 \bibliography{project}
